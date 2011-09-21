@@ -5,7 +5,7 @@ Fieldtype for Expression Engine 2
 
 **VMG Chosen Member** is a fieldtype allowing the AJAX selection of one or more members inside an entry. It's specifically designed for use on sites with a large amount of members, in cases where a regular `<select>` dropdown with thousands of `<option>`s would decrease publish page performance.
 
-It includes autocomplete capabilities and the friendly selection/listing of large numbers of users using a modified version of the Chosen (http://harvesthq.github.com/chosen/) JavaScript plugin.
+It includes autocomplete capabilities and the friendly selection/listing of large numbers of users using a modified version of the [Chosen](http://harvesthq.github.com/chosen/) JavaScript plugin.
 
 **VMG Chosen Member** can be used alone, within Matrix, or within Low Variables.
 
@@ -49,7 +49,7 @@ Usage
 
 ### Support within other fieldtypes
 
-VMG Chosen Member can be used within Matrix (http://pixelandtonic.com/matrix/) and Low Variables (http://gotolow.com/addons/low-variables/).
+VMG Chosen Member can be used within [Matrix](http://pixelandtonic.com/matrix/) and [Low Variables](http://gotolow.com/addons/low-variables/).
 
 Compatibility
 ---------
@@ -60,4 +60,4 @@ Warranty/License
 --------
 There's no warranty of any kind. If you find a bug, please tell report it or submit a pull request with a fix. It's provided completely as-is; if something breaks, you lose data, or something else bad happens, the author(s) and owner(s) of this plugin are in no way responsible.
 
-This plugin is owned by Vector Media Group, Inc. You can modify it and use it for your own personal or commercial projects, but you can't redistribute it.
+This plugin is owned by [Vector Media Group, Inc](http://www.vectormediagroup.com). You can modify it and use it for your own personal or commercial projects, but you can't redistribute it.
