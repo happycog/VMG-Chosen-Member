@@ -29,10 +29,20 @@ class Vmg_chosen_member {
 		$result = array();
 		
 		$field_id = $this->EE->input->get('field_id');
-		$is_low_var = ($this->EE->input->get('lv') == 'true' ? true : false);
+		$is_matrix = ($this->EE->input->get('type') == 'matrix' ? true : false);
+		$is_low_var = ($this->EE->input->get('type') == 'lowvar' ? true : false);
 		$query = $db->escape_like_str(strtolower($this->EE->input->post('query')));
 
-		if ($is_low_var)
+		if ($is_matrix)
+		{
+			// Check/Get field/col settings
+			$db->select('mc.col_settings AS setting_data', false);
+			$db->from('exp_matrix_cols AS mc');
+			$db->where('mc.field_id', $field_id);
+			$db->where('mc.col_type', 'vmg_chosen_member');
+			$settings = $db->get()->row_array();
+		}
+		elseif ($is_low_var)
 		{
 			// Check/Get var settings
 			$db->select('lv.variable_type, lv.variable_settings AS setting_data');
@@ -44,11 +54,10 @@ class Vmg_chosen_member {
 		else
 		{
 			// Check/Get field/col settings
-			$db->select('IF(mc.col_settings IS NOT NULL, mc.col_settings, cf.field_settings) AS setting_data', false);
+			$db->select('cf.field_settings AS setting_data', false);
 			$db->from('exp_channel_fields AS cf');
-			$db->join('exp_matrix_cols AS mc', 'mc.field_id = cf.field_id', 'left');
 			$db->where('cf.field_id', $field_id);
-			$db->where("(cf.field_type = 'vmg_chosen_member' OR mc.col_type = 'vmg_chosen_member')");
+			$db->where('cf.field_type', 'vmg_chosen_member');
 			$settings = $db->get()->row_array();
 		}
 		

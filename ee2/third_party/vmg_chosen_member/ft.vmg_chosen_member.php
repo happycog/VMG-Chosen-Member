@@ -63,20 +63,23 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 		
 		// Build data for view
 		$vars = array(
-			'member_data' => $member_data,
-			'json_url' => $this->EE->functions->create_url('?ACT=' . (empty($action) ? '' : $action['action_id'])),
-		);
-		
-		// Merge settings in the vars array
-		$vars += array(
 			'field_id' => (isset($this->var_id) ? $this->var_id : $this->field_id),
 			'field_name' => (isset($this->row_id) ? $this->cell_name : $this->field_name),
 			'row_id' => (isset($this->row_id) ? $this->row_id : 0),
 			'col_id' => (isset($this->col_id) ? $this->col_id : 0),
 			'max_selections' => $this->settings['max_selections'],
 			'placeholder_text' => $this->settings['placeholder_text'],
+			'is_matrix' => (isset($this->row_id) ? true : false),
 			'is_low_var' => (isset($this->var_id) ? true : false),
 		);
+
+		$vars += array(
+			'member_data' => $member_data,
+			'json_url' => $this->EE->functions->fetch_site_index(1, 0) . '?ACT=' . (empty($action) ? '' : $action['action_id']),
+		);
+
+		if ($vars['is_matrix']) $vars['json_url'] .= '&type=matrix';
+		elseif ($vars['is_low_var']) $vars['json_url'] .= '&type=lowvar';
 		
 		if (!isset($this->EE->session->cache['vmg_chosen_member']['assets_included']))
 		{

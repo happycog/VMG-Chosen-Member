@@ -5,7 +5,6 @@
 		<?php endforeach; ?>
 	</select>
 	<input type="hidden" id="vmg_chosen_member_<?=$field_id . '_' . $row_id . '_' . $col_id . '_field_id'?>" value="<?=$field_id?>"/>
-	<input type="hidden" id="vmg_chosen_member_<?=$field_id . '_' . $row_id . '_' . $col_id . '_low_var'?>" value="<?=($is_low_var ? 'true' : 'false')?>"/>
 	<input type="hidden" id="vmg_chosen_member_<?=$field_id . '_' . $row_id . '_' . $col_id . '_max_selections'?>" value="<?=$max_selections?>"/>
 	<input type="hidden" id="vmg_chosen_member_<?=$field_id . '_' . $row_id . '_' . $col_id . '_placeholder_text'?>" value="<?=$placeholder_text?>"/>
 	<input type="hidden" class="vmg_chosen_member_json_url" value="<?=$json_url?>"/>
