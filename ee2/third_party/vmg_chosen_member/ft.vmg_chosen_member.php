@@ -80,10 +80,10 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 		
 		if (!isset($this->EE->session->cache['vmg_chosen_member']['assets_included']))
 		{
-			$this->EE->cp->add_to_head('<link rel="stylesheet" type="text/css" href="' . $this->EE->functions->create_url('themes/third_party/vmg_chosen_member/chosen/chosen.css') . '" />');
-			$this->EE->cp->add_to_head('<link rel="stylesheet" type="text/css" href="' . $this->EE->functions->create_url('themes/third_party/vmg_chosen_member/vmg_chosen_member.css') . '" />');
-			$this->EE->cp->add_to_foot('<script type="text/javascript" src="' . $this->EE->functions->create_url('themes/third_party/vmg_chosen_member/chosen/chosen.jquery.js') . '"></script>');
-			$this->EE->cp->add_to_foot('<script type="text/javascript" src="' . $this->EE->functions->create_url('themes/third_party/vmg_chosen_member/vmg_chosen_member.js') . '"></script>');
+			$this->EE->cp->add_to_head('<link rel="stylesheet" type="text/css" href="' . $this->EE->config->item('theme_folder_url') . 'third_party/vmg_chosen_member/chosen/chosen.css' . '" />');
+			$this->EE->cp->add_to_head('<link rel="stylesheet" type="text/css" href="' . $this->EE->config->item('theme_folder_url') . 'third_party/vmg_chosen_member/vmg_chosen_member.css' . '" />');
+			$this->EE->cp->add_to_foot('<script type="text/javascript" src="' . $this->EE->config->item('theme_folder_url') . 'third_party/vmg_chosen_member/chosen/chosen.jquery.js' . '"></script>');
+			$this->EE->cp->add_to_foot('<script type="text/javascript" src="' . $this->EE->config->item('theme_folder_url') . 'third_party/vmg_chosen_member/vmg_chosen_member.js' . '"></script>');
 
 			$this->EE->session->cache['vmg_chosen_member']['assets_included'] = true;
 		}
