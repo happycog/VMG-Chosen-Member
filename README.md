@@ -29,18 +29,12 @@ Variable Tag Pair
 > Outputs member data for the selected members and provides access to all data tags.
 
 > ### Parameters
-*	**disable** = "member_data"
->> Setting *disable* to *member_data* will skip loading custom member fields.
-*	**prefix** = "my_"
->> By providing a prefix, all data tags will be parsed prepended with the string of your choosing. This can be helpful for avoiding naming collisions.
-*	**group_id** = "1|2|3"
->> While you can limit selections to specific member groups in the field's settings, this parameter allows you to further limit results on output.
-*	**orderby** = "email"
->> The *orderby* parameter sets the display order of the output.
-*	**sort** = "asc"
->> The *sort* order will be applied if you specify an *orderby* parameter.
-*	**limit** = "1"
->> The *limit* parameter will set the number of results that will be returned.
+*	**disable** = "member_data"<br />Setting *disable* to *member_data* will skip loading custom member fields.
+*	**prefix** = "my_"<br />By providing a prefix, all data tags will be parsed prepended with the string of your choosing. This can be helpful for avoiding naming collisions.
+*	**group_id** = "1|2|3"<br />While you can limit selections to specific member groups in the field's settings, this parameter allows you to further limit results on output.
+*	**orderby** = "email"<br />The *orderby* parameter sets the display order of the output.
+*	**sort** = "asc"<br />The *sort* order will be applied if you specify an *orderby* parameter.
+*	**limit** = "1"<br />The *limit* parameter will set the number of results that will be returned.
 
 
 :total_members Tag
@@ -55,3 +49,5 @@ VMG Chosen Member can be used within Matrix (http://pixelandtonic.com/matrix/) a
 Warranty/License
 --------
 There's no warranty of any kind. If you find a bug, please tell report it or submit a pull request with a fix. It's provided completely as-is; if something breaks, you lose data, or something else bad happens, the author(s) and owner(s) of this plugin are in no way responsible.
+
+This plugin is owned by Vector Media Group, Inc. You can modify it and use it for your own personal or commercial projects, but you can't redistribute it.
