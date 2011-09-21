@@ -3,8 +3,11 @@ VMG Chosen Member
 Fieldtype for Expression Engine 2
 --------
 
-**VMG Chosen Member** is a fieldtype allowing the selection of one or more members. It includes autocomplete capabilities and the friendly selection/listing of large numbers of users using the Chosen (http://harvesthq.github.com/chosen/) JavaScript plugin.
+**VMG Chosen Member** is a fieldtype allowing the AJAX selection of one or more members inside an entry. It's specifically designed for use on sites with a large amount of members, in cases where a regular `<select>` dropdown with thousands of `<option>`s would decrease publish page performance.
 
+It includes autocomplete capabilities and the friendly selection/listing of large numbers of users using a modified version of the Chosen (http://harvesthq.github.com/chosen/) JavaScript plugin.
+
+**VMG Chosen Member** can be used alone, within Matrix, or within Low Variables.
 
 Installation
 -------
@@ -13,14 +16,16 @@ Installation
 *	Install the fieldtype by going to Add-Ons &rarr; Fieldtypes
 *	Ensure that both the Fieldtype and Module are installed
 
-
-Single Variable Tag
+Usage
 -------
+
+### Single Variable Tag
+
 	{custom_field}
 > Outputs the pipe (|) delimited list of member IDs.
 
-Variable Tag Pair
--------
+### Variable Tag Pair
+
 	{custom_field}
 		<h2>{screen_name}</h2>
 		<p>Email: {email}</p>
@@ -28,7 +33,7 @@ Variable Tag Pair
 	{/custom_field}
 > Outputs member data for the selected members and provides access to all data tags.
 
-> ### Parameters
+> #### Parameters
 *	**disable** = "member_data"<br />Setting *disable* to *member_data* will skip loading custom member fields.
 *	**prefix** = "my_"<br />By providing a prefix, all data tags will be parsed prepended with the string of your choosing. This can be helpful for avoiding naming collisions.
 *	**group_id** = "1|2|3"<br />While you can limit selections to specific member groups in the field's settings, this parameter allows you to further limit results on output.
@@ -37,14 +42,19 @@ Variable Tag Pair
 *	**limit** = "1"<br />The *limit* parameter will set the number of results that will be returned.
 
 
-:total_members Tag
--------
+### :total_members Tag
+
 	{custom_member_field:total_members}
 > Outputs the total number of members selected within the field.
 
-Support within other fieldtypes
---------
+### Support within other fieldtypes
+
 VMG Chosen Member can be used within Matrix (http://pixelandtonic.com/matrix/) and Low Variables (http://gotolow.com/addons/low-variables/).
+
+Compatibility
+---------
+
+VMG Chosen Member has been tested to work on ExpressionEngine 2.1.3+ with PHP 5.2+. 
 
 Warranty/License
 --------
