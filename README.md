@@ -27,15 +27,15 @@ Usage
 ### Variable Tag Pair
 
 	{custom_field}
-		<h2>{screen_name}</h2>
-		<p>Email: {email}</p>
-		<p>Some custom member field: {some_custom_member_field}</p>
+		<h2>{cm_screen_name}</h2>
+		<p>Email: {cm_email}</p>
+		<p>Some custom member field: {cm_some_custom_member_field}</p>
 	{/custom_field}
-> Outputs member data for the selected members and provides access to all data tags.
+> Outputs member data for the selected members and provides access to all data tags.<br />**Note:** A prefix of "cm_" is added by default, but can be manually changed or set to empty if desired.
 
 > #### Parameters
 *	**disable** = "member_data"<br />Setting *disable* to *member_data* will skip loading custom member fields.
-*	**prefix** = "my_"<br />By providing a prefix, all data tags will be parsed prepended with the string of your choosing. This can be helpful for avoiding naming collisions.
+*	**prefix** = "cm_"<br />**Set to "cm_" by default**<br />By providing a prefix, all data tags will be parsed prepended with the string of your choosing. This can be helpful for avoiding naming collisions.
 *	**group_id** = "1|2|3"<br />While you can limit selections to specific member groups in the field's settings, this parameter allows you to further limit results on output.
 *	**orderby** = "email"<br />The *orderby* parameter sets the display order of the output.
 *	**sort** = "asc"<br />The *sort* order will be applied if you specify an *orderby* parameter.

@@ -22,6 +22,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 	
 	public $has_array_data = TRUE;
 	public $settings = array();
+	private $disallowed_fields = array('password', 'unique_id', 'crypt_key');
 	
 	/* --------------------------------------------------------------
 	 * GENERIC METHODS
@@ -123,7 +124,8 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
     function replace_tag($field_data, $params = array(), $tagdata = FALSE)
 	{
 		$db = $this->EE->db;
-		$disable = (!empty($params['disable']) ? explode('|', $params['disable']) : array());
+		$disable = !empty($params['disable']) ? explode('|', $params['disable']) : array();
+		$prefix = isset($params['prefix']) ? $params['prefix'] : 'cm_';
 		
 		// Single tag simply returns member list (pipe delimited)
 		if (!$tagdata)
@@ -176,14 +178,19 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 			else $results = $this->EE->session->cache['vmg_chosen_member'][$this->settings['field_name'] . '_' . $field_data];
 			
 			// Add prefix if set
-			if (!empty($params['prefix']))
+			foreach ($results AS $key => $member)
 			{
-
-				foreach ($results AS $key => $member)
+				foreach ($member AS $item => $value)
 				{
-					foreach ($member AS $item => $value)
+					// Set prefix where applicable
+					if (!in_array($item, $this->disallowed_fields))
 					{
-						$results[$key][$params['prefix'] . $item] = $value;
+						$results[$key][$prefix . $item] = $value;
+					}
+
+					// Unset pre-prefix field and disallowed fields
+					if (!empty($prefix) || in_array($item, $this->disallowed_fields))
+					{
 						unset($results[$key][$item]);
 					}
 				}
