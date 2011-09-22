@@ -86,95 +86,10 @@ class Vmg_chosen_member {
 				);
 			}
 		}
+
+		$this->EE->load->library('javascript');
 		
-		exit($this->generate_json($result, TRUE));
-	}
-
-	/**
-	 * Function to generate JSON output for use with PHP earlier than 5.2
-	 **/
-	function generate_json($result = NULL, $match_array_type = FALSE)
-	{
-		// JSON data can optionally be passed to this function
-		// either as a database result object or an array, or a user supplied array
-		if ( ! is_null($result))
-		{
-			if (is_object($result))
-			{
-				$json_result = $result->result_array();
-			}
-			elseif (is_array($result))
-			{
-				$json_result = $result;
-			}
-			else
-			{
-				return $this->prep_args($result);
-			}
-		}
-		else return 'null';
-
-		$json = array();
-		$_is_assoc = TRUE;
-
-		if (!is_array($json_result) && empty($json_result))
-		{
-			show_error("Generate JSON Failed - Illegal key, value pair.");
-		}
-		elseif ($match_array_type)
-		{
-			$_is_assoc = $this->is_associative_array($json_result);
-		}
-
-		foreach ($json_result as $k => $v)
-		{
-			if ($_is_assoc)
-			{
-				$json[] = $this->prep_args($k, TRUE) . ':' . $this->generate_json($v, $match_array_type);
-			}
-			else
-			{
-				$json[] = $this->generate_json($v, $match_array_type);
-			}
-		}
-
-		$json = implode(',', $json);
-
-		return $_is_assoc ? "{" . $json . "}" : "[" . $json . "]";
-	}
-
-	function prep_args($result, $is_key = FALSE)
-	{
-		if (is_null($result))
-		{
-			return 'null';
-		}
-		elseif (is_bool($result))
-		{
-			return ($result === TRUE) ? 'true' : 'false';
-		}
-		elseif (is_string($result) OR $is_key)
-		{
-			return '"' . str_replace(array('\\', "\t", "\n", "\r", '"', '/'), array('\\\\', '\\t', '\\n', "\\r", '\"', '\/'), $result) . '"';			
-			
-		}
-		elseif (is_scalar($result))
-		{
-			return $result;
-		}
-	}
-
-	function is_associative_array($arr)
-	{
-		foreach (array_keys($arr) as $key => $val)
-		{
-			if ($key !== $val)
-			{
-				return TRUE;
-			}
-		}
-
-		return FALSE;
+		exit($this->EE->javascript->generate_json($result, TRUE));
 	}
 	
 }
