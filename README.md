@@ -35,7 +35,7 @@ Usage
 
 > #### Parameters
 *	**disable** = "member_data"<br />Setting *disable* to *member_data* will skip loading custom member fields.
-*	**prefix** = "cm_"<br />**Set to "cm_" by default**<br />By providing a prefix, all data tags will be parsed prepended with the string of your choosing. This can be helpful for avoiding naming collisions.
+*	**prefix** = "cm\_"<br/>**Set to "cm\_" by default**<br />By providing a prefix, all data tags will be parsed prepended with the string of your choosing. This can be helpful for avoiding naming collisions.
 *	**group_id** = "1|2|3"<br />While you can limit selections to specific member groups in the field's settings, this parameter allows you to further limit results on output.
 *	**orderby** = "email"<br />The *orderby* parameter sets the display order of the output.
 *	**sort** = "asc"<br />The *sort* order will be applied if you specify an *orderby* parameter.
