@@ -54,7 +54,7 @@ VMG Chosen Member can be used within [Matrix](http://pixelandtonic.com/matrix/) 
 Compatibility
 ---------
 
-VMG Chosen Member has been tested to work on ExpressionEngine 2.1.3+ with PHP 5.2+. 
+VMG Chosen Member has been tested to work on ExpressionEngine 2.1.3+ with PHP 5.1+. 
 
 Warranty/License
 --------
