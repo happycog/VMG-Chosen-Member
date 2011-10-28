@@ -12,6 +12,13 @@
 class Vmg_chosen_member {
 	
 	public $return_data;
+
+	private $default_search_fields = array(
+		'username' => 'Username', 'screen_name' => 'Screen Name', 'email' => 'Email', 'url' => 'URL',
+		'location' => 'Location', 'occupation' => 'Occupation', 'interests' => 'Interests', 
+		'aol_im' => 'AOL IM', 'yahoo_im' => 'Yahoo! IM', 'msn_im' => 'MSN IM', 'icq' => 'ICQ',
+		'bio' => 'Bio', 'signature' => 'Signature',
+	);
 	
 	/**
 	 * Constructor
@@ -69,20 +76,49 @@ class Vmg_chosen_member {
 				$settings['setting_data'] = unserialize($settings['setting_data']);
 				$settings = $settings['setting_data'][$settings['variable_type']];
 			}
+
+			$search_fields = $custom_search_fields = array();
+			if (empty($settings['search_fields'])) $settings['search_fields'] = array('username', 'screen_name');
+
+			// Get member custom field list
+			$db->select("m_field_name, m_field_label");
+			$db->from('exp_member_fields');
+			$db->order_by('m_field_order', 'asc');
+			$fields = $db->get()->result_array();
+
+			foreach ($fields AS $key => $value) $custom_search_fields[] = $value['m_field_name'];
+
+			foreach ($settings['search_fields'] AS $field)
+			{
+				if (array_key_exists($field, $this->default_search_fields) || in_array($field, $custom_search_fields))
+				{
+					$search_fields[] = "LOWER({$field}) LIKE '%" . $query . "%'";
+				}
+			}
 			
 			// Gather and format results
-			$db->select('member_id, screen_name');
+			$db->select('member_id, screen_name, ' . implode($settings['search_fields'], ', '));
 			$db->from('exp_members');
 			$db->where_in('group_id', $settings['allowed_groups']);
-			$db->where("(LOWER(screen_name) LIKE '%" . $query . "%' OR LOWER(username) LIKE '%" . $query . "%')");
-			$db->limit(20);
+			$db->where('(' . implode(' OR ', $search_fields) . ')');
+			$db->limit(50);
 			$results = $db->get()->result_array();
 
 			foreach ($results AS $member)
 			{
+				$additional_text = '';
+
+				foreach ($this->default_search_fields AS $field_id => $field_label)
+				{
+					if (isset($member[$field_id]) && empty($additional_text) && !in_array($field_id, array('username', 'screen_name')) && strpos($member[$field_id], $query) !== FALSE)
+					{
+						$additional_text = '&nbsp;&nbsp;&nbsp;(' . $field_label . ': ' . $member[$field_id] . ')';
+					}
+				}
+
 				$result[] = array(
 					'value' => $member['member_id'],
-					'text' => $member['screen_name'],
+					'text' => $member['screen_name'] . $additional_text,
 				);
 			}
 		}

@@ -255,6 +255,20 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 		
 		$member_groups = array();
 		foreach ($groups AS $key => $value) $member_groups[$value['group_id']] = $value['group_title'];
+
+		// Get member custom field list
+		$db->select("m_field_name, m_field_label");
+		$db->from('exp_member_fields');
+		$db->order_by('m_field_order', 'asc');
+		$fields = $db->get()->result_array();
+
+		$search_fields = array(
+			'username' => 'Username', 'screen_name' => 'Screen Name', 'email' => 'Email', 'url' => 'URL',
+			'location' => 'Location', 'occupation' => 'Occupation', 'interests' => 'Interests', 
+			'aol_im' => 'AOL IM', 'yahoo_im' => 'Yahoo! IM', 'msn_im' => 'MSN IM', 'icq' => 'ICQ',
+			'bio' => 'Bio', 'signature' => 'Signature',
+		);
+		foreach ($fields AS $key => $value) $search_fields[$value['m_field_name']] = $value['m_field_label'];
 		
 		// Build up the settings array
 		$settings = array(
@@ -269,6 +283,10 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 			array(
 				'<strong>Placeholder text</strong><br/>Displayed if <i>"Max selections allowed"</i> does not equal 1.', 
 				form_input(array('name' => 'placeholder_text', 'class' => 'fullfield'), (!empty($data['placeholder_text']) ? $data['placeholder_text'] : 'Begin typing a member\'s name...'))
+			),
+			array(
+				'<strong>Search fields</strong><br/>Determines which member fields will be searched.<br/><i>Defaults to Username &amp; Screen Name if no selections are made.</i>', 
+				form_multiselect('search_fields[]', $search_fields, (!empty($data['search_fields']) ? $data['search_fields'] : array()))
 			),
 		);
 		
@@ -306,7 +324,11 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 			'allowed_groups' => (isset($data['allowed_groups'])) ? $data['allowed_groups'] : $this->EE->input->post('allowed_groups'),
 			'max_selections' => (isset($data['max_selections'])) ? $data['max_selections'] : $this->EE->input->post('max_selections'),
 			'placeholder_text' => (isset($data['placeholder_text'])) ? $data['placeholder_text'] : $this->EE->input->post('placeholder_text'),
+			'search_fields' => (isset($data['search_fields'])) ? $data['search_fields'] : $this->EE->input->post('search_fields'),
 		);
+
+		// Ensure search field defaults if no selections were made
+		if (!is_array($settings['search_fields']) || empty($settings['search_fields'])) $settings['search_fields'] = array('username', 'screen_name');
 		
 		return $settings;
 	}
