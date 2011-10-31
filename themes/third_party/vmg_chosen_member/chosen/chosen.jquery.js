@@ -900,6 +900,7 @@
     SelectParser.prototype.add_option = function(option, group_position, group_disabled) {
       if (option.nodeName === "OPTION") {
         if (option.text !== "") {
+          option.text = option.text.replace(/(.*?)&nbsp;&nbsp;&nbsp;\((.*?): (.*?)\)/g, '$1');
           if (group_position != null) {
             this.parsed[group_position].children += 1;
           }
