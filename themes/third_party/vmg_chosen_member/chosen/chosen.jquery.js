@@ -37,7 +37,7 @@
       this.set_default_values();
       this.form_field = elmn;
       this.form_field_jq = $(this.form_field);
-	    this.is_multiple = this.form_field.multiple;
+      this.is_multiple = this.form_field.multiple;
       this.is_rtl = this.form_field_jq.hasClass("chzn-rtl");
       this.placeholder_text = ((options != null) && 'placeholder_text' in options ? options.placeholder_text : (this.form_field.multiple ? "Select Some Options" : "Select an Option"));
       this.results_source = data != null ? data : null;
@@ -111,7 +111,7 @@
           }
           this.xhr = $.ajax({
             url: url,
-			      type: 'POST',
+            type: 'POST',
             dataType: "json",
             data: {
               query: this.value
@@ -512,7 +512,7 @@
       var choice_id, link;
       choice_id = this.container_id + "_c_" + item.array_index;
       this.choices += 1;
-      this.search_container.before('<li class="search-choice" id="' + choice_id + '"><span>' + item.html.replace(/(.*?)&nbsp;&nbsp;&nbsp;\((.*?): (.*?)\)/g, '$1') + '</span><a href="javascript:void(0)" class="search-choice-close" rel="' + item.array_index + '"></a></li>');
+      this.search_container.before('<li class="search-choice" id="' + choice_id + '"><span>' + item.html.replace(/(.*?)&nbsp;&nbsp;&nbsp;\((.*?): (.*?)\)$/, '$1') + '</span><a href="javascript:void(0)" class="search-choice-close" rel="' + item.array_index + '"></a></li>');
       link = $('#' + choice_id).find("a").first();
       return link.click(__bind(function(evt) {
         return this.choice_destroy_link_click(evt);
@@ -900,7 +900,7 @@
     SelectParser.prototype.add_option = function(option, group_position, group_disabled) {
       if (option.nodeName === "OPTION") {
         if (option.text !== "") {
-          option.text = option.text.replace(/(.*?)&nbsp;&nbsp;&nbsp;\((.*?): (.*?)\)/g, '$1');
+          option.text = option.text.replace(/(.*?)&nbsp;&nbsp;&nbsp;\((.*?): (.*?)\)$/, '$1');
           if (group_position != null) {
             this.parsed[group_position].children += 1;
           }
