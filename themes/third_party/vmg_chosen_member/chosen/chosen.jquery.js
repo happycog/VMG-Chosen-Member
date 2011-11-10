@@ -557,14 +557,14 @@
               }
               this.choice_append(item.text, item.value);
               this.form_field.options[0].selected = true;
-              this.selected_item.find("span").first().text(item.text);
+              this.selected_item.find("span").first().text(item.text.replace(/(.*?)&nbsp;&nbsp;&nbsp;\((.*?): (.*?)\)$/, '$1'));
             }
           } else {
             this.form_field.options[item.options_index].selected = true;
             if (this.is_multiple) {
               this.choice_build(item);
             } else {
-              this.selected_item.find("span").first().text(item.text);
+              this.selected_item.find("span").first().text(item.text.replace(/(.*?)&nbsp;&nbsp;&nbsp;\((.*?): (.*?)\)$/, '$1'));
             }
           }
         } else {
