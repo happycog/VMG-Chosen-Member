@@ -65,14 +65,17 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 		// Build data for view
 		$vars = array(
 			'field_id' => (isset($this->var_id) ? $this->var_id : $this->field_id),
-			'field_name' => (isset($this->row_id) ? $this->cell_name : $this->field_name),
+			'field_name' => (isset($this->cell_name) ? $this->cell_name : $this->field_name),
 			'row_id' => (isset($this->row_id) ? $this->row_id : 0),
 			'col_id' => (isset($this->col_id) ? $this->col_id : 0),
 			'max_selections' => $this->settings['max_selections'],
 			'placeholder_text' => $this->settings['placeholder_text'],
-			'is_matrix' => (isset($this->row_id) ? true : false),
+			'is_matrix' => (isset($this->cell_name) ? true : false),
 			'is_low_var' => (isset($this->var_id) ? true : false),
 		);
+
+		// Add unique identifier for this field
+		$vars['unique'] = $vars['field_id'] . '_' . $vars['row_id'] . '_' . $vars['col_id'];
 
 		$vars += array(
 			'member_data' => $member_data,
