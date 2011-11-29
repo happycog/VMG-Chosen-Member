@@ -10,6 +10,7 @@ $(document).ready(function(){
 		var vmgcm_max_selections = $('#vmg_chosen_member_' + unique_id + '_max_selections').val();
 		var vmgcm_placeholder_text = $('#vmg_chosen_member_' + unique_id + '_placeholder_text').val();
 		var vmgcm_json_url = $(this).find('.vmg_chosen_member_json_url').val() + '&field_id=' + $('#vmg_chosen_member_' + unique_id + '_field_id').val();
+		var vmgcm_auto_update_author = $('#vmg_chosen_member_' + unique_id + '_auto_update_author').val();
 		
 		$('#vmg_chosen_member_' + unique_id).chosen(vmgcm_json_url, {
 			max_selections: vmgcm_max_selections,
@@ -17,6 +18,17 @@ $(document).ready(function(){
 		});
 
 		$('#hold_field_' + $('#vmg_chosen_member_' + unique_id + '_field_id').val()).css('overflow', 'visible');
+		
+		if (vmgcm_auto_update_author) {
+			$('#vmg_chosen_member_' + unique_id).change(function(){
+				
+				if ($("#author").length > 0) { // check if author field exists on page (could be hidden)
+					$('#author').val($(this).val()); // update author dropdown value
+				}
+				
+			});
+		}
+		
 	});
     
     Matrix.bind("vmg_chosen_member", "display", function(cell){
@@ -31,10 +43,12 @@ $(document).ready(function(){
             $('#vmg_chosen_member_' + current_field.attr('rel') + '_field_id').attr('id', 'vmg_chosen_member_' + unique_id + '_field_id');
             $('#vmg_chosen_member_' + current_field.attr('rel') + '_max_selections').attr('id', 'vmg_chosen_member_' + unique_id + '_max_selections');
             $('#vmg_chosen_member_' + current_field.attr('rel') + '_placeholder_text').attr('id', 'vmg_chosen_member_' + unique_id + '_placeholder_text');
-
+			$('#vmg_chosen_member_' + current_field.attr('rel') + '_auto_update_author').attr('id', 'vmg_chosen_member_' + unique_id + '_auto_update_author');
+			
             var vmgcm_max_selections = $('#vmg_chosen_member_' + unique_id + '_max_selections').val();
             var vmgcm_placeholder_text = $('#vmg_chosen_member_' + unique_id + '_placeholder_text').val();
             var vmgcm_json_url = $(this).find('.vmg_chosen_member_json_url').val() + '&field_id=' + $('#vmg_chosen_member_' + unique_id + '_field_id').val();
+            var vmgcm_auto_update_author = $('#vmg_chosen_member_' + unique_id + '_auto_update_author').val();
             
             $('#vmg_chosen_member_' + unique_id).chosen(vmgcm_json_url, {
                 max_selections: vmgcm_max_selections,
@@ -42,6 +56,18 @@ $(document).ready(function(){
             });
 
             $('#hold_field_' + $('#vmg_chosen_member_' + unique_id + '_field_id').val()).css('overflow', 'visible');
+        
+            if (vmgcm_auto_update_author) {
+            	
+				$('#vmg_chosen_member_' + unique_id).live("change", function(){
+					
+					if ($("#author").length > 0) { // check if author field exists on page (could be hidden)
+						$('#author').val($(this).val()); // update author dropdown value
+					}
+					
+				});
+			}
+            
         }
     });
 
