@@ -7,6 +7,5 @@
 	<input type="hidden" id="vmg_chosen_member_<?=$unique?>_field_id" value="<?=$field_id?>"/>
 	<input type="hidden" id="vmg_chosen_member_<?=$unique?>_max_selections" value="<?=$max_selections?>"/>
 	<input type="hidden" id="vmg_chosen_member_<?=$unique?>_placeholder_text" value="<?=$placeholder_text?>"/>
-	<input type="hidden" id="vmg_chosen_member_<?=$unique?>_auto_update_author" value="<?=$auto_update_author?>"/>
 	<input type="hidden" class="vmg_chosen_member_json_url" value="<?=$json_url?>"/>
 </div>

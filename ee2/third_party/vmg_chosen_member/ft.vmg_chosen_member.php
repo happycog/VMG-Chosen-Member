@@ -70,7 +70,6 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 			'col_id' => (isset($this->col_id) ? $this->col_id : 0),
 			'max_selections' => $this->settings['max_selections'],
 			'placeholder_text' => $this->settings['placeholder_text'],
-			'auto_update_author' => $this->settings['auto_update_author'],
 			'is_matrix' => (isset($this->cell_name) ? true : false),
 			'is_low_var' => (isset($this->var_id) ? true : false),
 		);
@@ -293,7 +292,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 				form_multiselect('search_fields[]', $search_fields, (!empty($data['search_fields']) ? $data['search_fields'] : array()))
 			),
 			array(
-				'<strong>Auto-update author dropdown</strong><br/>Check if you want this field to auto-update the author dropdown. N.B. The author dropdown must be present on the channel entry page.', 
+				'<strong>Auto-update author dropdown</strong><br/>Check if you want this field to override the entry author. If multiple members are selected, the author will default to the first in the list.', 
 				form_checkbox('auto_update_author', '1', (!empty($data['auto_update_author']) ? $data['auto_update_author'] : 0))
 			),
 		);
@@ -390,6 +389,28 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 		
     	return $result_data;
     }
+    
+    
+    /**
+     * Post Save Field
+     */
+    function post_save($field_data)
+    {
+    	// if this field was set to act as author override...
+    	if ($this->settings['auto_update_author']) {
+    		$members = explode('|', $field_data);
+    		
+    		$this->EE->db->set('author_id', $members[0]); 	// 	Always set author_id to the first member, if multiple were selected.
+    														//	Just stops unexpected fieldtype behaviour.
+    														
+    		$this->EE->db->where('entry_id', $this->settings['entry_id']);
+    		$this->EE->db->update('channel_titles');	
+    	}
+    	
+		return $field_data;
+    }
+
+    
     
     
     /**
