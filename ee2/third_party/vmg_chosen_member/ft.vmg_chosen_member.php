@@ -129,6 +129,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 		$db = $this->EE->db;
 		$disable = !empty($params['disable']) ? explode('|', $params['disable']) : array();
 		$prefix = isset($params['prefix']) ? $params['prefix'] : 'cm_';
+		$backspace = isset($params['backspace']) ? $params['backspace'] : null;
 		
 		// Single tag simply returns member list (pipe delimited)
 		if (!$tagdata)
@@ -200,6 +201,12 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 			}
 
             $output = $this->EE->TMPL->parse_variables($tagdata, $results);
+
+            // Remove X number of characters from end if backspace is set
+            if (!is_null($backspace) && is_numeric($backspace))
+			{
+				$output = substr($output, 0, ($backspace * -1));
+			}
             
             return $output;
     	}
