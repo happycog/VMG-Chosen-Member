@@ -4,7 +4,7 @@
  * VMG Chosen Member Fieldtype Class
  * 
  * @package		VMG Chosen Member
- * @version		1.0.1
+ * @version		1.0.2
  * @author		Luke Wilkins <luke@vectormediagroup.com>
  * @copyright	Copyright (c) 2011 Vector Media Group, Inc.
  **/
@@ -17,7 +17,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 	 * ------------------------------------------------------------ */
 	public $info = array(
 		'name' 			=> 'VMG Chosen Member',
-		'version'		=> '1.0.1',
+		'version'		=> '1.0.2',
 	);
 	
 	public $has_array_data = TRUE;
@@ -159,7 +159,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 				if (!empty($params['limit']) && is_numeric($params['limit'])) $db->limit($params['limit']);
 				$results = $db->get()->result_array();
 				
-				if (empty($results)) return $this->EE->TMPL->no_results();
+				if (empty($results)) return '';
 
 				// Rename member data fields if we retrieved them
 				if (!in_array('member_data', $disable))
