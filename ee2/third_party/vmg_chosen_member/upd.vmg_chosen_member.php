@@ -4,14 +4,14 @@
  * VMG Chosen Member Update Class
  * 
  * @package		VMG Chosen Member
- * @version		1.0.2
+ * @version		1.0.3
  * @author		Luke Wilkins <luke@vectormediagroup.com>
  * @copyright	Copyright (c) 2011 Vector Media Group, Inc.
  **/
 
 class Vmg_chosen_member_upd {
 	
-	public $version = '1.0.2';
+	public $version = '1.0.3';
 	
 	private $EE;
 	

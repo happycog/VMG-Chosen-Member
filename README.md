@@ -40,6 +40,7 @@ Usage
 *	**orderby** = "email"<br />The *orderby* parameter sets the display order of the output.
 *	**sort** = "asc"<br />The *sort* order will be applied if you specify an *orderby* parameter.
 *	**limit** = "1"<br />The *limit* parameter will set the number of results that will be returned.
+*	**backspace** = "0"<br />Remove _X_ number of characters from the final tag output.
 
 
 ### :total_members Tag
