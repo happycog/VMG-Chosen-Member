@@ -7,7 +7,7 @@ Fieldtype for Expression Engine 2
 
 It includes autocomplete capabilities and the friendly selection/listing of large numbers of users using a modified version of the [Chosen](http://harvesthq.github.com/chosen/) JavaScript plugin.
 
-**VMG Chosen Member** can be used alone, within Matrix, Low Variables, and Better Workflow.
+**VMG Chosen Member** can be used alone, within [Matrix](http://pixelandtonic.com/matrix/), [Low Variables](http://gotolow.com/addons/low-variables/), and [Better Workflow](http://devot-ee.com/add-ons/better-workflow/).
 
 Installation
 -------
@@ -50,7 +50,7 @@ Usage
 
 ### Support for other fieldtypes/add-ons
 
-VMG Chosen Member can be used within [Matrix](http://pixelandtonic.com/matrix/), [Low Variables](http://gotolow.com/addons/low-variables/), and Better Workflow [Better Workflow](http://devot-ee.com/add-ons/better-workflow/).
+VMG Chosen Member can be used within [Matrix](http://pixelandtonic.com/matrix/), [Low Variables](http://gotolow.com/addons/low-variables/), and [Better Workflow](http://devot-ee.com/add-ons/better-workflow/).
 
 Compatibility
 ---------
