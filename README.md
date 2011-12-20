@@ -7,7 +7,7 @@ Fieldtype for Expression Engine 2
 
 It includes autocomplete capabilities and the friendly selection/listing of large numbers of users using a modified version of the [Chosen](http://harvesthq.github.com/chosen/) JavaScript plugin.
 
-**VMG Chosen Member** can be used alone, within Matrix, or within Low Variables.
+**VMG Chosen Member** can be used alone, within Matrix, Low Variables, and Better Workflow.
 
 Installation
 -------
@@ -48,9 +48,9 @@ Usage
 	{custom_member_field:total_members}
 > Outputs the total number of members selected within the field.
 
-### Support within other fieldtypes
+### Support for other fieldtypes/add-ons
 
-VMG Chosen Member can be used within [Matrix](http://pixelandtonic.com/matrix/) and [Low Variables](http://gotolow.com/addons/low-variables/).
+VMG Chosen Member can be used within [Matrix](http://pixelandtonic.com/matrix/), [Low Variables](http://gotolow.com/addons/low-variables/), and Better Workflow [Better Workflow](http://devot-ee.com/add-ons/better-workflow/).
 
 Compatibility
 ---------
@@ -59,6 +59,6 @@ VMG Chosen Member has been tested to work on ExpressionEngine 2.1.3+ with PHP 5.
 
 Warranty/License
 --------
-There's no warranty of any kind. If you find a bug, please tell report it or submit a pull request with a fix. It's provided completely as-is; if something breaks, you lose data, or something else bad happens, the author(s) and owner(s) of this plugin are in no way responsible.
+There's no warranty of any kind. If you find a bug, please report it or submit a pull request with a fix. It's provided completely as-is; if something breaks, you lose data, or something else bad happens, the author(s) and owner(s) of this add-on are in no way responsible.
 
-This plugin is owned by [Vector Media Group, Inc](http://www.vectormediagroup.com). You can modify it and use it for your own personal or commercial projects, but you can't redistribute it.
+This add-on is owned by [Vector Media Group, Inc](http://www.vectormediagroup.com). You can modify it and use it for your own personal or commercial projects, but you can't redistribute it.

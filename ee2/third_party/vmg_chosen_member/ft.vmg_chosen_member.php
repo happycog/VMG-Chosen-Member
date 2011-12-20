@@ -4,7 +4,7 @@
  * VMG Chosen Member Fieldtype Class
  * 
  * @package		VMG Chosen Member
- * @version		1.0.3
+ * @version		1.1
  * @author		Luke Wilkins <luke@vectormediagroup.com>
  * @copyright	Copyright (c) 2011 Vector Media Group, Inc.
  **/
@@ -17,7 +17,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 	 * ------------------------------------------------------------ */
 	public $info = array(
 		'name' 			=> 'VMG Chosen Member',
-		'version'		=> '1.0.3',
+		'version'		=> '1.1',
 	);
 	
 	public $has_array_data = TRUE;
@@ -47,6 +47,12 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 	{
 		$db = $this->EE->db;
 		$populate = $selections = $member_data = array();
+
+		// Processing for Better Workflow support
+		if (isset($this->EE->session->cache['ep_better_workflow']['is_draft']) && $this->EE->session->cache['ep_better_workflow']['is_draft'])
+		{
+			if (is_array($data)) $data = implode($data, '|');
+		}
 		
 		// Generate values for pre-populated fields
 		$selections = explode('|', $data);
@@ -140,6 +146,12 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 		{
 			if (!isset($this->EE->session->cache['vmg_chosen_member'][$this->settings['field_name'] . '_' . $field_data]))
 			{
+				// Processing for Better Workflow support
+				if (isset($this->EE->session->cache['ep_better_workflow']['is_draft']) && $this->EE->session->cache['ep_better_workflow']['is_draft'])
+				{
+					if (is_array($field_data)) $field_data = implode($field_data, '|');
+				}
+
 				$members = explode('|', $field_data);
 
 				// Gather user data
