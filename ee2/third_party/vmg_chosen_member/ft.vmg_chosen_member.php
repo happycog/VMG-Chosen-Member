@@ -4,7 +4,7 @@
  * VMG Chosen Member Fieldtype Class
  * 
  * @package		VMG Chosen Member
- * @version		1.1
+ * @version		1.2
  * @author		Luke Wilkins <luke@vectormediagroup.com>
  * @copyright	Copyright (c) 2011 Vector Media Group, Inc.
  **/
@@ -17,7 +17,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 	 * ------------------------------------------------------------ */
 	public $info = array(
 		'name' 			=> 'VMG Chosen Member',
-		'version'		=> '1.1',
+		'version'		=> '1.2',
 	);
 	
 	public $has_array_data = TRUE;
@@ -398,7 +398,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 				while (count($result_data) > $this->settings['max_selections']) array_pop($result_data);
 			}
 			
-			$result_data = implode('|', $result_data);
+			$result_data = (is_array($result_data) ? implode('|', $result_data) : '');
 		}
 		
     	return $result_data;

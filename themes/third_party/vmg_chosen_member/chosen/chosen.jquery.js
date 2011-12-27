@@ -42,6 +42,7 @@
       this.placeholder_text = ((options != null) && 'placeholder_text' in options ? options.placeholder_text : (this.form_field.multiple ? "Select Some Options" : "Select an Option"));
       this.results_source = data != null ? data : null;
       this.max_selections = this.is_multiple ? ((options != null) && 'max_selections' in options ? options.max_selections : 0) : 1;
+      this.allow_single_deselect = true;
       this.set_up_html();
       this.register_observers();
       this.form_field_jq.addClass("chzn-done");
@@ -133,6 +134,9 @@
       this.container.click(__bind(function(evt) {
         return this.container_click(evt);
       }, this));
+      this.container.mouseup(__bind(function(evt) {
+        return this.container_mouseup(evt);
+      }, this));
       this.container.mouseenter(__bind(function(evt) {
         return this.mouse_enter(evt);
       }, this));
@@ -191,6 +195,11 @@
         return this.activate_field();
       } else {
         return this.pending_destroy_click = false;
+      }
+    };
+    Chosen.prototype.container_mouseup = function(evt) {
+      if (evt.target.nodeName === "ABBR") {
+        return this.results_reset(evt);
       }
     };
     Chosen.prototype.mouse_enter = function() {
@@ -301,6 +310,9 @@
             this.choice_build(data);
           } else if (data.selected && !this.is_multiple) {
             this.selected_item.find("span").text(data.text);
+            if (this.allow_single_deselect) {
+              this.single_deselect_control_build();
+            }
           }
         }
       }
@@ -532,6 +544,16 @@
       this.result_deselect(link.attr("rel"));
       return link.parents('li').first().remove();
     };
+    Chosen.prototype.results_reset = function(evt) {
+      this.form_field.options[0].selected = true;
+      this.selected_item.find("span").text(this.default_text);
+      this.show_search_field_default();
+      $(evt.target).remove();
+      this.form_field_jq.trigger("change");
+      if (this.active_field) {
+        return this.results_hide();
+      }
+    };
     Chosen.prototype.result_select = function() {
       var high, high_id, item, position;
       if (this.result_highlight) {
@@ -558,6 +580,9 @@
               this.choice_append(item.text, item.value);
               this.form_field.options[0].selected = true;
               this.selected_item.find("span").first().text(item.text.replace(/(.*?)&nbsp;&nbsp;&nbsp;\((.*?): (.*?)\)$/, '$1'));
+              if (this.allow_single_deselect) {
+                this.single_deselect_control_build();
+              }
             }
           } else {
             this.form_field.options[item.options_index].selected = true;
@@ -565,6 +590,9 @@
               this.choice_build(item);
             } else {
               this.selected_item.find("span").first().text(item.text.replace(/(.*?)&nbsp;&nbsp;&nbsp;\((.*?): (.*?)\)$/, '$1'));
+              if (this.allow_single_deselect) {
+                this.single_deselect_control_build();
+              }
             }
           }
         } else {
@@ -600,6 +628,11 @@
       this.winnow_results();
       this.form_field_jq.trigger("change");
       return this.search_field_scale();
+    };
+    Chosen.prototype.single_deselect_control_build = function() {
+      if (this.allow_single_deselect && this.selected_item.find("abbr").length < 1) {
+        return this.selected_item.find("span").first().after("<abbr class=\"search-choice-close\"></abbr>");
+      }
     };
     Chosen.prototype.results_search = function(evt) {
       if (this.results_showing) {
