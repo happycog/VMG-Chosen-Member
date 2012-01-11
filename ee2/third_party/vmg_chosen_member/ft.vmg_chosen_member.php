@@ -85,7 +85,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 
 		$vars += array(
 			'member_data' => $member_data,
-			'json_url' => $this->EE->functions->fetch_site_index(1, 0) . '?ACT=' . (empty($action) ? '' : $action['action_id']),
+			'json_url' => $this->EE->functions->fetch_site_index(0, 0) . QUERY_MARKER . 'ACT=' . (empty($action) ? '' : $action['action_id']),
 		);
 
 		if ($vars['is_matrix']) $vars['json_url'] .= '&type=matrix';
