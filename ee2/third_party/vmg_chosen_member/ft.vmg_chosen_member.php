@@ -310,6 +310,10 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 				'<strong>Search fields</strong><br/>Determines which member fields will be searched.<br/><i>Defaults to Username &amp; Screen Name if no selections are made.</i>', 
 				form_multiselect('search_fields[]', $search_fields, (!empty($data['search_fields']) ? $data['search_fields'] : array()))
 			),
+			array(
+				'<strong>Auto-update author dropdown</strong><br/>Check if you want this field to override the entry author. If multiple members are selected, the author will default to the first in the list.', 
+				form_checkbox('auto_update_author', '1', (!empty($data['auto_update_author']) ? $data['auto_update_author'] : 0))
+			),
 		);
 		
 		// Just return if this is in a matrix
@@ -347,6 +351,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 			'max_selections' => (isset($data['max_selections'])) ? $data['max_selections'] : $this->EE->input->post('max_selections'),
 			'placeholder_text' => (isset($data['placeholder_text'])) ? $data['placeholder_text'] : $this->EE->input->post('placeholder_text'),
 			'search_fields' => (isset($data['search_fields'])) ? $data['search_fields'] : $this->EE->input->post('search_fields'),
+			'auto_update_author' => (isset($data['auto_update_author'])) ? $data['auto_update_author'] : $this->EE->input->post('auto_update_author'),
 		);
 
 		// Ensure search field defaults if no selections were made
@@ -403,6 +408,28 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 		
     	return $result_data;
     }
+    
+    
+    /**
+     * Post Save Field
+     */
+    function post_save($field_data)
+    {
+    	// if this field was set to act as author override...
+    	if ($this->settings['auto_update_author']) {
+    		$members = explode('|', $field_data);
+    		
+    		$this->EE->db->set('author_id', $members[0]); 	// 	Always set author_id to the first member, if multiple were selected.
+    														//	Just stops unexpected fieldtype behaviour.
+    														
+    		$this->EE->db->where('entry_id', $this->settings['entry_id']);
+    		$this->EE->db->update('channel_titles');	
+    	}
+    	
+		return $field_data;
+    }
+
+    
     
     
     /**

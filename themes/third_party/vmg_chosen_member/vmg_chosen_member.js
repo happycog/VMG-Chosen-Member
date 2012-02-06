@@ -17,6 +17,7 @@ $(document).ready(function(){
 		});
 
 		$('#hold_field_' + $('#vmg_chosen_member_' + unique_id + '_field_id').val()).css('overflow', 'visible');
+		
 	});
     
     Matrix.bind("vmg_chosen_member", "display", function(cell){
@@ -31,7 +32,7 @@ $(document).ready(function(){
             $('#vmg_chosen_member_' + current_field.attr('rel') + '_field_id').attr('id', 'vmg_chosen_member_' + unique_id + '_field_id');
             $('#vmg_chosen_member_' + current_field.attr('rel') + '_max_selections').attr('id', 'vmg_chosen_member_' + unique_id + '_max_selections');
             $('#vmg_chosen_member_' + current_field.attr('rel') + '_placeholder_text').attr('id', 'vmg_chosen_member_' + unique_id + '_placeholder_text');
-
+			
             var vmgcm_max_selections = $('#vmg_chosen_member_' + unique_id + '_max_selections').val();
             var vmgcm_placeholder_text = $('#vmg_chosen_member_' + unique_id + '_placeholder_text').val();
             var vmgcm_json_url = $(this).find('.vmg_chosen_member_json_url').val() + '&field_id=' + $('#vmg_chosen_member_' + unique_id + '_field_id').val();
@@ -42,6 +43,7 @@ $(document).ready(function(){
             });
 
             $('#hold_field_' + $('#vmg_chosen_member_' + unique_id + '_field_id').val()).css('overflow', 'visible');
+   
         }
     });
 
