@@ -4,7 +4,7 @@
  * VMG Chosen Member Fieldtype Class
  * 
  * @package		VMG Chosen Member
- * @version		1.2.5
+ * @version		1.2.6
  * @author		Luke Wilkins <luke@vectormediagroup.com>
  * @copyright	Copyright (c) 2011 Vector Media Group, Inc.
  **/
@@ -17,7 +17,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 	 * ------------------------------------------------------------ */
 	public $info = array(
 		'name' 			=> 'VMG Chosen Member',
-		'version'		=> '1.2.5',
+		'version'		=> '1.2.6',
 	);
 	
 	public $has_array_data = TRUE;
@@ -144,7 +144,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
     	}
     	else
 		{
-			if (!isset($this->EE->session->cache['vmg_chosen_member'][$this->settings['field_name'] . '_' . $field_data]))
+			if (!isset($this->EE->session->cache['vmg_chosen_member'][$this->field_id . '_' . $field_data]))
 			{
 				// Processing for Better Workflow support
 				if (isset($this->EE->session->cache['ep_better_workflow']['is_draft']) && $this->EE->session->cache['ep_better_workflow']['is_draft'])
@@ -189,9 +189,9 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 					}
 				}
 
-				$this->EE->session->cache['vmg_chosen_member'][$this->settings['field_name'] . '_' . $field_data] = $results;
+				$this->EE->session->cache['vmg_chosen_member'][$this->field_id . '_' . $field_data] = $results;
 			}
-			else $results = $this->EE->session->cache['vmg_chosen_member'][$this->settings['field_name'] . '_' . $field_data];
+			else $results = $this->EE->session->cache['vmg_chosen_member'][$this->field_id . '_' . $field_data];
 			
 			// Add prefix if set
 			foreach ($results AS $key => $member)
@@ -233,7 +233,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 		$db = $this->EE->db;
 
 		// Determine number of results if not cached already
-		if (!isset($this->EE->session->cache['vmg_chosen_member'][$this->settings['field_name'] . '_' . $field_data]))
+		if (!isset($this->EE->session->cache['vmg_chosen_member'][$this->field_id . '_' . $field_data]))
 		{
 			$members = explode('|', $field_data);
 
@@ -244,7 +244,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 			return $results;
 		}
 		
-		return count($this->EE->session->cache['vmg_chosen_member'][$this->settings['field_name'] . '_' . $field_data]);
+		return count($this->EE->session->cache['vmg_chosen_member'][$this->field_id . '_' . $field_data]);
 	}
 
 	/**
@@ -252,7 +252,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 	 */
 	function display_var_tag($field_data, $params = array(), $tagdata = FALSE)
 	{
-		$this->settings['field_name'] = $params['var'];
+		$this->field_id = $params['var'];
 
 		if ($params['method'] == 'total_members')
 		{
