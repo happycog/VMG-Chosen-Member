@@ -62,7 +62,7 @@
       var container_div, dd_top, dd_width, response, sf_width, target, url;
       this.container_id = this.form_field.id.length ? this.form_field.id.replace(/(:|\.)/g, '_') : this.generate_field_id();
       this.container_id += "_chzn";
-      this.f_width = this.form_field_jq.outerWidth();
+      this.f_width = (this.form_field_jq.width() > 100) ? this.form_field_jq.outerWidth() : 800;
       this.default_text = this.form_field_jq.data('placeholder') ? this.form_field_jq.data('placeholder') : this.placeholder_text;
       container_div = $("<div />", {
         id: this.container_id,
