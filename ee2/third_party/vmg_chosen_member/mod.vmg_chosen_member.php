@@ -4,9 +4,9 @@
  * VMG Chosen Member Module Class
  * 
  * @package		VMG Chosen Member
- * @version		1.2.7
+ * @version		1.2.8
  * @author		Luke Wilkins <luke@vectormediagroup.com>
- * @copyright	Copyright (c) 2011 Vector Media Group, Inc.
+ * @copyright	Copyright (c) 2011-2012 Vector Media Group, Inc.
  **/
 
 class Vmg_chosen_member {
@@ -70,12 +70,7 @@ class Vmg_chosen_member {
 		
 		if (!empty($settings) && $this->EE->input->is_ajax_request())
 		{
-			if (!$is_low_var) $settings = unserialize(base64_decode($settings['setting_data']));
-			else
-			{
-				$settings['setting_data'] = unserialize($settings['setting_data']);
-				$settings = $settings['setting_data'][$settings['variable_type']];
-			}
+			$settings = unserialize(base64_decode($settings['setting_data']));
 
 			$search_fields = $search_fields_where = $custom_search_fields = $custom_field_map = array();
 			if (empty($settings['search_fields'])) $settings['search_fields'] = array('username', 'screen_name');
