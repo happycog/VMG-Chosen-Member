@@ -4,7 +4,7 @@
  * VMG Chosen Member Fieldtype Class
  * 
  * @package		VMG Chosen Member
- * @version		1.2.8
+ * @version		1.2.9
  * @author		Luke Wilkins <luke@vectormediagroup.com>
  * @copyright	Copyright (c) 2011-2012 Vector Media Group, Inc.
  **/
@@ -17,7 +17,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 	 * ------------------------------------------------------------ */
 	public $info = array(
 		'name' 			=> 'VMG Chosen Member',
-		'version'		=> '1.2.8',
+		'version'		=> '1.2.9',
 	);
 	
 	public $has_array_data = TRUE;
@@ -254,7 +254,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 	{
 		$this->field_id = $params['var'];
 
-		if ($params['method'] == 'total_members')
+		if (isset($params['method']) && $params['method'] == 'total_members')
 		{
 			return $this->replace_total_members($field_data, $params, $tagdata);
 		}
