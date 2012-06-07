@@ -574,11 +574,13 @@
             if (this.is_multiple) {
               this.choice_append(item.text, item.value);
             } else {
-              for (i = 0, _len = this.form_field.options.length; i < _len; i++) {
-                this.form_field.remove(i);
-              }
-              this.choice_append(item.text, item.value);
-              this.form_field.options[0].selected = true;
+              this.form_field_jq.find('option').each(function() {
+        if ($(this).val() != '') { $(this).remove(); }
+        });
+              this.choice_append(item.text, item.value, true, true);
+        this.form_field_jq.find('option').each(function() {
+        if ($(this).val() != '') { $(this).attr('selected', 'selected'); }
+        });
               this.selected_item.find("span").first().text(item.text.replace(/(.*?)&nbsp;&nbsp;&nbsp;\((.*?): (.*?)\)$/, '$1'));
               if (this.allow_single_deselect) {
                 this.single_deselect_control_build();

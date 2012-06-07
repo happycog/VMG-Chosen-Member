@@ -47,15 +47,11 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 	{
 		$db = $this->EE->db;
 		$populate = $selections = $member_data = array();
-
-		// Processing for Better Workflow support
-		if (isset($this->EE->session->cache['ep_better_workflow']['is_draft']) && $this->EE->session->cache['ep_better_workflow']['is_draft'])
-		{
-			if (is_array($data)) $data = implode($data, '|');
-		}
 		
 		// Generate values for pre-populated fields
-		$selections = explode('|', $data);
+		if (!is_array($data)) $selections = explode('|', $data);
+		else $selections = $data;
+
 		if (is_array($selections) && !empty($selections))
 		{
 			$db->select("member_id, screen_name");
