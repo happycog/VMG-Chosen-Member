@@ -41,12 +41,47 @@ Usage
 *	**sort** = "asc"<br />The *sort* order will be applied if you specify an *orderby* parameter.
 *	**limit** = "1"<br />The *limit* parameter will set the number of results that will be returned.
 *	**backspace** = "0"<br />Remove _X_ number of characters from the final tag output.
+*	**member_id** = "1|2|3"<br />Limit returned users to those specified.
 
 
 ### :total_members Tag
 
 	{custom_member_field:total_members}
 > Outputs the total number of members selected within the field.
+
+
+### Associated Entries
+
+To view Channel Entries that a user has been selected in (via a VMG Chosen Member field), you can use the {exp:vmg_chosen_member:assoc_entries} tag.
+
+	{exp:vmg_chosen_member:assoc_entries prefix="cm_" field="chosen_member_field" member_id="1|2|3"}
+
+		{exp:channel:entries
+			require_entry="yes"
+			entry_id="{cm_entry_ids}"
+		}	
+			<ul>
+				{chosen_member_field prefix="cmf_"}
+
+					<li>
+						<h3>{cmf_screen_name}</h3>
+						<img src="/path/to/avatars/{cmf_avatar_filename}"/>
+					</li>
+				
+				{/chosen_member_field}
+			</ul>
+			
+		{/exp:channel:entries}
+
+	{/exp:vmg_chosen_member:assoc_entries}
+
+> #### Parameters
+*	**prefix** = "cm\_"<br/>**Set to "cm\_" by default**<br />By providing a prefix, all data tags will be parsed prepended with the string of your choosing. This can be helpful for avoiding naming collisions.
+*	**field** = "chosen_member_field"<br />The VMG Chosen Member field you would like to search. If your VMG Chosen Member field is within a Matrix field, you would set the name of the parent Matrix field.
+*	**col** = "my_matrix_col"<br />If your VMG Chosen Member field is within a Matrix field, you would set the name of the Matrix column here.
+*	**member_id** = "1|2|3"<br />Member IDs that you would like to search for.
+
+> Outputs the prefixed {entry_ids} tag.
 
 ### Support for other fieldtypes/add-ons
 

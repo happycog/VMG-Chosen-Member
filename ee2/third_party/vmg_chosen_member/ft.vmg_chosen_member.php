@@ -4,7 +4,7 @@
  * VMG Chosen Member Fieldtype Class
  * 
  * @package		VMG Chosen Member
- * @version		1.3
+ * @version		1.3.5
  * @author		Luke Wilkins <luke@vectormediagroup.com>
  * @copyright	Copyright (c) 2011-2012 Vector Media Group, Inc.
  **/
@@ -17,7 +17,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 	 * ------------------------------------------------------------ */
 	public $info = array(
 		'name' 			=> 'VMG Chosen Member',
-		'version'		=> '1.3',
+		'version'		=> '1.3.5',
 	);
 	
 	public $has_array_data = TRUE;
@@ -132,6 +132,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 		$disable = !empty($params['disable']) ? explode('|', $params['disable']) : array();
 		$prefix = isset($params['prefix']) ? $params['prefix'] : 'cm_';
 		$backspace = isset($params['backspace']) ? $params['backspace'] : null;
+		$member_search = !empty($params['member_id']) ? explode('|', $params['member_id']) : array();
 		
 		// Single tag simply returns member list (pipe delimited)
 		if (!$tagdata)
@@ -155,6 +156,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 				$db->from('exp_members AS m');
 				if (!in_array('member_data', $disable)) $db->join('exp_member_data AS md', 'md.member_id = m.member_id', 'left');
 				$db->where_in('m.member_id', $members);
+				if (!empty($member_search)) $db->where_in('m.member_id', $member_search);
 				if (!empty($this->settings['allowed_groups'])) $db->where_in('m.group_id', $this->settings['allowed_groups']);
 				if (!empty($params['group_id'])) $db->where_in('m.group_id', explode('|', $params['group_id']));
 				if (!empty($params['orderby']))

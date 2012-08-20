@@ -4,7 +4,7 @@
  * VMG Chosen Member Module Class
  * 
  * @package		VMG Chosen Member
- * @version		1.3
+ * @version		1.3.5
  * @author		Luke Wilkins <luke@vectormediagroup.com>
  * @copyright	Copyright (c) 2011-2012 Vector Media Group, Inc.
  **/
@@ -144,6 +144,8 @@ class Vmg_chosen_member {
 		exit($this->EE->javascript->generate_json($result, TRUE));
 	}
 
+	// ----------------------------------------------------------------
+
 	private function clean_additional($text, $search, $max_length = 25)
 	{
 		if (strlen($text) > $max_length)
@@ -156,6 +158,67 @@ class Vmg_chosen_member {
 		}
 
 		return '<i>' . $text . '</i>';
+	}
+
+	// ----------------------------------------------------------------
+
+	public function assoc_entries()
+	{
+		$db = $this->EE->db;
+		$tagdata = $this->EE->TMPL->tagdata;
+
+		$prefix = $this->EE->TMPL->fetch_param('prefix', 'cm_');
+		$field = $this->EE->TMPL->fetch_param('field');
+		$col = $this->EE->TMPL->fetch_param('col');
+		$member_id = $this->EE->TMPL->fetch_param('member_id', '');
+		$member_ids = explode('|', $member_id);
+
+		if (empty($member_ids)) return $this->EE->TMPL->no_results();
+
+		// Check if this is a valid field
+		$field = $db->select("cf.field_id AS field_id, mc.col_id, IF(mc.col_id IS NULL, cf.field_name, mc.col_name) AS field_name", false)
+			->from('exp_channel_fields AS cf')
+			->join('exp_matrix_cols AS mc', 'mc.field_id = cf.field_id', 'left')
+			->where("((cf.field_type = 'vmg_chosen_member' || cf.field_type = 'matrix') AND cf.field_name = " . $db->escape($field) . ")")
+			->or_where("(cf.field_type = 'matrix' AND mc.col_type = 'vmg_chosen_member' AND mc.col_name = " . $db->escape($field) . ")")
+			->get()->row_array();
+
+		$temp_results = array();
+
+		if (!empty($field['field_id']) && is_numeric($field['field_id']) && empty($field['col_id']))
+		{
+			// Get channel entries
+			$db->select('cd.entry_id')
+				->from('exp_channel_data AS cd');
+
+			foreach ($member_ids AS $member_id) $db->or_where("(field_id_" . $field['field_id'] . " REGEXP '^" . $member_id . "$|^" . $member_id . "\\\||\\\|" . $member_id . "\\\||\\\|" . $member_id . "$')");
+
+			$temp_results = $db->get()->result_array();
+		}
+		elseif (!empty($field['field_id']) && !empty($field['col_id']) && is_numeric($field['col_id']))
+		{
+			// Get matrix entries
+			$db->select('md.entry_id')
+				->from('exp_matrix_data AS md');
+
+			foreach ($member_ids AS $member_id) $db->or_where("(col_id_" . $field['col_id'] . " REGEXP '^" . $member_id . "$|^" . $member_id . "\\\||\\\|" . $member_id . "\\\||\\\|" . $member_id . "$')");
+
+			$temp_results = $db->get()->result_array();
+		}
+
+		$temp_results = array_unique($temp_results);
+		if (empty($temp_results)) return $this->EE->TMPL->no_results();
+
+		foreach ($temp_results AS $result) $results[] = $result['entry_id'];
+
+		$results = array(array(
+			$prefix . 'entry_ids' => implode('|', $results)
+		));
+
+		if (empty($tagdata)) return $this->return_data = $results[0][$prefix . 'entry_ids'];
+
+		$this->return_data = $this->EE->TMPL->parse_variables($tagdata, $results);
+		return $this->return_data;
 	}
 	
 }
