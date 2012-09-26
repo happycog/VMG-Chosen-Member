@@ -1,6 +1,6 @@
 <div class="vmg-chosen-member-container">
 	<select id="vmg_chosen_member_<?=$unique?>" name="<?=$field_name?>[]" <?=($max_selections != 1 ? 'multiple ' : '')?>style="width: 100%;" class="vmg-chosen-member" rel="<?=$unique?>">
-		<option value=""></option>
+		<option value="__empty__" selected="selected"></option>
 		<?php foreach($member_data AS $member): ?>
 			<option value="<?=$member['member_id']?>" selected="selected"><?=$member['screen_name']?></option>
 		<?php endforeach; ?>

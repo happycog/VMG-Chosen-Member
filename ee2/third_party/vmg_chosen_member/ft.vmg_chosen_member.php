@@ -4,7 +4,7 @@
  * VMG Chosen Member Fieldtype Class
  * 
  * @package		VMG Chosen Member
- * @version		1.3.7
+ * @version		1.4
  * @author		Luke Wilkins <luke@vectormediagroup.com>
  * @copyright	Copyright (c) 2011-2012 Vector Media Group, Inc.
  **/
@@ -17,7 +17,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 	 * ------------------------------------------------------------ */
 	public $info = array(
 		'name' 			=> 'VMG Chosen Member',
-		'version'		=> '1.3.7',
+		'version'		=> '1.4',
 	);
 	
 	public $has_array_data = TRUE;
@@ -374,30 +374,34 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
      */
     function save($field_data)
     {
-		$db = $this->EE->db;
-		$result_data = '';
-		
-		if (is_array($field_data))
-		{
-			// Validate member groups before saving
-			$db->select('member_id, group_id');
-			$db->from('exp_members');
-			$db->where_in('member_id', $field_data);
-			$results = $db->get()->result_array();
+			$db = $this->EE->db;
+			$result_data = '';
 			
-			foreach ($results AS $key => $member)
+			if (is_array($field_data) && count($field_data) == 1 && isset($field_data[0]) && $field_data[0] == '__empty__')
 			{
-				if (in_array($member['group_id'], $this->settings['allowed_groups'])) $result_data[$key] = $member['member_id'];
+				$result_data = '';
 			}
-			
-			// Enforce max selections if applicable
-			if ($this->settings['max_selections'] > 0)
+			elseif (is_array($field_data) && count($field_data) > 1)
 			{
-				while (count($result_data) > $this->settings['max_selections']) array_pop($result_data);
+				// Validate member groups before saving
+				$db->select('member_id, group_id');
+				$db->from('exp_members');
+				$db->where_in('member_id', $field_data);
+				$results = $db->get()->result_array();
+				
+				foreach ($results AS $key => $member)
+				{
+					if (in_array($member['group_id'], $this->settings['allowed_groups'])) $result_data[$key] = $member['member_id'];
+				}
+				
+				// Enforce max selections if applicable
+				if ($this->settings['max_selections'] > 0)
+				{
+					while (count($result_data) > $this->settings['max_selections']) array_pop($result_data);
+				}
+				
+				$result_data = (is_array($result_data) ? implode('|', $result_data) : '');
 			}
-			
-			$result_data = (is_array($result_data) ? implode('|', $result_data) : '');
-		}
 		
     	return $result_data;
     }
