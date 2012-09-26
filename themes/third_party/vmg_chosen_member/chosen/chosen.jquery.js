@@ -524,7 +524,7 @@
       var choice_id, link;
       choice_id = this.container_id + "_c_" + item.array_index;
       this.choices += 1;
-      this.search_container.before('<li class="search-choice" id="' + choice_id + '"><span>' + item.html.replace(/(.*?)&nbsp;&nbsp;&nbsp;\((.*?): (.*?)\)$/, '$1') + '</span><a href="javascript:void(0)" class="search-choice-close" rel="' + item.array_index + '"></a></li>');
+      this.search_container.before('<li class="search-choice" id="' + choice_id + '"><span>' + item.html.replace(/(.*?)&nbsp;&nbsp;&nbsp;\((.*?): (.*?)\)$/, '$1') + '</span><a href="javascript:void(0)" class="search-choice-close" rel="' + item.array_index + '" data-value="' + item.value + '"></a></li>');
       link = $('#' + choice_id).find("a").first();
       return link.click(__bind(function(evt) {
         return this.choice_destroy_link_click(evt);
@@ -541,7 +541,7 @@
       if (this.is_multiple && this.choices > 0 && this.search_field.val().length < 1) {
         this.results_hide();
       }
-      this.result_deselect(link.attr("rel"));
+      this.result_deselect(link.attr("rel"), link.attr("data-value"));
       return link.parents('li').first().remove();
     };
     Chosen.prototype.results_reset = function(evt) {
@@ -614,10 +614,10 @@
     Chosen.prototype.result_deactivate = function(el) {
       return el.removeClass("active-result").hide();
     };
-    Chosen.prototype.result_deselect = function(pos) {
+    Chosen.prototype.result_deselect = function(pos, value) {
       var result, result_data;
       if (this.results_source != null) {
-        this.form_field.remove(pos);
+        $(this.form_field).find("option[value='" + value + "']").remove();
         this.container.find('ul.chzn-results').html('');
       } else {
         result_data = this.results_data[pos];
