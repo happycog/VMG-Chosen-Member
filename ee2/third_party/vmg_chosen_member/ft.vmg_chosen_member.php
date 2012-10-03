@@ -4,7 +4,7 @@
  * VMG Chosen Member Fieldtype Class
  * 
  * @package		VMG Chosen Member
- * @version		1.4
+ * @version		1.5
  * @author		Luke Wilkins <luke@vectormediagroup.com>
  * @copyright	Copyright (c) 2011-2012 Vector Media Group, Inc.
  **/
@@ -17,7 +17,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 	 * ------------------------------------------------------------ */
 	public $info = array(
 		'name' 			=> 'VMG Chosen Member',
-		'version'		=> '1.4',
+		'version'		=> '1.5',
 	);
 	
 	public $has_array_data = TRUE;
@@ -124,32 +124,47 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 	}
 	
 	/**
-     * Display Tag
-     */
-    function replace_tag($field_data, $params = array(), $tagdata = FALSE)
+   * Display Tag
+   */
+  function replace_tag($field_data, $params = array(), $tagdata = FALSE)
 	{
 		$db = $this->EE->db;
 		$disable = !empty($params['disable']) ? explode('|', $params['disable']) : array();
 		$prefix = isset($params['prefix']) ? $params['prefix'] : 'cm_';
 		$backspace = isset($params['backspace']) ? $params['backspace'] : null;
 		$member_search = !empty($params['member_id']) ? explode('|', $params['member_id']) : array();
+
+		$members = explode('|', $field_data);
 		
 		// Single tag simply returns member list (pipe delimited)
-		if (!$tagdata)
-        {
-            return $field_data;
-    	}
-    	else
+		if ( ! $tagdata)
+    {
+    	if ( ! isset($this->EE->session->cache['vmg_chosen_member']['single' . $this->field_id . '_' . $field_data]))
+			{
+	    	$members_list = array();
+
+	    	$db->select('member_id');
+				$db->from('exp_members AS m');
+				$db->where_in('m.member_id', $members);
+				$results = $db->get()->result_array();
+
+				foreach ($results AS $result) $members_list[] = $result['member_id'];
+
+				$members_list = $this->EE->session->cache['vmg_chosen_member']['single' . $this->field_id . '_' . $field_data] = implode('|', $members_list);
+			}
+			else $members_list = $this->EE->session->cache['vmg_chosen_member']['single' . $this->field_id . '_' . $field_data];
+				
+			return $members_list;
+  	}
+  	else
 		{
-			if (!isset($this->EE->session->cache['vmg_chosen_member'][$this->field_id . '_' . $field_data]))
+			if ( ! isset($this->EE->session->cache['vmg_chosen_member'][$this->field_id . '_' . $field_data]))
 			{
 				// Processing for Better Workflow support
 				if (isset($this->EE->session->cache['ep_better_workflow']['is_draft']) && $this->EE->session->cache['ep_better_workflow']['is_draft'])
 				{
 					if (is_array($field_data)) $field_data = implode($field_data, '|');
 				}
-
-				$members = explode('|', $field_data);
 
 				// Gather user data
 				$db->select('m.*' . (!in_array('member_data', $disable) ? ', md.*' : ''));
@@ -210,20 +225,20 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 				}
 			}
 
-            $output = $this->EE->TMPL->parse_variables($tagdata, $results);
+      $output = $this->EE->TMPL->parse_variables($tagdata, $results);
 
-            // Remove X number of characters from end if backspace is set
-            if (!is_null($backspace) && is_numeric($backspace))
+      // Remove X number of characters from end if backspace is set
+      if (!is_null($backspace) && is_numeric($backspace))
 			{
 				$output = substr($output, 0, ($backspace * -1));
 			}
             
-            return $output;
-    	}
+      return $output;
     }
+	}
 
 
-    /**
+  /**
 	 * Total Members
 	 */
 	function replace_total_members($field_data, $params = array(), $tagdata = FALSE)
@@ -370,56 +385,57 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 	}
 	
 	/**
-     * Save Field
-     */
-    function save($field_data)
-    {
-			$db = $this->EE->db;
-			$result_data = '';
-			
-			if (is_array($field_data) && count($field_data) == 1 && isset($field_data[0]) && $field_data[0] == '__empty__')
-			{
-				$result_data = '';
-			}
-			elseif (is_array($field_data) && count($field_data) > 1)
-			{
-				// Validate member groups before saving
-				$db->select('member_id, group_id');
-				$db->from('exp_members');
-				$db->where_in('member_id', $field_data);
-				$results = $db->get()->result_array();
-				
-				foreach ($results AS $key => $member)
-				{
-					if (in_array($member['group_id'], $this->settings['allowed_groups'])) $result_data[$key] = $member['member_id'];
-				}
-				
-				// Enforce max selections if applicable
-				if ($this->settings['max_selections'] > 0)
-				{
-					while (count($result_data) > $this->settings['max_selections']) array_pop($result_data);
-				}
-				
-				$result_data = (is_array($result_data) ? implode('|', $result_data) : '');
-			}
+   * Save Field
+   */
+  function save($field_data)
+  {
+		$db = $this->EE->db;
+		$result_data = '';
 		
-    	return $result_data;
-    }
-    
-    
-    /**
-     * Save Cell
-     */
-    function save_cell($cell_data)
-    {
-        return $this->save($cell_data);
-    }
+		if (is_array($field_data) && count($field_data) == 1 && isset($field_data[0]) && $field_data[0] == '__empty__')
+		{
+			$result_data = '';
+		}
+		elseif (is_array($field_data) && count($field_data) > 1)
+		{
+			// Validate member groups before saving
+			$db->select('member_id, group_id');
+			$db->from('exp_members');
+			$db->where_in('member_id', $field_data);
+			$results = $db->get()->result_array();
+			
+			foreach ($results AS $key => $member)
+			{
+				if (in_array($member['group_id'], $this->settings['allowed_groups'])) $result_data[$key] = $member['member_id'];
+			}
+			
+			// Enforce max selections if applicable
+			if ($this->settings['max_selections'] > 0)
+			{
+				while (count($result_data) > $this->settings['max_selections']) array_pop($result_data);
+			}
+			
+			$result_data = (is_array($result_data) ? implode('|', $result_data) : '');
+		}
+	
+  	return $result_data;
+  }
+  
+  /**
+   * Save Cell
+   */
+  function save_cell($cell_data)
+  {
+      return $this->save($cell_data);
+  }
 
-    /**
-     * Save variable data
-     */
-    function save_var_field($var_data)
-    {
-    	return $this->save($var_data);
-    }
+  /**
+   * Save variable data
+   */
+  function save_var_field($var_data)
+  {
+  	return $this->save($var_data);
+  }
 }
+/* End of file ft.vmg_chosen_member.php */
+/* Location: /system/expressionengine/third_party/vmg_chosen_member/ft.vmg_chosen_member.php */

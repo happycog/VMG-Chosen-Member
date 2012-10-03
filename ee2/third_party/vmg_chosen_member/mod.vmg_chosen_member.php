@@ -4,7 +4,7 @@
  * VMG Chosen Member Module Class
  * 
  * @package		VMG Chosen Member
- * @version		1.4
+ * @version		1.5
  * @author		Luke Wilkins <luke@vectormediagroup.com>
  * @copyright	Copyright (c) 2011-2012 Vector Media Group, Inc.
  **/
@@ -172,6 +172,15 @@ class Vmg_chosen_member {
 		$col = $this->EE->TMPL->fetch_param('col');
 		$member_id = $this->EE->TMPL->fetch_param('member_id', '');
 		$member_ids = explode('|', $member_id);
+
+		// Let's guarantee that we only consider users that still exist
+		$db->select('member_id');
+		$db->from('exp_members AS m');
+		$db->where_in('m.member_id', $member_ids);
+		$member_results = $db->get()->result_array();
+
+		$member_ids = array();
+		foreach ($member_results AS $member) $member_ids[] = $member['member_id'];
 
 		if (empty($member_ids)) return $this->EE->TMPL->no_results();
 
