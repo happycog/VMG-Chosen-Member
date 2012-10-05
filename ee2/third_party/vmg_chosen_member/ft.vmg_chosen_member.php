@@ -4,7 +4,7 @@
  * VMG Chosen Member Fieldtype Class
  * 
  * @package		VMG Chosen Member
- * @version		1.5
+ * @version		1.5.2
  * @author		Luke Wilkins <luke@vectormediagroup.com>
  * @copyright	Copyright (c) 2011-2012 Vector Media Group, Inc.
  **/
@@ -17,7 +17,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 	 * ------------------------------------------------------------ */
 	public $info = array(
 		'name' 			=> 'VMG Chosen Member',
-		'version'		=> '1.5',
+		'version'		=> '1.5.2',
 	);
 	
 	public $has_array_data = TRUE;
@@ -396,7 +396,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 		{
 			$result_data = '';
 		}
-		elseif (is_array($field_data) && count($field_data) > 1)
+		elseif (is_array($field_data))
 		{
 			// Validate member groups before saving
 			$db->select('member_id, group_id');
@@ -426,7 +426,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
    */
   function save_cell($cell_data)
   {
-      return $this->save($cell_data);
+		return $this->save($cell_data);
   }
 
   /**
