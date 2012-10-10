@@ -4,7 +4,7 @@
  * VMG Chosen Member Module CP Class
  * 
  * @package		VMG Chosen Member
- * @version		1.5.2
+ * @version		1.5.3
  * @author		Luke Wilkins <luke@vectormediagroup.com>
  * @copyright	Copyright (c) 2011-2012 Vector Media Group, Inc.
  **/
@@ -26,7 +26,6 @@ class Vmg_chosen_member_mcp {
 		
 		$this->EE->cp->set_right_nav(array(
 			'module_home'	=> $this->_base_url,
-			// Add more right nav items here.
 		));
 	}
 	
@@ -39,17 +38,8 @@ class Vmg_chosen_member_mcp {
 	 */
 	public function index()
 	{
-		$this->EE->cp->set_variable('cp_page_title', 
-								lang('vmg_chosen_member_module_name'));
-		
-		/**
-		 * This is the addons home page, add more code here!
-		 */		
+		$this->EE->cp->set_variable('cp_page_title', lang('vmg_chosen_member_module_name'));	
 	}
-
-	/**
-	 * Start on your custom code here...
-	 */
 	
 }
 /* End of file mcp.vmg_chosen_member.php */

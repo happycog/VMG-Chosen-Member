@@ -4,7 +4,7 @@
  * VMG Chosen Member Module Class
  * 
  * @package		VMG Chosen Member
- * @version		1.5.2
+ * @version		1.5.3
  * @author		Luke Wilkins <luke@vectormediagroup.com>
  * @copyright	Copyright (c) 2011-2012 Vector Media Group, Inc.
  **/
@@ -166,6 +166,12 @@ class Vmg_chosen_member {
 	{
 		$db = $this->EE->db;
 		$tagdata = $this->EE->TMPL->tagdata;
+
+		// Assist parsing of global variables as parameters
+		foreach ($this->EE->TMPL->tagparams AS $key => $val)
+		{
+			$this->EE->TMPL->tagparams[$key] = $this->EE->TMPL->parse_globals($val);
+		}
 
 		$prefix = $this->EE->TMPL->fetch_param('prefix', 'cm_');
 		$field = $this->EE->TMPL->fetch_param('field');

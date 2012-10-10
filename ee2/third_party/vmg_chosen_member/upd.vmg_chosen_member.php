@@ -4,14 +4,14 @@
  * VMG Chosen Member Update Class
  * 
  * @package		VMG Chosen Member
- * @version		1.5.2
+ * @version		1.5.3
  * @author		Luke Wilkins <luke@vectormediagroup.com>
  * @copyright	Copyright (c) 2011-2012 Vector Media Group, Inc.
  **/
 
 class Vmg_chosen_member_upd {
 	
-	public $version = '1.5.2';
+	public $version = '1.5.3';
 	
 	private $EE;
 	
@@ -57,19 +57,16 @@ class Vmg_chosen_member_upd {
 	public function uninstall()
 	{
 		$mod_id = $this->EE->db->select('module_id')
-								->get_where('modules', array(
-									'module_name'	=> 'Vmg_chosen_member'
-								))->row('module_id');
+			->get_where('modules', array(
+				'module_name'	=> 'Vmg_chosen_member'
+			))
+			->row('module_id');
 		
 		$this->EE->db->where('module_id', $mod_id)
-					 ->delete('module_member_groups');
+			->delete('module_member_groups');
 		
 		$this->EE->db->where('module_name', 'Vmg_chosen_member')
-					 ->delete('modules');
-		
-		// $this->EE->load->dbforge();
-		// Delete your custom tables & any ACT rows 
-		// you have in the actions table
+			->delete('modules');
 		
 		return TRUE;
 	}
@@ -83,7 +80,6 @@ class Vmg_chosen_member_upd {
 	 */	
 	public function update($current = '')
 	{
-		// If you have updates, drop 'em in here.
 		return TRUE;
 	}
 	
