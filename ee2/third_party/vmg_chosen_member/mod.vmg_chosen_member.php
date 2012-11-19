@@ -2,24 +2,24 @@
 
 /**
  * VMG Chosen Member Module Class
- * 
+ *
  * @package		VMG Chosen Member
- * @version		1.5.3
+ * @version		1.5.4
  * @author		Luke Wilkins <luke@vectormediagroup.com>
  * @copyright	Copyright (c) 2011-2012 Vector Media Group, Inc.
  **/
 
 class Vmg_chosen_member {
-	
+
 	public $return_data;
 
 	private $default_search_fields = array(
 		'username' => 'Username', 'screen_name' => 'Screen Name', 'email' => 'Email', 'url' => 'URL',
-		'location' => 'Location', 'occupation' => 'Occupation', 'interests' => 'Interests', 
+		'location' => 'Location', 'occupation' => 'Occupation', 'interests' => 'Interests',
 		'aol_im' => 'AOL IM', 'yahoo_im' => 'Yahoo! IM', 'msn_im' => 'MSN IM', 'icq' => 'ICQ',
 		'bio' => 'Bio', 'signature' => 'Signature',
 	);
-	
+
 	/**
 	 * Constructor
 	 */
@@ -27,14 +27,14 @@ class Vmg_chosen_member {
 	{
 		$this->EE =& get_instance();
 	}
-	
+
 	// ----------------------------------------------------------------
-	
+
 	function get_results()
 	{
 		$db = $this->EE->db;
 		$result = array();
-		
+
 		$field_id = $this->EE->input->get('field_id');
 		$is_matrix = ($this->EE->input->get('type') == 'matrix' ? true : false);
 		$is_low_var = ($this->EE->input->get('type') == 'lowvar' ? true : false);
@@ -67,7 +67,7 @@ class Vmg_chosen_member {
 			$db->where('cf.field_type', 'vmg_chosen_member');
 			$settings = $db->get()->row_array();
 		}
-		
+
 		if (!empty($settings) && $this->EE->input->is_ajax_request())
 		{
 			$settings = unserialize(base64_decode($settings['setting_data']));
@@ -97,7 +97,7 @@ class Vmg_chosen_member {
 					$search_fields_where[] = "LOWER({$field}) LIKE '%" . $query . "%'";
 				}
 			}
-			
+
 			// Gather and format results
 			$db->select('m.member_id, m.username, m.screen_name, ' . implode($search_fields, ', '));
 			$db->from('exp_members AS m');
@@ -140,7 +140,7 @@ class Vmg_chosen_member {
 		}
 
 		$this->EE->load->library('javascript');
-		
+
 		exit($this->EE->javascript->generate_json($result, TRUE));
 	}
 
@@ -227,16 +227,16 @@ class Vmg_chosen_member {
 
 		foreach ($temp_results AS $result) $results[] = $result['entry_id'];
 
-		$results = array(array(
+		$results = array(
 			$prefix . 'entry_ids' => implode('|', array_unique($results))
-		));
+		);
 
-		if (empty($tagdata)) return $this->return_data = $results[0][$prefix . 'entry_ids'];
+		if (empty($tagdata)) return $this->return_data = $results[$prefix . 'entry_ids'];
 
-		$this->return_data = $this->EE->TMPL->parse_variables($tagdata, $results);
+		$this->return_data = $this->EE->TMPL->parse_variables_row($tagdata, $results);
 		return $this->return_data;
 	}
-	
+
 }
 /* End of file mod.vmg_chosen_member.php */
 /* Location: /system/expressionengine/third_party/vmg_chosen_member/mod.vmg_chosen_member.php */

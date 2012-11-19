@@ -2,19 +2,19 @@
 
 /**
  * VMG Chosen Member Update Class
- * 
+ *
  * @package		VMG Chosen Member
- * @version		1.5.3
+ * @version		1.5.4
  * @author		Luke Wilkins <luke@vectormediagroup.com>
  * @copyright	Copyright (c) 2011-2012 Vector Media Group, Inc.
  **/
 
 class Vmg_chosen_member_upd {
-	
-	public $version = '1.5.3';
-	
+
+	public $version = '1.5.4';
+
 	private $EE;
-	
+
 	/**
 	 * Constructor
 	 */
@@ -22,9 +22,9 @@ class Vmg_chosen_member_upd {
 	{
 		$this->EE =& get_instance();
 	}
-	
+
 	// ----------------------------------------------------------------
-	
+
 	/**
 	 * Installation Method
 	 *
@@ -38,22 +38,22 @@ class Vmg_chosen_member_upd {
 			'has_cp_backend'		=> "n",
 			'has_publish_fields'	=> 'n'
 		);
-		
+
 		$this->EE->db->insert('modules', $mod_data);
-		
+
 		// Install Actions
 		$this->EE->db->insert('actions', array('class' => 'Vmg_chosen_member', 'method' => 'get_results'));
-		
+
 		return TRUE;
 	}
 
 	// ----------------------------------------------------------------
-	
+
 	/**
 	 * Uninstall
 	 *
 	 * @return 	boolean 	TRUE
-	 */	
+	 */
 	public function uninstall()
 	{
 		$mod_id = $this->EE->db->select('module_id')
@@ -61,28 +61,28 @@ class Vmg_chosen_member_upd {
 				'module_name'	=> 'Vmg_chosen_member'
 			))
 			->row('module_id');
-		
+
 		$this->EE->db->where('module_id', $mod_id)
 			->delete('module_member_groups');
-		
+
 		$this->EE->db->where('module_name', 'Vmg_chosen_member')
 			->delete('modules');
-		
+
 		return TRUE;
 	}
-	
+
 	// ----------------------------------------------------------------
-	
+
 	/**
 	 * Module Updater
 	 *
 	 * @return 	boolean 	TRUE
-	 */	
+	 */
 	public function update($current = '')
 	{
 		return TRUE;
 	}
-	
+
 }
 /* End of file upd.vmg_chosen_member.php */
 /* Location: /system/expressionengine/third_party/vmg_chosen_member/upd.vmg_chosen_member.php */

@@ -2,32 +2,32 @@
 
 /**
  * VMG Chosen Member Fieldtype Class
- * 
+ *
  * @package		VMG Chosen Member
- * @version		1.5.3
+ * @version		1.5.4
  * @author		Luke Wilkins <luke@vectormediagroup.com>
  * @copyright	Copyright (c) 2011-2012 Vector Media Group, Inc.
  **/
 
 class Vmg_chosen_member_ft extends EE_Fieldtype
 {
-	
+
 	/* --------------------------------------------------------------
 	 * VARIABLES
 	 * ------------------------------------------------------------ */
 	public $info = array(
 		'name' 			=> 'VMG Chosen Member',
-		'version'		=> '1.5.3',
+		'version'		=> '1.5.4',
 	);
-	
+
 	public $has_array_data = TRUE;
 	public $settings = array();
 	private $disallowed_fields = array('password', 'unique_id', 'crypt_key');
-	
+
 	/* --------------------------------------------------------------
 	 * GENERIC METHODS
 	 * ------------------------------------------------------------ */
-	
+
 	/**
 	 * Constructor
 	 */
@@ -35,11 +35,11 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 	{
 		parent::EE_Fieldtype();
 	}
-	
+
 	/* --------------------------------------------------------------
 	 * FIELDTYPE API
 	 * ------------------------------------------------------------ */
-	
+
 	/**
 	 * Display the field
 	 */
@@ -47,7 +47,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 	{
 		$db = $this->EE->db;
 		$populate = $selections = $member_data = array();
-		
+
 		// Generate values for pre-populated fields
 		if (!is_array($data)) $selections = explode('|', $data);
 		else $selections = $data;
@@ -60,10 +60,10 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 			if (!empty($this->settings['allowed_groups'])) $db->where_in('group_id', $this->settings['allowed_groups']);
 			$member_data = $db->get()->result_array();
 		}
-		
+
 		// Get ajax action id
 		$action = $db->select('action_id')->from('exp_actions')->where('class', 'Vmg_chosen_member')->where('method', 'get_results')->get()->row_array();
-		
+
 		// Build data for view
 		$vars = array(
 			'field_id' => (isset($this->var_id) ? $this->var_id : $this->field_id),
@@ -86,7 +86,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 
 		if ($vars['is_matrix']) $vars['json_url'] .= '&type=matrix';
 		elseif ($vars['is_low_var']) $vars['json_url'] .= '&type=lowvar';
-		
+
 		if (!isset($this->EE->session->cache['vmg_chosen_member']['assets_included']))
 		{
 			$this->EE->cp->add_to_head('<link rel="stylesheet" type="text/css" href="' . $this->EE->config->item('theme_folder_url') . 'third_party/vmg_chosen_member/chosen/chosen.css' . '" />');
@@ -96,17 +96,17 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 
 			$this->EE->session->cache['vmg_chosen_member']['assets_included'] = true;
 		}
-		
+
 		$default_view_path = $this->EE->load->_ci_view_path;
 		$this->EE->load->_ci_view_path = PATH_THIRD . 'vmg_chosen_member/views/';
-		
+
 		$view = $this->EE->load->view('display_field', $vars, TRUE);
-		
+
 		$this->EE->load->_ci_view_path = $default_view_path;
-		
+
 		return $view;
 	}
-	
+
 	/**
 	 * Display the field (as cell)
 	 */
@@ -122,7 +122,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 	{
 		return $this->display_field($data);
 	}
-	
+
 	/**
    * Display Tag
    */
@@ -135,7 +135,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 		$member_search = !empty($params['member_id']) ? explode('|', $params['member_id']) : array();
 
 		$members = explode('|', $field_data);
-		
+
 		// Single tag simply returns member list (pipe delimited)
 		if ( ! $tagdata)
     {
@@ -153,7 +153,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 				$members_list = $this->EE->session->cache['vmg_chosen_member']['single' . $this->field_id . '_' . $field_data] = implode('|', $members_list);
 			}
 			else $members_list = $this->EE->session->cache['vmg_chosen_member']['single' . $this->field_id . '_' . $field_data];
-				
+
 			return $members_list;
   	}
   	else
@@ -178,13 +178,13 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 				{
 					if ($params['sort']) $sort = $params['sort'];
 					else $sort = 'asc';
-					
-					$db->order_by($params['orderby'], $sort); 
+
+					$db->order_by($params['orderby'], $sort);
 				}
 				elseif (!empty($params['sort'])) $db->order_by('m.member_id', $params['sort']);
 				if (!empty($params['limit']) && is_numeric($params['limit'])) $db->limit($params['limit']);
 				$results = $db->get()->result_array();
-				
+
 				if (empty($results)) return '';
 
 				// Rename member data fields if we retrieved them
@@ -205,7 +205,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 				$this->EE->session->cache['vmg_chosen_member'][$this->field_id . '_' . $field_data] = $results;
 			}
 			else $results = $this->EE->session->cache['vmg_chosen_member'][$this->field_id . '_' . $field_data];
-			
+
 			// Add prefix if set
 			foreach ($results AS $key => $member)
 			{
@@ -232,7 +232,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 			{
 				$output = substr($output, 0, ($backspace * -1));
 			}
-            
+
       return $output;
     }
 	}
@@ -256,7 +256,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 
 			return $results;
 		}
-		
+
 		return count($this->EE->session->cache['vmg_chosen_member'][$this->field_id . '_' . $field_data]);
 	}
 
@@ -274,20 +274,20 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 
 		return $this->replace_tag($field_data, $params, $tagdata);
 	}
-	
+
 	/**
 	 * Display the fieldtype settings
 	 */
 	public function display_settings($data, $matrix = FALSE)
 	{
 		$db = $this->EE->db;
-		
+
 		// Get member groups for current site
 		$db->select("group_id, group_title");
 		$db->from('exp_member_groups');
 		$db->where('site_id', $this->EE->config->config['site_id']);
 		$groups = $db->get()->result_array();
-		
+
 		$member_groups = array();
 		foreach ($groups AS $key => $value) $member_groups[$value['group_id']] = $value['group_title'];
 
@@ -299,41 +299,41 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 
 		$search_fields = array(
 			'username' => 'Username', 'screen_name' => 'Screen Name', 'email' => 'Email', 'url' => 'URL',
-			'location' => 'Location', 'occupation' => 'Occupation', 'interests' => 'Interests', 
+			'location' => 'Location', 'occupation' => 'Occupation', 'interests' => 'Interests',
 			'aol_im' => 'AOL IM', 'yahoo_im' => 'Yahoo! IM', 'msn_im' => 'MSN IM', 'icq' => 'ICQ',
 			'bio' => 'Bio', 'signature' => 'Signature',
 		);
 		foreach ($fields AS $key => $value) $search_fields[$value['m_field_name']] = $value['m_field_label'];
-		
+
 		// Build up the settings array
 		$settings = array(
 			array(
-				'<strong>Allowed groups</strong>', 
+				'<strong>Allowed groups</strong>',
 				form_multiselect('allowed_groups[]', $member_groups, (!empty($data['allowed_groups']) ? $data['allowed_groups'] : array()))
 			),
 			array(
-				'<strong>Max selections allowed</strong><br/>Leave blank for no limit.', 
+				'<strong>Max selections allowed</strong><br/>Leave blank for no limit.',
 				form_input('max_selections', (!empty($data['max_selections']) ? $data['max_selections'] : ''))
 			),
 			array(
-				'<strong>Placeholder text</strong><br/>Displayed if <i>"Max selections allowed"</i> does not equal 1.', 
+				'<strong>Placeholder text</strong><br/>Displayed if <i>"Max selections allowed"</i> does not equal 1.',
 				form_input(array('name' => 'placeholder_text', 'class' => 'fullfield'), (!empty($data['placeholder_text']) ? $data['placeholder_text'] : 'Begin typing a member\'s name...'))
 			),
 			array(
-				'<strong>Search fields</strong><br/>Determines which member fields will be searched.<br/><i>Defaults to Username &amp; Screen Name if no selections are made.</i>', 
+				'<strong>Search fields</strong><br/>Determines which member fields will be searched.<br/><i>Defaults to Username &amp; Screen Name if no selections are made.</i>',
 				form_multiselect('search_fields[]', $search_fields, (!empty($data['search_fields']) ? $data['search_fields'] : array()))
 			),
 		);
-		
+
 		// Just return if this is in a matrix
 		if ($matrix) return $settings;
-		
+
 		// Not in matrix, so build table rows
 		foreach ($settings as $setting) {
 			$this->EE->table->add_row($setting[0], $setting[1]);
 		}
 	}
-	
+
 	/**
 	 * Display the fieldtype cell settings
 	 */
@@ -349,7 +349,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 	{
 		return $this->display_settings($data, true);
 	}
-	
+
 	/**
 	 * Save the fieldtype settings
 	 */
@@ -364,10 +364,10 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 
 		// Ensure search field defaults if no selections were made
 		if (!is_array($settings['search_fields']) || empty($settings['search_fields'])) $settings['search_fields'] = array('username', 'screen_name');
-		
+
 		return $settings;
 	}
-	
+
 	/**
 	 * Save the fieldtype cell settings
 	 */
@@ -383,7 +383,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 	{
 		return $this->save_settings($data);
 	}
-	
+
 	/**
    * Save Field
    */
@@ -391,7 +391,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
   {
 		$db = $this->EE->db;
 		$result_data = '';
-		
+
 		if (is_array($field_data) && count($field_data) == 1 && isset($field_data[0]) && $field_data[0] == '__empty__')
 		{
 			$result_data = '';
@@ -403,24 +403,24 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 			$db->from('exp_members');
 			$db->where_in('member_id', $field_data);
 			$results = $db->get()->result_array();
-			
+
 			foreach ($results AS $key => $member)
 			{
 				if (in_array($member['group_id'], $this->settings['allowed_groups'])) $result_data[$key] = $member['member_id'];
 			}
-			
+
 			// Enforce max selections if applicable
 			if ($this->settings['max_selections'] > 0)
 			{
 				while (count($result_data) > $this->settings['max_selections']) array_pop($result_data);
 			}
-			
+
 			$result_data = (is_array($result_data) ? implode('|', $result_data) : '');
 		}
-	
+
   	return $result_data;
   }
-  
+
   /**
    * Save Cell
    */
