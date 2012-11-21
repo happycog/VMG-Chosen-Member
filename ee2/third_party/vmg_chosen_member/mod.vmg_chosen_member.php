@@ -4,7 +4,7 @@
  * VMG Chosen Member Module Class
  *
  * @package		VMG Chosen Member
- * @version		1.5.4
+ * @version		1.5.5
  * @author		Luke Wilkins <luke@vectormediagroup.com>
  * @copyright	Copyright (c) 2011-2012 Vector Media Group, Inc.
  **/
