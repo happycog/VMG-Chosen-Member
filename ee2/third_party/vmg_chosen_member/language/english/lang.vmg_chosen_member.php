@@ -1,16 +1,14 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
-$lang = array(	
-	'vmg_chosen_member_module_name' => 
+$lang = array(
+	'vmg_chosen_member_module_name' =>
 	'VMG Chosen Member',
 
-	'vmg_chosen_member_module_description' => 
+	'vmg_chosen_member_module_description' =>
 	'Allow selection of one of more members. Includes autocomplete capabilities and friendly listing of large numbers of users.',
 
 	'module_home' => 'VMG Chosen Member Home',
-	
-// Start inserting custom language keys/values here
-	
+
 );
 
 /* End of file lang.vmg_chosen_member.php */

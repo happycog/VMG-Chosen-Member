@@ -6,15 +6,12 @@
  * @package		VMG Chosen Member
  * @version		1.5.5
  * @author		Luke Wilkins <luke@vectormediagroup.com>
- * @copyright	Copyright (c) 2011-2012 Vector Media Group, Inc.
- **/
+ * @copyright	Copyright (c) 2011-2013 Vector Media Group, Inc.
+ */
 
 class Vmg_chosen_member_ft extends EE_Fieldtype
 {
 
-	/* --------------------------------------------------------------
-	 * VARIABLES
-	 * ------------------------------------------------------------ */
 	public $info = array(
 		'name' 			=> 'VMG Chosen Member',
 		'version'		=> '1.5.5',
@@ -22,11 +19,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 
 	public $has_array_data = TRUE;
 	public $settings = array();
-	private $disallowed_fields = array('password', 'unique_id', 'crypt_key');
-
-	/* --------------------------------------------------------------
-	 * GENERIC METHODS
-	 * ------------------------------------------------------------ */
+	protected $disallowed_fields = array('password', 'unique_id', 'crypt_key');
 
 	/**
 	 * Constructor
@@ -36,16 +29,11 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 		parent::EE_Fieldtype();
 	}
 
-	/* --------------------------------------------------------------
-	 * FIELDTYPE API
-	 * ------------------------------------------------------------ */
-
 	/**
 	 * Display the field
 	 */
 	public function display_field($data)
 	{
-		$db = $this->EE->db;
 		$populate = $selections = $member_data = array();
 
 		// Generate values for pre-populated fields
@@ -54,15 +42,22 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 
 		if (is_array($selections) && !empty($selections))
 		{
-			$db->select("member_id, screen_name");
-			$db->from('exp_members');
-			$db->where_in('member_id', $selections);
-			if (!empty($this->settings['allowed_groups'])) $db->where_in('group_id', $this->settings['allowed_groups']);
-			$member_data = $db->get()->result_array();
+			$this->EE->db->select("member_id, screen_name")
+				->from('exp_members')
+				->where_in('member_id', $selections);
+
+			if (!empty($this->settings['allowed_groups'])) $this->EE->db->where_in('group_id', $this->settings['allowed_groups']);
+
+			$member_data = $this->EE->db->get()->result_array();
 		}
 
 		// Get ajax action id
-		$action = $db->select('action_id')->from('exp_actions')->where('class', 'Vmg_chosen_member')->where('method', 'get_results')->get()->row_array();
+		$action = $this->EE->db->select('action_id')
+			->from('exp_actions')
+			->where('class', 'Vmg_chosen_member')
+			->where('method', 'get_results')
+			->get()
+			->row_array();
 
 		// Build data for view
 		$vars = array(
@@ -124,11 +119,10 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 	}
 
 	/**
-   * Display Tag
-   */
-  function replace_tag($field_data, $params = array(), $tagdata = FALSE)
+	 * Display Tag
+	 */
+	function replace_tag($field_data, $params = array(), $tagdata = FALSE)
 	{
-		$db = $this->EE->db;
 		$disable = !empty($params['disable']) ? explode('|', $params['disable']) : array();
 		$prefix = isset($params['prefix']) ? $params['prefix'] : 'cm_';
 		$backspace = isset($params['backspace']) ? $params['backspace'] : null;
@@ -138,15 +132,16 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 
 		// Single tag simply returns member list (pipe delimited)
 		if ( ! $tagdata)
-    {
-    	if ( ! isset($this->EE->session->cache['vmg_chosen_member']['single' . $this->field_id . '_' . $field_data]))
+		{
+			if ( ! isset($this->EE->session->cache['vmg_chosen_member']['single' . $this->field_id . '_' . $field_data]))
 			{
-	    	$members_list = array();
+				$members_list = array();
 
-	    	$db->select('member_id');
-				$db->from('exp_members AS m');
-				$db->where_in('m.member_id', $members);
-				$results = $db->get()->result_array();
+				$results = $this->EE->db->select('member_id')
+					->from('exp_members AS m')
+					->where_in('m.member_id', $members)
+					->get()
+					->result_array();
 
 				foreach ($results AS $result) $members_list[] = $result['member_id'];
 
@@ -155,8 +150,8 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 			else $members_list = $this->EE->session->cache['vmg_chosen_member']['single' . $this->field_id . '_' . $field_data];
 
 			return $members_list;
-  	}
-  	else
+		}
+		else
 		{
 			if ( ! isset($this->EE->session->cache['vmg_chosen_member'][$this->field_id . '_' . $field_data]))
 			{
@@ -167,30 +162,35 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 				}
 
 				// Gather user data
-				$db->select('m.*' . (!in_array('member_data', $disable) ? ', md.*' : ''));
-				$db->from('exp_members AS m');
-				if (!in_array('member_data', $disable)) $db->join('exp_member_data AS md', 'md.member_id = m.member_id', 'left');
-				$db->where_in('m.member_id', $members);
-				if (!empty($member_search)) $db->where_in('m.member_id', $member_search);
-				if (!empty($this->settings['allowed_groups'])) $db->where_in('m.group_id', $this->settings['allowed_groups']);
-				if (!empty($params['group_id'])) $db->where_in('m.group_id', explode('|', $params['group_id']));
+				$this->EE->db->select('m.*' . (!in_array('member_data', $disable) ? ', md.*' : ''))
+					->from('exp_members AS m')
+					->where_in('m.member_id', $members);
+
+				if (!in_array('member_data', $disable)) $this->EE->db->join('exp_member_data AS md', 'md.member_id = m.member_id', 'left');
+				if (!empty($member_search)) $this->EE->db->where_in('m.member_id', $member_search);
+				if (!empty($this->settings['allowed_groups'])) $this->EE->db->where_in('m.group_id', $this->settings['allowed_groups']);
+				if (!empty($params['group_id'])) $this->EE->db->where_in('m.group_id', explode('|', $params['group_id']));
 				if (!empty($params['orderby']))
 				{
 					if ($params['sort']) $sort = $params['sort'];
 					else $sort = 'asc';
 
-					$db->order_by($params['orderby'], $sort);
+					$this->EE->db->order_by($params['orderby'], $sort);
 				}
-				elseif (!empty($params['sort'])) $db->order_by('m.member_id', $params['sort']);
-				if (!empty($params['limit']) && is_numeric($params['limit'])) $db->limit($params['limit']);
-				$results = $db->get()->result_array();
+				elseif (!empty($params['sort'])) $this->EE->db->order_by('m.member_id', $params['sort']);
+				if (!empty($params['limit']) && is_numeric($params['limit'])) $this->EE->db->limit($params['limit']);
+
+				$results = $this->EE->db->get()->result_array();
 
 				if (empty($results)) return '';
 
 				// Rename member data fields if we retrieved them
 				if (!in_array('member_data', $disable))
 				{
-					$member_fields = $db->select('m_field_id, m_field_name')->from('exp_member_fields')->get()->result_array();
+					$member_fields = $this->EE->db->select('m_field_id, m_field_name')
+						->from('exp_member_fields')
+						->get()
+						->result_array();
 
 					foreach ($results AS $key => $member)
 					{
@@ -225,16 +225,16 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 				}
 			}
 
-      $output = $this->EE->TMPL->parse_variables($tagdata, $results);
+			$output = $this->EE->TMPL->parse_variables($tagdata, $results);
 
-      // Remove X number of characters from end if backspace is set
-      if (!is_null($backspace) && is_numeric($backspace))
+			// Remove X number of characters from end if backspace is set
+			if (!is_null($backspace) && is_numeric($backspace))
 			{
 				$output = substr($output, 0, ($backspace * -1));
 			}
 
-      return $output;
-    }
+			return $output;
+		}
 	}
 
 
@@ -243,16 +243,15 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 	 */
 	function replace_total_members($field_data, $params = array(), $tagdata = FALSE)
 	{
-		$db = $this->EE->db;
-
 		// Determine number of results if not cached already
 		if (!isset($this->EE->session->cache['vmg_chosen_member'][$this->field_id . '_' . $field_data]))
 		{
 			$members = explode('|', $field_data);
 
-			$db->from('exp_members AS m');
-			$db->where_in('m.member_id', $members);
-			$results = $db->get()->num_rows();
+			$results = $this->EE->db->from('exp_members AS m')
+				->where_in('m.member_id', $members)
+				->get()
+				->num_rows();
 
 			return $results;
 		}
@@ -280,22 +279,22 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 	 */
 	public function display_settings($data, $matrix = FALSE)
 	{
-		$db = $this->EE->db;
-
 		// Get member groups for current site
-		$db->select("mg.group_id, mg.group_title");
-		$db->from('exp_member_groups AS mg');
-		$db->group_by('mg.group_id');
-		$groups = $db->get()->result_array();
+		$groups = $this->EE->db->select("mg.group_id, mg.group_title")
+			->from('exp_member_groups AS mg')
+			->group_by('mg.group_id')
+			->get()
+			->result_array();
 
 		$member_groups = array();
 		foreach ($groups AS $key => $value) $member_groups[$value['group_id']] = $value['group_title'];
 
 		// Get member custom field list
-		$db->select("m_field_name, m_field_label");
-		$db->from('exp_member_fields');
-		$db->order_by('m_field_order', 'asc');
-		$fields = $db->get()->result_array();
+		$fields = $this->EE->db->select("m_field_name, m_field_label")
+			->from('exp_member_fields')
+			->order_by('m_field_order', 'asc')
+			->get()
+			->result_array();
 
 		$search_fields = array(
 			'username' => 'Username', 'screen_name' => 'Screen Name', 'email' => 'Email', 'url' => 'URL',
@@ -303,6 +302,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 			'aol_im' => 'AOL IM', 'yahoo_im' => 'Yahoo! IM', 'msn_im' => 'MSN IM', 'icq' => 'ICQ',
 			'bio' => 'Bio', 'signature' => 'Signature',
 		);
+
 		foreach ($fields AS $key => $value) $search_fields[$value['m_field_name']] = $value['m_field_label'];
 
 		// Build up the settings array
@@ -385,11 +385,10 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 	}
 
 	/**
-   * Save Field
-   */
-  function save($field_data)
-  {
-		$db = $this->EE->db;
+	* Save Field
+	*/
+	function save($field_data)
+	{
 		$result_data = '';
 
 		if (is_array($field_data) && count($field_data) == 1 && isset($field_data[0]) && $field_data[0] == '__empty__')
@@ -399,10 +398,11 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 		elseif (is_array($field_data))
 		{
 			// Validate member groups before saving
-			$db->select('member_id, group_id');
-			$db->from('exp_members');
-			$db->where_in('member_id', $field_data);
-			$results = $db->get()->result_array();
+			$results = $this->EE->db->select('member_id, group_id')
+				->from('exp_members')
+				->where_in('member_id', $field_data)
+				->get()
+				->result_array();
 
 			foreach ($results AS $key => $member)
 			{
@@ -418,24 +418,25 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 			$result_data = (is_array($result_data) ? implode('|', $result_data) : '');
 		}
 
-  	return $result_data;
-  }
+		return $result_data;
+	}
 
-  /**
-   * Save Cell
-   */
-  function save_cell($cell_data)
-  {
+	/**
+	* Save Cell
+	*/
+	function save_cell($cell_data)
+	{
 		return $this->save($cell_data);
-  }
+	}
 
-  /**
-   * Save variable data
-   */
-  function save_var_field($var_data)
-  {
-  	return $this->save($var_data);
-  }
+	/**
+	* Save variable data
+	*/
+	function save_var_field($var_data)
+	{
+		return $this->save($var_data);
+	}
 }
+
 /* End of file ft.vmg_chosen_member.php */
 /* Location: /system/expressionengine/third_party/vmg_chosen_member/ft.vmg_chosen_member.php */

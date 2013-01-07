@@ -6,8 +6,8 @@
  * @package		VMG Chosen Member
  * @version		1.5.5
  * @author		Luke Wilkins <luke@vectormediagroup.com>
- * @copyright	Copyright (c) 2011-2012 Vector Media Group, Inc.
- **/
+ * @copyright	Copyright (c) 2011-2013 Vector Media Group, Inc.
+ */
 
 class Vmg_chosen_member_upd {
 
@@ -42,7 +42,10 @@ class Vmg_chosen_member_upd {
 		$this->EE->db->insert('modules', $mod_data);
 
 		// Install Actions
-		$this->EE->db->insert('actions', array('class' => 'Vmg_chosen_member', 'method' => 'get_results'));
+		$this->EE->db->insert('actions', array(
+			'class' => 'Vmg_chosen_member',
+			'method' => 'get_results'
+		));
 
 		return TRUE;
 	}
@@ -84,5 +87,6 @@ class Vmg_chosen_member_upd {
 	}
 
 }
+
 /* End of file upd.vmg_chosen_member.php */
 /* Location: /system/expressionengine/third_party/vmg_chosen_member/upd.vmg_chosen_member.php */

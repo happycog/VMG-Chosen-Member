@@ -6,8 +6,8 @@
  * @package		VMG Chosen Member
  * @version		1.5.5
  * @author		Luke Wilkins <luke@vectormediagroup.com>
- * @copyright	Copyright (c) 2011-2012 Vector Media Group, Inc.
- **/
+ * @copyright	Copyright (c) 2011-2013 Vector Media Group, Inc.
+ */
 
 class Vmg_chosen_member_mcp {
 
@@ -42,5 +42,6 @@ class Vmg_chosen_member_mcp {
 	}
 
 }
+
 /* End of file mcp.vmg_chosen_member.php */
 /* Location: /system/expressionengine/third_party/vmg_chosen_member/mcp.vmg_chosen_member.php */
