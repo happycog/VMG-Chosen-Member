@@ -4,14 +4,14 @@
  * VMG Chosen Member Update Class
  *
  * @package		VMG Chosen Member
- * @version		1.5.5
+ * @version		1.6
  * @author		Luke Wilkins <luke@vectormediagroup.com>
  * @copyright	Copyright (c) 2011-2013 Vector Media Group, Inc.
  */
 
 class Vmg_chosen_member_upd {
 
-	public $version = '1.5.5';
+	public $version = '1.6';
 
 	private $EE;
 
@@ -28,7 +28,7 @@ class Vmg_chosen_member_upd {
 	/**
 	 * Installation Method
 	 *
-	 * @return 	boolean 	TRUE
+	 * @return 	boolean 	true
 	 */
 	public function install()
 	{
@@ -47,7 +47,135 @@ class Vmg_chosen_member_upd {
 			'method' => 'get_results'
 		));
 
-		return TRUE;
+		$this->create_table();
+
+		return true;
+	}
+
+	// ----------------------------------------------------------------
+
+	/**
+	 * Module Updater
+	 *
+	 * @return 	boolean 	true
+	 */
+	public function update($current = '')
+	{
+		if ($current == $this->version)
+		{
+			return false;
+		}
+
+		if (version_compare($current, '1.6', '<'))
+		{
+			// We now store our data in its own table
+			$this->create_table();
+
+			// Convert data from standard fields
+			$fields = $this->EE->db->select('field_id')
+				->from('channel_fields')
+				->where('field_type', 'vmg_chosen_member')
+				->get()
+				->result_array();
+
+			foreach ($fields AS $field) {
+				$entries = $this->EE->db->select("entry_id, '".$field['field_id']."' AS field_id, field_id_".$field['field_id']." AS member_ids", false)
+					->from('channel_data')
+					->where('field_id_' . $field['field_id'] . ' !=', '')
+					->get()
+					->result_array();
+
+				foreach ($entries AS $entry) {
+					$this->record($entry);
+				}
+			}
+
+			// Convert data from matrix fields
+			if ($this->EE->db->table_exists('matrix_cols')) {
+				$fields = $this->EE->db->select('col_id, field_id, var_id')
+					->from('matrix_cols')
+					->where('col_type', 'vmg_chosen_member')
+					->get()
+					->result_array();
+
+				foreach ($fields AS $field) {
+					$entries = $this->EE->db->select("entry_id, '".$field['field_id']."' AS field_id, '".$field['col_id']."' AS col_id, '".$field['var_id']."' AS var_id, row_id, col_id_".$field['col_id']." AS member_ids", false)
+						->from('matrix_data')
+						->where('col_id_' . $field['col_id'] . ' !=', '')
+						->get()
+						->result_array();
+
+					foreach ($entries AS $entry) {
+						$this->record($entry);
+					}
+				}
+			}
+
+			// Convert data from low variable fields
+			if ($this->EE->db->table_exists('low_variables')) {
+				$entries = $this->EE->db->select("lv.variable_id AS var_id, gv.variable_data AS member_ids", false)
+					->from('low_variables AS lv')
+					->join('global_variables AS gv', 'gv.variable_id = lv.variable_id', 'inner')
+					->where('lv.variable_type', 'vmg_chosen_member')
+					->where('gv.variable_data !=', '')
+					->get()
+					->result_array();
+
+				foreach ($entries AS $entry) {
+					$this->record($entry);
+				}
+			}
+		}
+
+		// Update ft data
+		$this->EE->db->where('name', 'vmg_chosen_member')
+			->update('fieldtypes', array('version' => $this->version));
+
+		return true;
+	}
+
+	// ----------------------------------------------------------------
+
+	private function create_table()
+	{
+		$this->EE->load->dbforge();
+
+		$this->EE->dbforge->add_field(array(
+			'rel_id' => array('type' => 'int', 'constraint' => 10, 'unsigned' => true, 'auto_increment' => true),
+			'entry_id' => array('type' => 'int', 'constraint' => 10, 'unsigned' => true),
+			'field_id' => array('type' => 'int', 'constraint' => 6, 'unsigned' => true),
+			'col_id' => array('type' => 'int', 'constraint' => 6, 'unsigned' => true),
+			'row_id' => array('type' => 'int', 'constraint' => 10, 'unsigned' => true),
+			'var_id' => array('type' => 'int', 'constraint' => 6, 'unsigned' => true),
+			'member_id' => array('type' => 'int', 'constraint' => 10, 'unsigned' => true),
+			'order' => array('type' => 'int', 'constraint' => 4, 'unsigned' => true),
+		));
+
+		$this->EE->dbforge->add_key('rel_id', true);
+		$this->EE->dbforge->add_key('entry_id');
+		$this->EE->dbforge->add_key('field_id');
+		$this->EE->dbforge->add_key('col_id');
+		$this->EE->dbforge->add_key('row_id');
+		$this->EE->dbforge->add_key('var_id');
+		$this->EE->dbforge->add_key('member_id');
+		$this->EE->dbforge->create_table('vmg_chosen_member', true);
+
+		return true;
+	}
+
+	// ----------------------------------------------------------------
+
+	private function record($entry)
+	{
+		$member_ids = explode('|', $entry['member_ids']);
+		unset($entry['member_ids']);
+
+		$order = 0;
+		foreach ($member_ids AS $member_id) {
+			$this->EE->db->set('member_id', $member_id)
+				->set('order', $order++)
+				->insert('vmg_chosen_member', $entry);
+		}
 	}
 
 	// ----------------------------------------------------------------
@@ -55,10 +183,12 @@ class Vmg_chosen_member_upd {
 	/**
 	 * Uninstall
 	 *
-	 * @return 	boolean 	TRUE
+	 * @return 	boolean 	true
 	 */
 	public function uninstall()
 	{
+		$this->EE->load->dbforge();
+
 		$mod_id = $this->EE->db->select('module_id')
 			->get_where('modules', array(
 				'module_name'	=> 'Vmg_chosen_member'
@@ -71,19 +201,12 @@ class Vmg_chosen_member_upd {
 		$this->EE->db->where('module_name', 'Vmg_chosen_member')
 			->delete('modules');
 
-		return TRUE;
-	}
+		$this->EE->db->where('class', 'Vmg_chosen_member')
+			->delete('actions');
 
-	// ----------------------------------------------------------------
+		$this->EE->dbforge->drop_table('vmg_chosen_member');
 
-	/**
-	 * Module Updater
-	 *
-	 * @return 	boolean 	TRUE
-	 */
-	public function update($current = '')
-	{
-		return TRUE;
+		return true;
 	}
 
 }
