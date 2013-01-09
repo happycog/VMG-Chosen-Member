@@ -86,7 +86,7 @@ class Vmg_chosen_member_upd {
 					->result_array();
 
 				foreach ($entries AS $entry) {
-					$this->record($entry);
+					$this->save_association($entry);
 				}
 			}
 
@@ -106,7 +106,7 @@ class Vmg_chosen_member_upd {
 						->result_array();
 
 					foreach ($entries AS $entry) {
-						$this->record($entry);
+						$this->save_association($entry);
 					}
 				}
 			}
@@ -122,7 +122,7 @@ class Vmg_chosen_member_upd {
 					->result_array();
 
 				foreach ($entries AS $entry) {
-					$this->record($entry);
+					$this->save_association($entry);
 				}
 			}
 		}
@@ -141,31 +141,25 @@ class Vmg_chosen_member_upd {
 		$this->EE->load->dbforge();
 
 		$this->EE->dbforge->add_field(array(
-			'rel_id' => array('type' => 'int', 'constraint' => 10, 'unsigned' => true, 'auto_increment' => true),
-			'entry_id' => array('type' => 'int', 'constraint' => 10, 'unsigned' => true),
-			'field_id' => array('type' => 'int', 'constraint' => 6, 'unsigned' => true),
-			'col_id' => array('type' => 'int', 'constraint' => 6, 'unsigned' => true),
-			'row_id' => array('type' => 'int', 'constraint' => 10, 'unsigned' => true),
-			'var_id' => array('type' => 'int', 'constraint' => 6, 'unsigned' => true),
-			'member_id' => array('type' => 'int', 'constraint' => 10, 'unsigned' => true),
-			'order' => array('type' => 'int', 'constraint' => 4, 'unsigned' => true),
+			'entry_id' => array('type' => 'int', 'constraint' => 10, 'unsigned' => true, 'default' => 0),
+			'field_id' => array('type' => 'int', 'constraint' => 6, 'unsigned' => true, 'default' => 0),
+			'col_id' => array('type' => 'int', 'constraint' => 6, 'unsigned' => true, 'default' => 0),
+			'row_id' => array('type' => 'int', 'constraint' => 10, 'unsigned' => true, 'default' => 0),
+			'var_id' => array('type' => 'int', 'constraint' => 6, 'unsigned' => true, 'default' => 0),
+			'member_id' => array('type' => 'int', 'constraint' => 10, 'unsigned' => true, 'default' => 0),
+			'order' => array('type' => 'int', 'constraint' => 4, 'unsigned' => true, 'default' => 0),
 		));
 
-		$this->EE->dbforge->add_key('rel_id', true);
-		$this->EE->dbforge->add_key('entry_id');
-		$this->EE->dbforge->add_key('field_id');
-		$this->EE->dbforge->add_key('col_id');
-		$this->EE->dbforge->add_key('row_id');
-		$this->EE->dbforge->add_key('var_id');
-		$this->EE->dbforge->add_key('member_id');
 		$this->EE->dbforge->create_table('vmg_chosen_member', true);
+
+		$this->EE->db->query("ALTER TABLE exp_vmg_chosen_member ADD UNIQUE KEY `unique_all` (`entry_id`, `field_id`, `col_id`, `row_id`, `var_id`, `member_id`)");
 
 		return true;
 	}
 
 	// ----------------------------------------------------------------
 
-	private function record($entry)
+	private function save_association($entry)
 	{
 		$member_ids = explode('|', $entry['member_ids']);
 		unset($entry['member_ids']);
