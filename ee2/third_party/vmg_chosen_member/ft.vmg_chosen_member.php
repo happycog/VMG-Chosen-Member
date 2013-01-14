@@ -149,7 +149,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 				$settings = array(
 					'allowed_groups' => $this->settings['allowed_groups'],
 					'max_selections' => $this->settings['max_selections'],
-					$settings['search'] => array(),
+					'search' => array(),
 				);
 
 				// Limit to specific members
