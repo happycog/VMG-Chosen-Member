@@ -11,14 +11,13 @@
 
 class Vmg_chosen_member_ft extends EE_Fieldtype
 {
-
 	public $info = array(
 		'name' 			=> 'VMG Chosen Member',
 		'version'		=> '1.6',
 	);
 
 	public $chosen_helper;
-	public $has_array_data = TRUE;
+	public $has_array_data = true;
 	public $settings = array();
 	public $ft_data = array();
 
@@ -31,11 +30,16 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 
 		// Load our helper
 		if (! class_exists('Chosen_helper') || ! is_a($this->chosen_helper, 'Chosen_helper')) {
-
 			require_once PATH_THIRD.'vmg_chosen_member/helper.php';
 			$this->chosen_helper = new Chosen_helper;
-
 		}
+
+		// Prep cache
+		if (! isset($this->EE->session->cache['vmg_chosen_member'])) {
+			$this->EE->session->cache['vmg_chosen_member'] = array();
+		}
+
+		$this->cache =& $this->EE->session->cache['vmg_chosen_member'];
 	}
 
 	/**
@@ -44,7 +48,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 	public function display_field($data)
 	{
 		// Define base variables
-		$this->init_data();
+		$this->chosen_helper->init_data($this);
 
 		// Get JSON URL and append type if applicable
 		$this->ft_data['json_url'] = $this->chosen_helper->action_id('get_results', true);
@@ -74,7 +78,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 		$default_view_path = $this->EE->load->_ci_view_path;
 		$this->EE->load->_ci_view_path = PATH_THIRD . 'vmg_chosen_member/views/';
 
-		$view = $this->EE->load->view('display_field', $this->ft_data, TRUE);
+		$view = $this->EE->load->view('display_field', $this->ft_data, true);
 
 		$this->EE->load->_ci_view_path = $default_view_path;
 
@@ -92,7 +96,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 	/**
 	 * Display Variable Field
 	 */
-	function display_var_field($data)
+	public function display_var_field($data)
 	{
 		return $this->display_field($data);
 	}
@@ -100,14 +104,14 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 	/**
 	 * Display Tag
 	 */
-	function replace_tag($field_data, $params = array(), $tagdata = FALSE)
+	public function replace_tag($data, $params = array(), $tagdata = false)
 	{
-		$this->init_data();
+		$this->chosen_helper->init_data($this);
 
 		// Single tag simply returns a pipe delimited Member IDs
 		if ( ! $tagdata)
 		{
-			if ( ! isset($this->EE->session->cache['vmg_chosen_member']['single_' . $this->ft_data['cache_key']]))
+			if ( ! isset($this->cache['single_' . $this->ft_data['cache_key']]))
 			{
 				// Get associations
 				$members = $this->chosen_helper->member_associations(
@@ -128,14 +132,14 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 					$members_list[] = $member['member_id'];
 				}
 
-				$this->EE->session->cache['vmg_chosen_member']['single_' . $this->ft_data['cache_key']] = implode('|', $members_list);
+				$this->cache['single_' . $this->ft_data['cache_key']] = implode('|', $members_list);
 			}
 
-			return $this->EE->session->cache['vmg_chosen_member']['single_' . $this->ft_data['cache_key']];
+			return $this->cache['single_' . $this->ft_data['cache_key']];
 		}
 		else
 		{
-			if ( ! isset($this->EE->session->cache['vmg_chosen_member']['pair_' . $this->ft_data['cache_key']])) {
+			if ( ! isset($this->cache['pair_' . $this->ft_data['cache_key']])) {
 
 				$disable = ! empty($params['disable']) ? explode('|', $params['disable']) : array();
 				$prefix = isset($params['prefix']) ? $params['prefix'] : 'cm_';
@@ -143,7 +147,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 
 				// Processing for Better Workflow support
 				if (isset($this->EE->session->cache['ep_better_workflow']['is_draft']) && $this->EE->session->cache['ep_better_workflow']['is_draft']) {
-					if (is_array($field_data)) $field_data = implode($field_data, '|');
+					if (is_array($data)) $data = implode($data, '|');
 				}
 
 				$settings = array(
@@ -205,10 +209,10 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 					}
 				}
 
-				$this->EE->session->cache['vmg_chosen_member']['pair_' . $this->ft_data['cache_key']] = $results;
+				$this->cache['pair_' . $this->ft_data['cache_key']] = $results;
 			}
 
-			$results = $this->EE->session->cache['vmg_chosen_member']['pair_' . $this->ft_data['cache_key']];
+			$results = $this->cache['pair_' . $this->ft_data['cache_key']];
 
 			// Add prefix if set
 			$results = $this->chosen_helper->set_prefix($results, $prefix);
@@ -221,16 +225,16 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 			return $output;
 		}
 
-		return $field_data;
+		return $data;
 	}
 
 
 	/**
 	 * Total Members
 	 */
-	function replace_total_members($field_data, $params = array(), $tagdata = FALSE)
+	public function replace_total_members($data, $params = array(), $tagdata = false)
 	{
-		$this->init_data();
+		$this->chosen_helper->init_data($this);
 
 		// Determine number of associations
 		$count_data = $this->chosen_helper->member_associations(
@@ -255,22 +259,22 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 	/**
 	 * Display Variable Tag
 	 */
-	function display_var_tag($field_data, $params = array(), $tagdata = FALSE)
+	public function display_var_tag($data, $params = array(), $tagdata = false)
 	{
 		$this->field_id = $params['var'];
 
 		if (isset($params['method']) && $params['method'] == 'total_members')
 		{
-			return $this->replace_total_members($field_data, $params, $tagdata);
+			return $this->replace_total_members($data, $params, $tagdata);
 		}
 
-		return $this->replace_tag($field_data, $params, $tagdata);
+		return $this->replace_tag($data, $params, $tagdata);
 	}
 
 	/**
 	 * Display the fieldtype settings
 	 */
-	public function display_settings($data, $return_settings = FALSE)
+	public function display_settings($data, $return_settings = false)
 	{
 		// Prep member all possible groups
 		$groups = $this->chosen_helper->get_member_groups();
@@ -330,7 +334,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 	/**
 	 * Display Variable Settings
 	 */
-	function display_var_settings($data)
+	public function display_var_settings($data)
 	{
 		return $this->display_settings($data, true);
 	}
@@ -372,20 +376,15 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 	/**
 	* Save Field
 	*/
-	function save($field_data)
+	public function save($data)
 	{
-		$this->init_data();
+		// Save selections for later
+		$this->cache['selections'] = $data;
 
-		if (is_array($field_data)) {
+		if (is_array($data)) {
 
 			// Return list of valid Member IDs
-			$member_ids = $this->chosen_helper->validate_selections($field_data, $this->ft_data);
-
-			// Remove any old selections that are no longer selected
-			$this->chosen_helper->clear_old_selections($member_ids, $this->ft_data);
-
-			// Save selections to database
-			$this->chosen_helper->save_selections($member_ids, $this->ft_data);
+			$member_ids = $this->chosen_helper->validate_selections($data, $this->settings);
 
 			return implode('|', $member_ids);
 		}
@@ -396,7 +395,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 	/**
 	* Save Cell
 	*/
-	function save_cell($cell_data)
+	public function save_cell($cell_data)
 	{
 		return $this->save($cell_data);
 	}
@@ -404,37 +403,41 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 	/**
 	* Save variable data
 	*/
-	function save_var_field($var_data)
+	public function save_var_field($var_data)
 	{
 		return $this->save($var_data);
 	}
 
 	/**
-     * Build base fieldtype data array
-     */
-    protected function init_data()
-    {
-    	if (is_array($this->ft_data) && ! empty($this->ft_data)) {
-    		return true;
-    	}
+	 * Post Save
+	 */
+	public function post_save($data)
+	{
+		if (isset($this->cache['selections']) && is_array($this->cache['selections'])) {
 
-        $this->ft_data = array(
-            'entry_id' => (isset($this->row['entry_id']) ? $this->row['entry_id'] : $this->EE->input->get_post('entry_id')),
-            'field_name' => (isset($this->cell_name) ? $this->cell_name : $this->field_name),
-            'field_id' => (isset($this->field_id) ? $this->field_id : 0),
-            'row_id' => (isset($this->row_id) ? $this->row_id : 0),
-            'col_id' => (isset($this->col_id) ? $this->col_id : 0),
-            'var_id' => (isset($this->var_id) ? $this->var_id : 0),
-            'allowed_groups' => (isset($this->settings['allowed_groups']) ? $this->settings['allowed_groups'] : null),
-            'max_selections' => (isset($this->settings['max_selections']) ? $this->settings['max_selections'] : null),
-            'placeholder_text' => (isset($this->settings['placeholder_text']) ? $this->settings['placeholder_text'] : null),
-            'search_fields' => (isset($this->settings['search_fields']) ? $this->settings['search_fields'] : null),
-        );
+			$this->chosen_helper->init_data($this);
 
-		$this->ft_data['cache_key'] = md5("{$this->ft_data['entry_id']}_{$this->ft_data['field_id']}_{$this->ft_data['row_id']}_{$this->ft_data['col_id']}_{$this->ft_data['var_id']}");
+			// Return list of valid Member IDs
+			$member_ids = $this->chosen_helper->validate_selections($this->cache['selections'], $this->ft_data);
+
+			// Remove any old selections
+			$this->chosen_helper->clear_old_selections($member_ids, $this->ft_data);
+
+			// Save selections to database
+			$this->chosen_helper->save_selections($member_ids, $this->ft_data);
+		}
 
 		return true;
-    }
+	}
+
+	/**
+	 * Post Save Cell
+	 */
+	public function post_save_cell($data)
+	{
+		return $this->post_save($data);
+	}
+
 }
 
 /* End of file ft.vmg_chosen_member.php */

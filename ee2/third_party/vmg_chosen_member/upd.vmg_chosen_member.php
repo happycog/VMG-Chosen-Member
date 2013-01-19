@@ -9,10 +9,9 @@
  * @copyright	Copyright (c) 2011-2013 Vector Media Group, Inc.
  */
 
-class Vmg_chosen_member_upd {
-
+class Vmg_chosen_member_upd
+{
 	public $version = '1.6';
-
 	private $EE;
 
 	/**
@@ -141,13 +140,13 @@ class Vmg_chosen_member_upd {
 		$this->EE->load->dbforge();
 
 		$this->EE->dbforge->add_field(array(
-			'entry_id' => array('type' => 'int', 'constraint' => 10, 'unsigned' => true, 'default' => 0),
-			'field_id' => array('type' => 'int', 'constraint' => 6, 'unsigned' => true, 'default' => 0),
-			'col_id' => array('type' => 'int', 'constraint' => 6, 'unsigned' => true, 'default' => 0),
-			'row_id' => array('type' => 'int', 'constraint' => 10, 'unsigned' => true, 'default' => 0),
-			'var_id' => array('type' => 'int', 'constraint' => 6, 'unsigned' => true, 'default' => 0),
-			'member_id' => array('type' => 'int', 'constraint' => 10, 'unsigned' => true, 'default' => 0),
-			'order' => array('type' => 'int', 'constraint' => 4, 'unsigned' => true, 'default' => 0),
+			'entry_id' => array('type' => 'int', 'constraint' => 10, 'unsigned' => true, 'default' => 0, 'null' => false),
+			'field_id' => array('type' => 'int', 'constraint' => 6, 'unsigned' => true, 'default' => 0, 'null' => false),
+			'col_id' => array('type' => 'int', 'constraint' => 6, 'unsigned' => true, 'default' => 0, 'null' => false),
+			'row_id' => array('type' => 'int', 'constraint' => 10, 'unsigned' => true, 'default' => 0, 'null' => false),
+			'var_id' => array('type' => 'int', 'constraint' => 6, 'unsigned' => true, 'default' => 0, 'null' => false),
+			'member_id' => array('type' => 'int', 'constraint' => 10, 'unsigned' => true, 'default' => 0, 'null' => false),
+			'order' => array('type' => 'int', 'constraint' => 4, 'unsigned' => true, 'default' => 0, 'null' => false),
 		));
 
 		$this->EE->dbforge->create_table('vmg_chosen_member', true);

@@ -23,6 +23,13 @@ class Chosen_helper
     public function __construct()
     {
         $this->EE =& get_instance();
+
+        // Prep cache
+        if (! isset($this->EE->session->cache['vmg_chosen_member'])) {
+            $this->EE->session->cache['vmg_chosen_member'] = array();
+        }
+
+        $this->cache =& $this->EE->session->cache['vmg_chosen_member'];
     }
 
     /**
@@ -46,11 +53,11 @@ class Chosen_helper
         }
 
         // Make general restrictions for this particular field
-        $this->EE->db->where('vcm.entry_id', $entry_id);
-        $this->EE->db->where('vcm.field_id', $field_id);
-        $this->EE->db->where('vcm.col_id', $col_id);
-        $this->EE->db->where('vcm.row_id', $row_id);
-        $this->EE->db->where('vcm.var_id', $var_id);
+        $this->EE->db->where('vcm.entry_id', $entry_id)
+            ->where('vcm.field_id', $field_id)
+            ->where('vcm.col_id', $col_id)
+            ->where('vcm.row_id', $row_id)
+            ->where('vcm.var_id', $var_id);
 
         if (isset($settings['allowed_groups']) && is_array($settings['allowed_groups']) && ! empty($settings['allowed_groups'])) {
             $this->EE->db->where_in('m.group_id', $settings['allowed_groups']);
@@ -94,6 +101,22 @@ class Chosen_helper
     }
 
     /**
+     * Ensure required data is available to save this record
+     */
+    public function valid_record($record)
+    {
+        if (isset($record['entry_id']) && ! empty($record['entry_id']) && is_numeric($record['entry_id'])) {
+            return true;
+        }
+
+        if (isset($record['var_id']) && ! empty($record['var_id']) && is_numeric($record['var_id'])) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Return list of valid Member IDs from selected list
      */
     public function validate_selections($selections, $settings)
@@ -127,11 +150,11 @@ class Chosen_helper
     public function clear_old_selections($selections, $settings)
     {
         // Make general restrictions for this particular field
-        $this->EE->db->where('entry_id', $settings['entry_id']);
-        $this->EE->db->where('field_id', $settings['field_id']);
-        $this->EE->db->where('col_id', $settings['col_id']);
-        $this->EE->db->where('row_id', $settings['row_id']);
-        $this->EE->db->where('var_id', $settings['var_id']);
+        $this->EE->db->where('entry_id', $settings['entry_id'])
+            ->where('field_id', $settings['field_id'])
+            ->where('col_id', $settings['col_id'])
+            ->where('row_id', $settings['row_id'])
+            ->where('var_id', $settings['var_id']);
 
         // Clear everything for this field if no selections are made
         if (empty($selections)) {
@@ -158,6 +181,7 @@ class Chosen_helper
             $settings['var_id'],
         );
 
+        // Save them all
         foreach ($selections AS $key => $selection) {
 
             $this->EE->db->query("INSERT INTO exp_vmg_chosen_member SET entry_id = ?, field_id = ?, col_id = ?, row_id = ?, var_id = ?, member_id = ?, `order` = ? ON DUPLICATE KEY UPDATE `order` = ?", array_merge($data, array(
@@ -199,7 +223,7 @@ class Chosen_helper
      */
     public function action_id($method, $full_path = false)
     {
-        if (! isset($this->EE->session->cache['vmg_chosen_member']['action'][$method])) {
+        if (! isset($this->cache['action'][$method])) {
             $action = $this->EE->db->select('action_id')
                 ->from('actions')
                 ->where('class', 'Vmg_chosen_member')
@@ -207,16 +231,16 @@ class Chosen_helper
                 ->get()
                 ->row_array();
 
-            $this->EE->session->cache['vmg_chosen_member']['action'][$method] = $action;
+            $this->cache['action'][$method] = $action;
         }
 
-        if (isset($this->EE->session->cache['vmg_chosen_member']['action'][$method]['action_id'])) {
+        if (isset($this->cache['action'][$method]['action_id'])) {
 
             if ($full_path) {
-                return $this->EE->functions->fetch_site_index(0, 0) . QUERY_MARKER . 'ACT=' . $this->EE->session->cache['vmg_chosen_member']['action'][$method]['action_id'];
+                return $this->EE->functions->fetch_site_index(0, 0) . QUERY_MARKER . 'ACT=' . $this->cache['action'][$method]['action_id'];
             }
 
-            return $this->EE->session->cache['vmg_chosen_member']['action'][$method]['action_id'];
+            return $this->cache['action'][$method]['action_id'];
         }
 
         return null;
@@ -227,14 +251,14 @@ class Chosen_helper
      */
     public function include_assets()
     {
-        if (! isset($this->EE->session->cache['vmg_chosen_member']['assets_included']))
+        if (! isset($this->cache['assets_included']))
         {
             $this->EE->cp->add_to_head('<link rel="stylesheet" type="text/css" href="' . $this->EE->config->item('theme_folder_url') . 'third_party/vmg_chosen_member/chosen/chosen.css' . '" />');
             $this->EE->cp->add_to_head('<link rel="stylesheet" type="text/css" href="' . $this->EE->config->item('theme_folder_url') . 'third_party/vmg_chosen_member/vmg_chosen_member.css' . '" />');
             $this->EE->cp->add_to_foot('<script type="text/javascript" src="' . $this->EE->config->item('theme_folder_url') . 'third_party/vmg_chosen_member/chosen/chosen.jquery.js' . '"></script>');
             $this->EE->cp->add_to_foot('<script type="text/javascript" src="' . $this->EE->config->item('theme_folder_url') . 'third_party/vmg_chosen_member/vmg_chosen_member.js' . '"></script>');
 
-            $this->EE->session->cache['vmg_chosen_member']['assets_included'] = true;
+            $this->cache['assets_included'] = true;
         }
 
         return true;
@@ -280,4 +304,54 @@ class Chosen_helper
 
         return $string;
     }
+
+    /**
+     * Build base fieldtype data array
+     */
+    public function init_data(&$obj)
+    {
+        $obj->ft_data = array(
+            'entry_id' => $this->getSetting($obj, 'entry_id', null, true),
+            'field_name' => $this->getSetting($obj, 'cell_name', 'field_name'),
+            'field_id' => $this->getSetting($obj, 'field_id', 0, true),
+            'row_id' => $this->getSetting($obj, 'row_id', 0, true),
+            'col_id' => $this->getSetting($obj, 'col_id', 0, true),
+            'var_id' => $this->getSetting($obj, 'var_id', 0, true),
+            'allowed_groups' => $this->getSetting($obj, 'allowed_groups', null, true),
+            'max_selections' => $this->getSetting($obj, 'max_selections', null, true),
+            'placeholder_text' => $this->getSetting($obj, 'placeholder_text', null, true),
+            'search_fields' => $this->getSetting($obj, 'search_fields', null, true),
+        );
+
+        $obj->ft_data['cache_key'] = md5("{$obj->ft_data['entry_id']}_{$obj->ft_data['field_id']}_{$obj->ft_data['row_id']}_{$obj->ft_data['col_id']}_{$obj->ft_data['var_id']}");
+
+        return $obj->ft_data;
+    }
+
+    /**
+     * Return settings value by auto handling fallbacks
+     */
+    public function getSetting(&$ft, $name, $fallback, $literal_fallback = false)
+    {
+        // Try to locate the setting
+        if (isset($ft->settings[$name])) {
+            return $ft->settings[$name];
+        } elseif (isset($ft->row[$name])) {
+            return $ft->row[$name];
+        } elseif (isset($ft->$name)) {
+            return $ft->$name;
+        } elseif (isset($_POST[$name]) || isset($_GET[$name])) {
+            return $this->EE->input->get_post($name);
+        }
+
+        // Handle fallback
+        if ($literal_fallback) {
+            return $fallback;
+        } else {
+            return $this->getSetting($ft, $fallback, false, true);
+        }
+
+        return false;
+    }
+
 }

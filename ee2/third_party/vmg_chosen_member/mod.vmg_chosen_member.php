@@ -23,10 +23,8 @@ class Vmg_chosen_member {
 
 		// Load our helper
 		if (! class_exists('Chosen_helper') || ! is_a($this->chosen_helper, 'Chosen_helper')) {
-
 			require_once PATH_THIRD.'vmg_chosen_member/helper.php';
 			$this->chosen_helper = new Chosen_helper;
-
 		}
 	}
 
@@ -119,7 +117,7 @@ class Vmg_chosen_member {
 
 				// Add "additional" text for default fields
 				foreach ($this->chosen_helper->default_search_fields AS $field_id => $field_label) {
-					if (isset($member[$field_id]) && empty($additional_text) && ! in_array($field_id, array('username', 'screen_name')) && strpos($member[$field_id], $query) !== FALSE) {
+					if (isset($member[$field_id]) && empty($additional_text) && ! in_array($field_id, array('username', 'screen_name')) && strpos($member[$field_id], $query) !== false) {
 						$additional_text = '&nbsp;&nbsp;&nbsp;(' . $field_label . ': ' . $this->clean_additional($member[$field_id], $query) . ')';
 					}
 				}
@@ -128,7 +126,7 @@ class Vmg_chosen_member {
 				if (empty($additional_text)) {
 					foreach ($custom_search_fields AS $field_id => $field_label) {
 
-						if (isset($member[$custom_field_map[$field_id]]) && empty($additional_text) && strpos($member[$custom_field_map[$field_id]], $query) !== FALSE) {
+						if (isset($member[$custom_field_map[$field_id]]) && empty($additional_text) && strpos($member[$custom_field_map[$field_id]], $query) !== false) {
 							$additional_text = '&nbsp;&nbsp;&nbsp;(' . $field_label . ': ' . $this->clean_additional($member[$custom_field_map[$field_id]], $query) . ')';
 						}
 
@@ -144,7 +142,7 @@ class Vmg_chosen_member {
 
 		$this->EE->load->library('javascript');
 
-		exit($this->EE->javascript->generate_json($result, TRUE));
+		exit($this->EE->javascript->generate_json($result, true));
 	}
 
 	// ----------------------------------------------------------------

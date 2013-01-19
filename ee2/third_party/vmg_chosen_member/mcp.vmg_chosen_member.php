@@ -9,10 +9,9 @@
  * @copyright	Copyright (c) 2011-2013 Vector Media Group, Inc.
  */
 
-class Vmg_chosen_member_mcp {
-
+class Vmg_chosen_member_mcp
+{
 	public $return_data;
-
 	private $_base_url;
 
 	/**
