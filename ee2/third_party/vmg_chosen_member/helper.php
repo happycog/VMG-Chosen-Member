@@ -354,4 +354,20 @@ class ChosenHelper
         return false;
     }
 
+    /**
+     * Returns simple preview of a string with formatting removed
+     */
+    public function cleanFieldPreview($text, $search, $max_length = 25)
+    {
+        if (strlen($text) > $max_length) {
+            $text = preg_replace('/[^[:alnum:][:punct:] ]/', '', $text);
+            $find_string = strpos($text, $search);
+            $text = substr($text, $find_string - $max_length, strlen($search) + ($max_length*2));
+
+            $text = '...' . $text . '...';
+        }
+
+        return '<i>' . $text . '</i>';
+    }
+
 }

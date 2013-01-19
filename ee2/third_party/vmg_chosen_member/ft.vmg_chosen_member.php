@@ -29,13 +29,13 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 		parent::EE_Fieldtype();
 
 		// Load our helper
-		if (! class_exists('ChosenHelper') || ! is_a($this->chosen_helper, 'ChosenHelper')) {
+		if ( ! class_exists('ChosenHelper') || ! is_a($this->chosen_helper, 'ChosenHelper')) {
 			require_once PATH_THIRD.'vmg_chosen_member/helper.php';
 			$this->chosen_helper = new ChosenHelper;
 		}
 
 		// Prep cache
-		if (! isset($this->EE->session->cache['vmg_chosen_member'])) {
+		if ( ! isset($this->EE->session->cache['vmg_chosen_member'])) {
 			$this->EE->session->cache['vmg_chosen_member'] = array();
 		}
 
@@ -109,10 +109,9 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 		$this->chosen_helper->initData($this);
 
 		// Single tag simply returns a pipe delimited Member IDs
-		if ( ! $tagdata)
-		{
-			if ( ! isset($this->cache['single_' . $this->ft_data['cache_key']]))
-			{
+		if ( ! $tagdata) {
+
+			if ( ! isset($this->cache['single_' . $this->ft_data['cache_key']])) {
 				// Get associations
 				$members = $this->chosen_helper->memberAssociations(
 					$this->ft_data['entry_id'],
@@ -136,9 +135,9 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 			}
 
 			return $this->cache['single_' . $this->ft_data['cache_key']];
-		}
-		else
-		{
+
+		} else {
+
 			if ( ! isset($this->cache['pair_' . $this->ft_data['cache_key']])) {
 
 				$disable = ! empty($params['disable']) ? explode('|', $params['disable']) : array();
@@ -195,14 +194,11 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 				}
 
 				// Rename member data fields if we retrieved them
-				if (! in_array('member_data', $disable))
-				{
+				if ( ! in_array('member_data', $disable)) {
 					$member_fields = $this->chosen_helper->getCustomMemberFields();
 
-					foreach ($results AS $key => $member)
-					{
-						foreach ($member_fields AS $field)
-						{
+					foreach ($results AS $key => $member) {
+						foreach ($member_fields AS $field) {
 							$results[$key][$field['m_field_name']] = $member['m_field_id_' . $field['m_field_id']];
 							unset($results[$key]['m_field_id_' . $field['m_field_id']]);
 						}
@@ -263,8 +259,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 	{
 		$this->field_id = $params['var'];
 
-		if (isset($params['method']) && $params['method'] == 'total_members')
-		{
+		if (isset($params['method']) && $params['method'] == 'total_members') {
 			return $this->replace_total_members($data, $params, $tagdata);
 		}
 
@@ -296,19 +291,19 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 		$settings = array(
 			array(
 				'<strong>Allowed groups</strong>',
-				form_multiselect('allowed_groups[]', $member_groups, (!empty($data['allowed_groups']) ? $data['allowed_groups'] : array()))
+				form_multiselect('allowed_groups[]', $member_groups, ( ! empty($data['allowed_groups']) ? $data['allowed_groups'] : array()))
 			),
 			array(
 				'<strong>Max selections allowed</strong><br/>Leave blank for no limit.',
-				form_input('max_selections', (!empty($data['max_selections']) ? $data['max_selections'] : ''))
+				form_input('max_selections', ( ! empty($data['max_selections']) ? $data['max_selections'] : ''))
 			),
 			array(
 				'<strong>Placeholder text</strong><br/>Displayed if <i>"Max selections allowed"</i> does not equal 1.',
-				form_input(array('name' => 'placeholder_text', 'class' => 'fullfield'), (!empty($data['placeholder_text']) ? $data['placeholder_text'] : 'Begin typing a member\'s name...'))
+				form_input(array('name' => 'placeholder_text', 'class' => 'fullfield'), ( ! empty($data['placeholder_text']) ? $data['placeholder_text'] : 'Begin typing a member\'s name...'))
 			),
 			array(
 				'<strong>Search fields</strong><br/>Determines which member fields will be searched.<br/><i>Defaults to Username &amp; Screen Name if no selections are made.</i>',
-				form_multiselect('search_fields[]', $search_fields, (!empty($data['search_fields']) ? $data['search_fields'] : array()))
+				form_multiselect('search_fields[]', $search_fields, ( ! empty($data['search_fields']) ? $data['search_fields'] : array()))
 			),
 		);
 
@@ -352,7 +347,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 		);
 
 		// Ensure search field defaults if no selections were made
-		if (! is_array($settings['search_fields']) || empty($settings['search_fields'])) $settings['search_fields'] = array('username', 'screen_name');
+		if ( ! is_array($settings['search_fields']) || empty($settings['search_fields'])) $settings['search_fields'] = array('username', 'screen_name');
 
 		return $settings;
 	}

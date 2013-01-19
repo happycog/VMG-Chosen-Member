@@ -22,13 +22,11 @@ class Vmg_chosen_member {
 		$this->EE =& get_instance();
 
 		// Load our helper
-		if (! class_exists('ChosenHelper') || ! is_a($this->chosen_helper, 'ChosenHelper')) {
+		if ( ! class_exists('ChosenHelper') || ! is_a($this->chosen_helper, 'ChosenHelper')) {
 			require_once PATH_THIRD.'vmg_chosen_member/helper.php';
 			$this->chosen_helper = new ChosenHelper;
 		}
 	}
-
-	// ----------------------------------------------------------------
 
 	/**
 	 * Return JSON results for member autocomplete
@@ -73,7 +71,7 @@ class Vmg_chosen_member {
 				->row_array();
 		}
 
-		if (!empty($settings) && $this->EE->input->is_ajax_request())
+		if ( ! empty($settings) && $this->EE->input->is_ajax_request())
 		{
 			$settings = unserialize(base64_decode($settings['setting_data']));
 
@@ -118,7 +116,7 @@ class Vmg_chosen_member {
 				// Add "additional" text for default fields
 				foreach ($this->chosen_helper->default_search_fields AS $field_id => $field_label) {
 					if (isset($member[$field_id]) && empty($additional_text) && ! in_array($field_id, array('username', 'screen_name')) && strpos($member[$field_id], $query) !== false) {
-						$additional_text = '&nbsp;&nbsp;&nbsp;(' . $field_label . ': ' . $this->clean_additional($member[$field_id], $query) . ')';
+						$additional_text = '&nbsp;&nbsp;&nbsp;(' . $field_label . ': ' . $this->cleanFieldPreview($member[$field_id], $query) . ')';
 					}
 				}
 
@@ -127,7 +125,7 @@ class Vmg_chosen_member {
 					foreach ($custom_search_fields AS $field_id => $field_label) {
 
 						if (isset($member[$custom_field_map[$field_id]]) && empty($additional_text) && strpos($member[$custom_field_map[$field_id]], $query) !== false) {
-							$additional_text = '&nbsp;&nbsp;&nbsp;(' . $field_label . ': ' . $this->clean_additional($member[$custom_field_map[$field_id]], $query) . ')';
+							$additional_text = '&nbsp;&nbsp;&nbsp;(' . $field_label . ': ' . $this->cleanFieldPreview($member[$custom_field_map[$field_id]], $query) . ')';
 						}
 
 					}
@@ -145,23 +143,9 @@ class Vmg_chosen_member {
 		exit($this->EE->javascript->generate_json($result, true));
 	}
 
-	// ----------------------------------------------------------------
-
-	public function clean_additional($text, $search, $max_length = 25)
-	{
-		if (strlen($text) > $max_length) {
-			$text = preg_replace('/[^[:alnum:][:punct:] ]/', '', $text);
-			$find_string = strpos($text, $search);
-			$text = substr($text, $find_string - $max_length, strlen($search) + ($max_length*2));
-
-			$text = '...' . $text . '...';
-		}
-
-		return '<i>' . $text . '</i>';
-	}
-
-	// ----------------------------------------------------------------
-
+	/**
+	 * Return Channel Entries that a user has been selected in
+	 */
 	public function assoc_entries()
 	{
 		// Assist parsing of global variables as parameters
@@ -200,7 +184,7 @@ class Vmg_chosen_member {
 
 		$temp_results = array();
 
-		if (!empty($field['field_id']) && is_numeric($field['field_id']) && empty($field['col_id']))
+		if ( ! empty($field['field_id']) && is_numeric($field['field_id']) && empty($field['col_id']))
 		{
 			// Get channel entries
 			$this->EE->db->select('cd.entry_id')
@@ -210,7 +194,7 @@ class Vmg_chosen_member {
 
 			$temp_results = $this->EE->db->get()->result_array();
 		}
-		elseif (!empty($field['field_id']) && !empty($field['col_id']) && is_numeric($field['col_id']))
+		elseif ( ! empty($field['field_id']) && ! empty($field['col_id']) && is_numeric($field['col_id']))
 		{
 			// Get matrix entries
 			$this->EE->db->select('md.entry_id')

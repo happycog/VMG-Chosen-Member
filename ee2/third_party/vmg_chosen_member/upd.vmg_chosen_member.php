@@ -22,8 +22,6 @@ class Vmg_chosen_member_upd
 		$this->EE =& get_instance();
 	}
 
-	// ----------------------------------------------------------------
-
 	/**
 	 * Installation Method
 	 *
@@ -50,8 +48,6 @@ class Vmg_chosen_member_upd
 
 		return true;
 	}
-
-	// ----------------------------------------------------------------
 
 	/**
 	 * Module Updater
@@ -133,8 +129,6 @@ class Vmg_chosen_member_upd
 		return true;
 	}
 
-	// ----------------------------------------------------------------
-
 	private function create_table()
 	{
 		$this->EE->load->dbforge();
@@ -156,8 +150,6 @@ class Vmg_chosen_member_upd
 		return true;
 	}
 
-	// ----------------------------------------------------------------
-
 	private function save_association($entry)
 	{
 		$member_ids = explode('|', $entry['member_ids']);
@@ -170,8 +162,6 @@ class Vmg_chosen_member_upd
 				->insert('vmg_chosen_member', $entry);
 		}
 	}
-
-	// ----------------------------------------------------------------
 
 	/**
 	 * Uninstall
