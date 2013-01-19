@@ -9,7 +9,7 @@
  * @copyright   Copyright (c) 2011-2013 Vector Media Group, Inc.
  */
 
-class Chosen_helper
+class ChosenHelper
 {
     protected $disallowed_fields = array('password', 'unique_id', 'crypt_key', 'salt');
 
@@ -35,7 +35,7 @@ class Chosen_helper
     /**
      * Gather associated member data info
      */
-    public function member_associations($entry_id, $field_id = null, $col_id = null, $row_id = null, $var_id = null, $settings = null, $select_fields = null, $group_by = 'vcm.member_id')
+    public function memberAssociations($entry_id, $field_id = null, $col_id = null, $row_id = null, $var_id = null, $settings = null, $select_fields = null, $group_by = 'vcm.member_id')
     {
         // Return specific fields from query
         if (! is_null($select_fields)) {
@@ -103,7 +103,7 @@ class Chosen_helper
     /**
      * Ensure required data is available to save this record
      */
-    public function valid_record($record)
+    public function validRecord($record)
     {
         if (isset($record['entry_id']) && ! empty($record['entry_id']) && is_numeric($record['entry_id'])) {
             return true;
@@ -119,7 +119,7 @@ class Chosen_helper
     /**
      * Return list of valid Member IDs from selected list
      */
-    public function validate_selections($selections, $settings)
+    public function validateSelections($selections, $settings)
     {
         $this->EE->db->select('member_id')
             ->from('members')
@@ -147,7 +147,7 @@ class Chosen_helper
     /**
      * Clear selections from database that are no longer selected
      */
-    public function clear_old_selections($selections, $settings)
+    public function clearOldSelections($selections, $settings)
     {
         // Make general restrictions for this particular field
         $this->EE->db->where('entry_id', $settings['entry_id'])
@@ -170,7 +170,7 @@ class Chosen_helper
     /**
      * Save current selections to database
      */
-    public function save_selections($selections, $settings)
+    public function saveSelections($selections, $settings)
     {
         // Build base row data
         $data = array(
@@ -197,7 +197,7 @@ class Chosen_helper
     /**
      * Get all available member groups
      */
-    public function get_member_groups()
+    public function getMemberGroups()
     {
         return $this->EE->db->select("mg.group_id, mg.group_title")
             ->from('exp_member_groups AS mg')
@@ -209,7 +209,7 @@ class Chosen_helper
     /**
      * Get all custom member fields
      */
-    public function get_custom_member_fields()
+    public function getCustomMemberFields()
     {
         return $this->EE->db->select("m_field_id, m_field_name, m_field_label")
             ->from('exp_member_fields')
@@ -221,7 +221,7 @@ class Chosen_helper
     /**
      * Get action_id for a specific method
      */
-    public function action_id($method, $full_path = false)
+    public function actionId($method, $full_path = false)
     {
         if (! isset($this->cache['action'][$method])) {
             $action = $this->EE->db->select('action_id')
@@ -249,7 +249,7 @@ class Chosen_helper
     /**
      * Include the required CSS and JS
      */
-    public function include_assets()
+    public function includeAssets()
     {
         if (! isset($this->cache['assets_included']))
         {
@@ -267,7 +267,7 @@ class Chosen_helper
     /**
      * Prefix array for custom output
      */
-    public function set_prefix($array, $prefix = '')
+    public function setPrefix($array, $prefix = '')
     {
         // Bail now if no prefix set
         if (empty($prefix)) {
@@ -308,7 +308,7 @@ class Chosen_helper
     /**
      * Build base fieldtype data array
      */
-    public function init_data(&$obj)
+    public function initData(&$obj)
     {
         $obj->ft_data = array(
             'entry_id' => $this->getSetting($obj, 'entry_id', null, true),
@@ -331,15 +331,15 @@ class Chosen_helper
     /**
      * Return settings value by auto handling fallbacks
      */
-    public function getSetting(&$ft, $name, $fallback, $literal_fallback = false)
+    public function getSetting(&$obj, $name, $fallback, $literal_fallback = false)
     {
         // Try to locate the setting
-        if (isset($ft->settings[$name])) {
-            return $ft->settings[$name];
-        } elseif (isset($ft->row[$name])) {
-            return $ft->row[$name];
-        } elseif (isset($ft->$name)) {
-            return $ft->$name;
+        if (isset($obj->settings[$name])) {
+            return $obj->settings[$name];
+        } elseif (isset($obj->row[$name])) {
+            return $obj->row[$name];
+        } elseif (isset($obj->$name)) {
+            return $obj->$name;
         } elseif (isset($_POST[$name]) || isset($_GET[$name])) {
             return $this->EE->input->get_post($name);
         }
@@ -348,7 +348,7 @@ class Chosen_helper
         if ($literal_fallback) {
             return $fallback;
         } else {
-            return $this->getSetting($ft, $fallback, false, true);
+            return $this->getSetting($obj, $fallback, false, true);
         }
 
         return false;

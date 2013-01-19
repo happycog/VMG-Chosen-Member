@@ -22,9 +22,9 @@ class Vmg_chosen_member {
 		$this->EE =& get_instance();
 
 		// Load our helper
-		if (! class_exists('Chosen_helper') || ! is_a($this->chosen_helper, 'Chosen_helper')) {
+		if (! class_exists('ChosenHelper') || ! is_a($this->chosen_helper, 'ChosenHelper')) {
 			require_once PATH_THIRD.'vmg_chosen_member/helper.php';
-			$this->chosen_helper = new Chosen_helper;
+			$this->chosen_helper = new ChosenHelper;
 		}
 	}
 

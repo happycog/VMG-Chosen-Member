@@ -29,9 +29,9 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 		parent::EE_Fieldtype();
 
 		// Load our helper
-		if (! class_exists('Chosen_helper') || ! is_a($this->chosen_helper, 'Chosen_helper')) {
+		if (! class_exists('ChosenHelper') || ! is_a($this->chosen_helper, 'ChosenHelper')) {
 			require_once PATH_THIRD.'vmg_chosen_member/helper.php';
-			$this->chosen_helper = new Chosen_helper;
+			$this->chosen_helper = new ChosenHelper;
 		}
 
 		// Prep cache
@@ -48,10 +48,10 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 	public function display_field($data)
 	{
 		// Define base variables
-		$this->chosen_helper->init_data($this);
+		$this->chosen_helper->initData($this);
 
 		// Get JSON URL and append type if applicable
-		$this->ft_data['json_url'] = $this->chosen_helper->action_id('get_results', true);
+		$this->ft_data['json_url'] = $this->chosen_helper->actionId('get_results', true);
 		if (isset($this->cell_name)) $this->ft_data['json_url'] .= '&type=matrix';
 		elseif (isset($this->var_id)) $this->ft_data['json_url'] .= '&type=lowvar';
 
@@ -59,7 +59,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 		$this->ft_data['unique_id'] = $this->ft_data['field_id'] . '_' . $this->ft_data['row_id'] . '_' . $this->ft_data['col_id'];
 
 		// Get member association data
-		$this->ft_data['member_associations'] = $this->chosen_helper->member_associations(
+		$this->ft_data['member_associations'] = $this->chosen_helper->memberAssociations(
 			$this->ft_data['entry_id'],
 			$this->ft_data['field_id'],
 			$this->ft_data['col_id'],
@@ -73,7 +73,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 		);
 
 		// Include the CSS/JS
-		$this->chosen_helper->include_assets();
+		$this->chosen_helper->includeAssets();
 
 		$default_view_path = $this->EE->load->_ci_view_path;
 		$this->EE->load->_ci_view_path = PATH_THIRD . 'vmg_chosen_member/views/';
@@ -106,7 +106,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 	 */
 	public function replace_tag($data, $params = array(), $tagdata = false)
 	{
-		$this->chosen_helper->init_data($this);
+		$this->chosen_helper->initData($this);
 
 		// Single tag simply returns a pipe delimited Member IDs
 		if ( ! $tagdata)
@@ -114,7 +114,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 			if ( ! isset($this->cache['single_' . $this->ft_data['cache_key']]))
 			{
 				// Get associations
-				$members = $this->chosen_helper->member_associations(
+				$members = $this->chosen_helper->memberAssociations(
 					$this->ft_data['entry_id'],
 					$this->ft_data['field_id'],
 					$this->ft_data['col_id'],
@@ -179,7 +179,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 				}
 
 				// Get associations
-				$results = $this->chosen_helper->member_associations(
+				$results = $this->chosen_helper->memberAssociations(
 					$this->ft_data['entry_id'],
 					$this->ft_data['field_id'],
 					$this->ft_data['col_id'],
@@ -197,7 +197,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 				// Rename member data fields if we retrieved them
 				if (! in_array('member_data', $disable))
 				{
-					$member_fields = $this->chosen_helper->get_custom_member_fields();
+					$member_fields = $this->chosen_helper->getCustomMemberFields();
 
 					foreach ($results AS $key => $member)
 					{
@@ -215,7 +215,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 			$results = $this->cache['pair_' . $this->ft_data['cache_key']];
 
 			// Add prefix if set
-			$results = $this->chosen_helper->set_prefix($results, $prefix);
+			$results = $this->chosen_helper->setPrefix($results, $prefix);
 
 			$output = $this->EE->TMPL->parse_variables($tagdata, $results);
 
@@ -234,10 +234,10 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 	 */
 	public function replace_total_members($data, $params = array(), $tagdata = false)
 	{
-		$this->chosen_helper->init_data($this);
+		$this->chosen_helper->initData($this);
 
 		// Determine number of associations
-		$count_data = $this->chosen_helper->member_associations(
+		$count_data = $this->chosen_helper->memberAssociations(
 			$this->ft_data['entry_id'],
 			$this->ft_data['field_id'],
 			$this->ft_data['col_id'],
@@ -277,7 +277,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 	public function display_settings($data, $return_settings = false)
 	{
 		// Prep member all possible groups
-		$groups = $this->chosen_helper->get_member_groups();
+		$groups = $this->chosen_helper->getMemberGroups();
 
 		$member_groups = array();
 		foreach ($groups AS $key => $value) {
@@ -287,7 +287,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 		$search_fields = $this->chosen_helper->default_search_fields;
 
 		// Get member custom field list
-		$fields = $this->chosen_helper->get_custom_member_fields();
+		$fields = $this->chosen_helper->getCustomMemberFields();
 		foreach ($fields AS $key => $value) {
 			$search_fields[$value['m_field_name']] = $value['m_field_label'];
 		}
@@ -384,7 +384,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 		if (is_array($data)) {
 
 			// Return list of valid Member IDs
-			$member_ids = $this->chosen_helper->validate_selections($data, $this->settings);
+			$member_ids = $this->chosen_helper->validateSelections($data, $this->settings);
 
 			return implode('|', $member_ids);
 		}
@@ -415,16 +415,16 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 	{
 		if (isset($this->cache['selections']) && is_array($this->cache['selections'])) {
 
-			$this->chosen_helper->init_data($this);
+			$this->chosen_helper->initData($this);
 
 			// Return list of valid Member IDs
-			$member_ids = $this->chosen_helper->validate_selections($this->cache['selections'], $this->ft_data);
+			$member_ids = $this->chosen_helper->validateSelections($this->cache['selections'], $this->ft_data);
 
 			// Remove any old selections
-			$this->chosen_helper->clear_old_selections($member_ids, $this->ft_data);
+			$this->chosen_helper->clearOldSelections($member_ids, $this->ft_data);
 
 			// Save selections to database
-			$this->chosen_helper->save_selections($member_ids, $this->ft_data);
+			$this->chosen_helper->saveSelections($member_ids, $this->ft_data);
 		}
 
 		return true;
