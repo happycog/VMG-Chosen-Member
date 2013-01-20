@@ -1,0 +1,11 @@
+-------------------------------------------------------------------------------
+-- If upgrading to VMG Chosen Member 1.6 from a previous version --------------
+-------------------------------------------------------------------------------
+
+* Delete the vmg_chosen_member directory from system/expressionengine/third_party
+* Upload ee2/third_party/vmg_chosen_member to system/expressionengine/third_party
+* Delete the vmg_chosen_member directory from themes/third_party
+* Upload themes/third_party/vmg_chosen_member to themes/third_party
+* Go to Add-Ons > Modules and click the "Run Module Updates" button
+
+-------------------------------------------------------------------------------

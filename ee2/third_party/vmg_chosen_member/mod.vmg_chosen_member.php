@@ -34,58 +34,21 @@ class Vmg_chosen_member {
 	public function get_results()
 	{
 		$result = array();
-
 		$field_id = $this->EE->input->get('field_id');
 		$is_matrix = ($this->EE->input->get('type') == 'matrix' ? true : false);
 		$is_low_var = ($this->EE->input->get('type') == 'lowvar' ? true : false);
 		$query = $this->EE->db->escape_like_str(strtolower($this->EE->input->post('query')));
 
-		if ($is_matrix)
-		{
-			// Check/Get field/col settings
-			$settings = $this->EE->db->select('mc.col_settings AS setting_data')
-				->from('matrix_cols AS mc')
-				->where('mc.field_id', $field_id)
-				->where('mc.col_type', 'vmg_chosen_member')
-				->get()
-				->row_array();
-		}
-		elseif ($is_low_var)
-		{
-			// Check/Get var settings
-			$settings = $this->EE->db->select('lv.variable_type, lv.variable_settings AS setting_data')
-				->from('low_variables AS lv')
-				->where('lv.variable_id', $field_id)
-				->where('lv.variable_type', 'vmg_chosen_member')
-				->get()
-				->row_array();
-		}
-		else
-		{
-			// Check/Get field/col settings
-			$settings = $this->EE->db->select('cf.field_settings AS setting_data')
-				->from('channel_fields AS cf')
-				->where('cf.field_id', $field_id)
-				->where('cf.field_type', 'vmg_chosen_member')
-				->get()
-				->row_array();
-		}
+		// Retrieve settings for this field
+		$settings = $this->chosen_helper->fieldSettings($this->EE->input->get('type'), $field_id);
 
-		if ( ! empty($settings) && $this->EE->input->is_ajax_request())
+		if ($settings !== false && $this->EE->input->is_ajax_request())
 		{
-			$settings = unserialize(base64_decode($settings['setting_data']));
-
 			$search_fields = $search_fields_where = $custom_search_fields = $custom_field_map = array();
 			if (empty($settings['search_fields'])) $settings['search_fields'] = array('username', 'screen_name');
 
 			// Get member custom field list
-			$fields = $this->EE->db->select("m_field_id, m_field_name, m_field_label")
-				->from('member_fields')
-				->order_by('m_field_order', 'asc')
-				->get()
-				->result_array();
-
-			foreach ($fields AS $key => $value) {
+			foreach ($this->chosen_helper->customMemberFields() AS $key => $value) {
 				$custom_search_fields[$value['m_field_name']] = $value['m_field_label'];
 				$custom_field_map[$value['m_field_name']] = 'm_field_id_' . $value['m_field_id'];
 			}
@@ -101,14 +64,7 @@ class Vmg_chosen_member {
 			}
 
 			// Gather and format results
-			$results = $this->EE->db->select('m.member_id, m.username, m.screen_name, ' . implode($search_fields, ', '))
-				->from('members AS m')
-				->join('member_data AS md', 'md.member_id = m.member_id', 'left')
-				->where_in('m.group_id', $settings['allowed_groups'])
-				->where('(' . implode(' OR ', $search_fields_where) . ')')
-				->limit(50)
-				->get()
-				->result_array();
+			$results = $this->chosen_helper->memberAutoComplete($settings, $search_fields, $search_fields_where);
 
 			foreach ($results AS $member) {
 				$additional_text = '';
@@ -139,7 +95,6 @@ class Vmg_chosen_member {
 		}
 
 		$this->EE->load->library('javascript');
-
 		exit($this->EE->javascript->generate_json($result, true));
 	}
 

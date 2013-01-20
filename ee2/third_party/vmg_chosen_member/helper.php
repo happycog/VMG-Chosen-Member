@@ -370,4 +370,75 @@ class ChosenHelper
         return '<i>' . $text . '</i>';
     }
 
+    /**
+     * Get field settings array
+     */
+    public function fieldSettings($type, $field_id)
+    {
+        if ($type == 'matrix') {
+
+            // Check/Get field/col settings
+            $settings = $this->EE->db->select('mc.col_settings AS setting_data')
+                ->from('matrix_cols AS mc')
+                ->where('mc.field_id', $field_id)
+                ->where('mc.col_type', 'vmg_chosen_member')
+                ->get()
+                ->row_array();
+
+        } elseif ($type == 'lowvar') {
+
+            // Check/Get var settings
+            $settings = $this->EE->db->select('lv.variable_type, lv.variable_settings AS setting_data')
+                ->from('low_variables AS lv')
+                ->where('lv.variable_id', $field_id)
+                ->where('lv.variable_type', 'vmg_chosen_member')
+                ->get()
+                ->row_array();
+
+        } else {
+
+            // Check/Get field/col settings
+            $settings = $this->EE->db->select('cf.field_settings AS setting_data')
+                ->from('channel_fields AS cf')
+                ->where('cf.field_id', $field_id)
+                ->where('cf.field_type', 'vmg_chosen_member')
+                ->get()
+                ->row_array();
+
+        }
+
+        if (isset($settings['setting_data'])) {
+            return unserialize(base64_decode($settings['setting_data']));
+        }
+
+        return false;
+    }
+
+    /**
+     * Get all custom member fields
+     */
+    public function customMemberFields()
+    {
+        return $this->EE->db->select("m_field_id, m_field_name, m_field_label")
+            ->from('member_fields')
+            ->order_by('m_field_order', 'asc')
+            ->get()
+            ->result_array();
+    }
+
+    /**
+     * Member autocomplete results
+     */
+    public function memberAutoComplete($settings, $search_fields, $search_fields_where)
+    {
+        return $this->EE->db->select('m.member_id, m.username, m.screen_name, ' . implode($search_fields, ', '))
+            ->from('members AS m')
+            ->join('member_data AS md', 'md.member_id = m.member_id', 'left')
+            ->where_in('m.group_id', $settings['allowed_groups'])
+            ->where('(' . implode(' OR ', $search_fields_where) . ')')
+            ->limit(50)
+            ->get()
+            ->result_array();
+    }
+
 }
