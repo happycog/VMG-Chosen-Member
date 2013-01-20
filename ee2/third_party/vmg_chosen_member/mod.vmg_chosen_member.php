@@ -113,59 +113,18 @@ class Vmg_chosen_member {
 		$field = $this->EE->TMPL->fetch_param('field');
 		$col = $this->EE->TMPL->fetch_param('col');
 		$member_id = $this->EE->TMPL->fetch_param('member_id', '');
-		$member_ids = explode('|', $member_id);
 
-		// Let's guarantee that we only consider users that still exist
-		$member_results = $this->EE->db->select('member_id')
-			->from('members AS m')
-			->where_in('m.member_id', $member_ids)
-			->get()
-			->result_array();
+		$field_data = $this->chosen_helper->convertFieldName($field, $col);
+		$entries = $this->chosen_helper->associatedChannelEntries(
+			$field_data['field_id'],
+			$field_data['col_id'],
+			explode('|', $member_id)
+		);
 
-		$member_ids = array();
-		foreach ($member_results AS $member) $member_ids[] = $member['member_id'];
-
-		if (empty($member_ids)) return $this->EE->TMPL->no_results();
-
-		// Check if this is a valid field
-		$this->EE->db->select("cf.field_id AS field_id, mc.col_id, IF(mc.col_id IS NULL, cf.field_name, mc.col_name) AS field_name", false)
-			->from('channel_fields AS cf')
-			->join('matrix_cols AS mc', 'mc.field_id = cf.field_id', 'left')
-			->where("((cf.field_type = 'vmg_chosen_member' || cf.field_type = 'matrix') AND cf.field_name = " . $this->EE->db->escape($field) . ")");
-
-		if ( ! empty($col)) $this->EE->db->where("(cf.field_type = 'matrix' AND mc.col_type = 'vmg_chosen_member' AND mc.col_name = " . $this->EE->db->escape($col) . ")");
-
-		$field = $this->EE->db->get()->row_array();
-
-		$temp_results = array();
-
-		if ( ! empty($field['field_id']) && is_numeric($field['field_id']) && empty($field['col_id']))
-		{
-			// Get channel entries
-			$this->EE->db->select('cd.entry_id')
-				->from('channel_data AS cd');
-
-			foreach ($member_ids AS $member_id) $this->EE->db->or_where("(field_id_" . $field['field_id'] . " REGEXP '^" . $member_id . "$|^" . $member_id . "\\\||\\\|" . $member_id . "\\\||\\\|" . $member_id . "$')");
-
-			$temp_results = $this->EE->db->get()->result_array();
-		}
-		elseif ( ! empty($field['field_id']) && ! empty($field['col_id']) && is_numeric($field['col_id']))
-		{
-			// Get matrix entries
-			$this->EE->db->select('md.entry_id')
-				->from('matrix_data AS md');
-
-			foreach ($member_ids AS $member_id) $this->EE->db->or_where("(col_id_" . $field['col_id'] . " REGEXP '^" . $member_id . "$|^" . $member_id . "\\\||\\\|" . $member_id . "\\\||\\\|" . $member_id . "$')");
-
-			$temp_results = $this->EE->db->get()->result_array();
-		}
-
-		if (empty($temp_results)) return $this->EE->TMPL->no_results();
-
-		foreach ($temp_results AS $result) $results[] = $result['entry_id'];
+		if (empty($entries)) return $this->EE->TMPL->no_results();
 
 		$results = array(
-			$prefix . 'entry_ids' => implode('|', array_unique($results))
+			$prefix . 'entry_ids' => implode('|', array_unique($entries))
 		);
 
 		if (empty($this->EE->TMPL->tagdata)) return $results[$prefix . 'entry_ids'];

@@ -441,4 +441,51 @@ class ChosenHelper
             ->result_array();
     }
 
+    /**
+     * Convert field/column name to ID
+     */
+    public function convertFieldName($field_name, $column_name = false)
+    {
+        $this->EE->db->save_queries = true;
+        $this->EE->db->select("cf.field_id AS field_id, mc.col_id, IF(mc.col_id IS NULL, cf.field_name, mc.col_name) AS field_name", false)
+            ->from('channel_fields AS cf')
+            ->join('matrix_cols AS mc', 'mc.field_id = cf.field_id', 'left')
+            ->where("((cf.field_type = 'vmg_chosen_member' || cf.field_type = 'matrix') AND cf.field_name = " . $this->EE->db->escape($field_name) . ")");
+
+        if ( ! empty($column_name)) {
+            $this->EE->db->where("(cf.field_type = 'matrix' AND mc.col_type = 'vmg_chosen_member' AND mc.col_name = " . $this->EE->db->escape($column_name) . ")");
+        } else {
+            $this->EE->db->where('cf.field_type', 'vmg_chosen_member');
+        }
+
+        $field = $this->EE->db->get()->row_array();
+
+        return array(
+            'field_id' => (isset($field['field_id']) ? $field['field_id'] : null),
+            'col_id' => (isset($field['col_id']) ? $field['col_id'] : null),
+            'field_name' => (isset($field['field_name']) ? $field['field_name'] : null),
+        );
+    }
+
+    /**
+     * Get Channel Entries containing member
+     */
+    public function associatedChannelEntries($field_id, $col_id, $member_ids)
+    {
+        $data = $this->EE->db->select('vcm.entry_id')
+            ->from('vmg_chosen_member AS vcm')
+            ->where('vcm.field_id', $field_id)
+            ->where('vcm.col_id', (is_numeric($col_id) && $col_id > 0 ? $col_id : 0))
+            ->where_in('vcm.member_id', $member_ids)
+            ->get()
+            ->result_array();
+
+        $results = array();
+        foreach ($data AS $entry) {
+            $results[] = $entry['entry_id'];
+        }
+
+        return $results;
+    }
+
 }

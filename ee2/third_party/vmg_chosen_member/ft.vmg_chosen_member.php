@@ -210,9 +210,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 
 			$results = $this->cache['pair_' . $this->ft_data['cache_key']];
 
-			// Add prefix if set
 			$results = $this->chosen_helper->setPrefix($results, $prefix);
-
 			$output = $this->EE->TMPL->parse_variables($tagdata, $results);
 
 			// Handle backspace if applicable
