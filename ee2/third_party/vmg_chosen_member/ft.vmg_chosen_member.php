@@ -110,10 +110,45 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 	{
 		$this->chosen_helper->initData($this);
 
+		// Build settings array
+		$settings = array(
+			'allowed_groups' => $this->settings['allowed_groups'],
+			'max_selections' => $this->settings['max_selections'],
+			'search' => array(),
+		);
+
+		// Limit to specific members
+		if ( ! empty($params['member_id'])) {
+			$settings['search']['member_id'] = explode('|', $params['member_id']);
+		}
+
+		// Limit to specific member groups
+		if ( ! empty($params['group_id'])) {
+			$settings['search']['group_id'] = explode('|', $params['group_id']);
+		}
+
+		// Order by
+		if ( isset($params['orderby']) && ! empty($params['orderby'])) {
+			$settings['order_by'] = $params['orderby'];
+		}
+
+		// Sort
+		if ( isset($params['sort']) && strtolower($params['sort']) == 'desc') {
+			$settings['sort'] = 'desc';
+		} else {
+			$settings['sort'] = 'asc';
+		}
+
+		// Limit
+		if ( isset($params['limit']) && ! empty($params['limit'])) {
+			$settings['limit'] = $params['limit'];
+		}
+
 		// Single tag simply returns a pipe delimited Member IDs
 		if ( ! $tagdata) {
 
 			if ( ! isset($this->cache['single_' . $this->ft_data['cache_key']])) {
+
 				// Get associations
 				$members = $this->chosen_helper->memberAssociations(
 					$this->ft_data['entry_id'],
@@ -121,10 +156,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 					$this->ft_data['col_id'],
 					$this->ft_data['row_id'],
 					$this->ft_data['var_id'],
-					array(
-						'allowed_groups' => $this->settings['allowed_groups'],
-						'max_selections' => $this->settings['max_selections'],
-					),
+					$settings,
 					'm.member_id'
 				);
 
@@ -149,34 +181,6 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 				// Processing for Better Workflow support
 				if (isset($this->EE->session->cache['ep_better_workflow']['is_draft']) && $this->EE->session->cache['ep_better_workflow']['is_draft']) {
 					if (is_array($data)) $data = implode($data, '|');
-				}
-
-				$settings = array(
-					'allowed_groups' => $this->settings['allowed_groups'],
-					'max_selections' => $this->settings['max_selections'],
-					'search' => array(),
-				);
-
-				// Limit to specific members
-				if ( ! empty($member_search)) {
-					$settings['search']['member_id'] = explode('|', $params['member_id']);
-				}
-
-				// Limit to specific member groups
-				if ( ! empty($params['group_id'])) {
-					$settings['search']['group_id'] = explode('|', $params['group_id']);
-				}
-
-				// Order by
-				if ( isset($params['orderby']) && ! empty($params['orderby'])) {
-					$settings['order_by'] = $params['orderby'];
-				}
-
-				// Sort
-				if ( isset($params['sort']) && strtolower($params['sort']) == 'desc') {
-					$settings['sort'] = 'desc';
-				} else {
-					$settings['sort'] = 'asc';
 				}
 
 				// Get associations

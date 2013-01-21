@@ -96,6 +96,17 @@ class ChosenHelper
 
         $this->EE->db->order_by($order_by, $sort);
 
+        if (isset($settings['limit']) && is_numeric($settings['limit']) && $settings['limit'] > 0) {
+
+            // Make sure we don't conflict with the max_selections
+            if ( ! isset($settings['max_selections']) || $settings['max_selections'] == 0) {
+                $this->EE->db->limit($settings['limit']);
+            } else {
+                $this->EE->db->limit(($settings['limit'] < $settings['max_selections']) ? $settings['limit'] : $settings['max_selections']);
+            }
+
+        }
+
         return $this->EE->db->get()
             ->result_array();
     }

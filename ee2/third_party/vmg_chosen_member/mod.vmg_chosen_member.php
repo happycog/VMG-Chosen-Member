@@ -113,6 +113,7 @@ class Vmg_chosen_member {
 		$field = $this->EE->TMPL->fetch_param('field');
 		$col = $this->EE->TMPL->fetch_param('col');
 		$member_id = $this->EE->TMPL->fetch_param('member_id', '');
+		$display_entries = $this->EE->TMPL->fetch_param('display_entries', 'no');
 
 		$field_data = $this->chosen_helper->convertFieldName($field, $col);
 		$entries = $this->chosen_helper->associatedChannelEntries(
