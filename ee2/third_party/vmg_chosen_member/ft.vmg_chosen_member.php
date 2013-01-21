@@ -374,7 +374,8 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 	public function save($data)
 	{
 		// Save selections for later
-		$this->cache['selections'] = $data;
+		$this->chosen_helper->initData($this);
+		$this->cache[$this->ft_data['cache_key']]['selections'] = $data;
 
 		if (is_array($data)) {
 
@@ -408,18 +409,23 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 	 */
 	public function post_save($data)
 	{
-		if (isset($this->cache['selections']) && is_array($this->cache['selections'])) {
+		$this->chosen_helper->initData($this);
 
-			$this->chosen_helper->initData($this);
+		if (isset($this->cache[$this->ft_data['cache_key']]['selections']) && is_array($this->cache[$this->ft_data['cache_key']]['selections'])) {
+
+			$selections = $this->cache[$this->ft_data['cache_key']]['selections'];
 
 			// Return list of valid Member IDs
-			$member_ids = $this->chosen_helper->validateSelections($this->cache['selections'], $this->ft_data);
+			$member_ids = $this->chosen_helper->validateSelections($selections, $this->ft_data);
 
 			// Remove any old selections
 			$this->chosen_helper->clearOldSelections($member_ids, $this->ft_data);
 
 			// Save selections to database
 			$this->chosen_helper->saveSelections($member_ids, $this->ft_data);
+
+			// Remove from cache
+			unset($this->cache[$this->ft_data['cache_key']]);
 		}
 
 		// Cleanup old records 20% of the time

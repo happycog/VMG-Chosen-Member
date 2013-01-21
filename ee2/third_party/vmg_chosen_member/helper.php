@@ -133,7 +133,8 @@ class ChosenHelper
             $this->EE->db->limit($settings['max_selections']);
         }
 
-        $results = $this->EE->db->get()
+        $results = $this->EE->db->order_by('member_id', 'asc')
+            ->get()
             ->result_array();
 
         $output = array();
@@ -370,7 +371,7 @@ class ChosenHelper
             'search_fields' => $this->getSetting($obj, 'search_fields', null, true),
         );
 
-        $obj->ft_data['cache_key'] = md5("{$obj->ft_data['entry_id']}_{$obj->ft_data['field_id']}_{$obj->ft_data['row_id']}_{$obj->ft_data['col_id']}_{$obj->ft_data['var_id']}");
+        $obj->ft_data['cache_key'] = md5("{$obj->ft_data['entry_id']}_{$obj->ft_data['field_id']}_{$obj->ft_data['col_id']}_{$obj->ft_data['var_id']}");
 
         return $obj->ft_data;
     }
@@ -500,7 +501,6 @@ class ChosenHelper
      */
     public function convertFieldName($field_name, $column_name = false)
     {
-        $this->EE->db->save_queries = true;
         $this->EE->db->select("cf.field_id AS field_id, mc.col_id, IF(mc.col_id IS NULL, cf.field_name, mc.col_name) AS field_name", false)
             ->from('channel_fields AS cf')
             ->join('matrix_cols AS mc', 'mc.field_id = cf.field_id', 'left')
