@@ -35,12 +35,12 @@ class Vmg_chosen_member {
 	{
 		$result = array();
 		$field_id = $this->EE->input->get('field_id');
-		$is_matrix = ($this->EE->input->get('type') == 'matrix' ? true : false);
-		$is_low_var = ($this->EE->input->get('type') == 'lowvar' ? true : false);
+		$col_id = $this->EE->input->get('col_id');
+		$var_id = $this->EE->input->get('var_id');
 		$query = $this->EE->db->escape_like_str(strtolower($this->EE->input->post('query')));
 
 		// Retrieve settings for this field
-		$settings = $this->chosen_helper->fieldSettings($this->EE->input->get('type'), $field_id);
+		$settings = $this->chosen_helper->fieldSettings($field_id, $col_id, $var_id);
 
 		if ($settings !== false && $this->EE->input->is_ajax_request())
 		{

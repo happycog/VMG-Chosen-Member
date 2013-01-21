@@ -6,6 +6,8 @@
 		<?php endforeach; ?>
 	</select>
 	<input type="hidden" id="vmg_chosen_member_<?=$unique_id?>_field_id" value="<?=$field_id?>"/>
+	<input type="hidden" id="vmg_chosen_member_<?=$unique_id?>_col_id" value="<?=$col_id?>"/>
+	<input type="hidden" id="vmg_chosen_member_<?=$unique_id?>_var_id" value="<?=$var_id?>"/>
 	<input type="hidden" id="vmg_chosen_member_<?=$unique_id?>_max_selections" value="<?=$max_selections?>"/>
 	<input type="hidden" id="vmg_chosen_member_<?=$unique_id?>_placeholder_text" value="<?=$placeholder_text?>"/>
 	<input type="hidden" class="vmg_chosen_member_json_url" value="<?=$json_url?>"/>

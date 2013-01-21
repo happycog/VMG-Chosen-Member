@@ -311,7 +311,7 @@ class ChosenHelper
     public function initData(&$obj)
     {
         $obj->ft_data = array(
-            'entry_id' => $this->getSetting($obj, 'entry_id', null, true),
+            'entry_id' => $this->getSetting($obj, 'entry_id', 0, true),
             'field_name' => $this->getSetting($obj, 'cell_name', 'field_name'),
             'field_id' => $this->getSetting($obj, 'field_id', 0, true),
             'row_id' => $this->getSetting($obj, 'row_id', 0, true),
@@ -373,31 +373,38 @@ class ChosenHelper
     /**
      * Get field settings array
      */
-    public function fieldSettings($type, $field_id)
+    public function fieldSettings($field_id, $col_id = 0, $var_id = 0)
     {
-        if ($type == 'matrix') {
+        if (is_numeric($col_id) && $col_id > 0) {
 
-            // Check/Get field/col settings
-            $settings = $this->EE->db->select('mc.col_settings AS setting_data')
-                ->from('matrix_cols AS mc')
-                ->where('mc.field_id', $field_id)
+            // Matrix column settings
+            $this->EE->db->select('mc.col_settings AS setting_data')
+                ->from('matrix_cols AS mc');
+
+            if (is_numeric($var_id) && $var_id > 0) {
+                $this->EE->db->where('mc.var_id', $var_id);
+            } else {
+                $this->EE->db->where('mc.field_id', $field_id);
+            }
+
+            $settings = $this->EE->db->where('mc.col_id', $col_id)
                 ->where('mc.col_type', 'vmg_chosen_member')
                 ->get()
                 ->row_array();
 
-        } elseif ($type == 'lowvar') {
+        } elseif (is_numeric($var_id) && $var_id > 0) {
 
-            // Check/Get var settings
+            // Low variable settings
             $settings = $this->EE->db->select('lv.variable_type, lv.variable_settings AS setting_data')
                 ->from('low_variables AS lv')
-                ->where('lv.variable_id', $field_id)
+                ->where('lv.variable_id', $var_id)
                 ->where('lv.variable_type', 'vmg_chosen_member')
                 ->get()
                 ->row_array();
 
         } else {
 
-            // Check/Get field/col settings
+            // Standard field settings
             $settings = $this->EE->db->select('cf.field_settings AS setting_data')
                 ->from('channel_fields AS cf')
                 ->where('cf.field_id', $field_id)

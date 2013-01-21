@@ -51,12 +51,14 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 		$this->chosen_helper->initData($this);
 
 		// Get JSON URL and append type if applicable
-		$this->ft_data['json_url'] = $this->chosen_helper->actionId('get_results', true);
-		if (isset($this->cell_name)) $this->ft_data['json_url'] .= '&type=matrix';
-		elseif (isset($this->var_id)) $this->ft_data['json_url'] .= '&type=lowvar';
+		$this->ft_data['json_url'] = $this->chosen_helper->actionId('get_results', true) . '&' . http_build_query(array(
+			'field_id' => $this->ft_data['field_id'],
+			'col_id' => $this->ft_data['col_id'],
+			'var_id' => $this->ft_data['var_id'],
+		));
 
 		// Set unique identifier for this field
-		$this->ft_data['unique_id'] = $this->ft_data['field_id'] . '_' . $this->ft_data['row_id'] . '_' . $this->ft_data['col_id'];
+		$this->ft_data['unique_id'] = $this->ft_data['field_id'] . '_' . $this->ft_data['row_id'] . '_' . $this->ft_data['col_id'] . '_' . $this->ft_data['var_id'];
 
 		// Get member association data
 		$this->ft_data['member_associations'] = $this->chosen_helper->memberAssociations(
@@ -427,6 +429,14 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 	 * Post Save Cell
 	 */
 	public function post_save_cell($data)
+	{
+		return $this->post_save($data);
+	}
+
+	/**
+	 * Post Save Var
+	 */
+	public function post_save_var($data)
 	{
 		return $this->post_save($data);
 	}
