@@ -99,7 +99,7 @@ class ChosenHelper
         if (isset($settings['limit']) && is_numeric($settings['limit']) && $settings['limit'] > 0) {
 
             // Make sure we don't conflict with the max_selections
-            if ( ! isset($settings['max_selections']) || $settings['max_selections'] == 0) {
+            if (! isset($settings['max_selections']) || $settings['max_selections'] == 0) {
                 $this->EE->db->limit($settings['limit']);
             } else {
                 $this->EE->db->limit(($settings['limit'] < $settings['max_selections']) ? $settings['limit'] : $settings['max_selections']);
@@ -200,7 +200,7 @@ class ChosenHelper
             $bad_matrix_rows[] = $row['row_id'];
         }
 
-        if ( ! empty($bad_matrix_rows)) {
+        if (! empty($bad_matrix_rows)) {
             $this->EE->db->where_in('row_id', $bad_matrix_rows)
                 ->delete('vmg_chosen_member');
         }
@@ -220,7 +220,7 @@ class ChosenHelper
             $bad_var_rows[] = $row['var_id'];
         }
 
-        if ( ! empty($bad_var_rows)) {
+        if (! empty($bad_var_rows)) {
             $this->EE->db->where_in('var_id', $bad_var_rows)
                 ->delete('vmg_chosen_member');
         }
@@ -517,7 +517,7 @@ class ChosenHelper
             ->join('matrix_cols AS mc', 'mc.field_id = cf.field_id', 'left')
             ->where("((cf.field_type = 'vmg_chosen_member' || cf.field_type = 'matrix') AND cf.field_name = " . $this->EE->db->escape($field_name) . ")");
 
-        if ( ! empty($column_name)) {
+        if (! empty($column_name)) {
             $this->EE->db->where("(cf.field_type = 'matrix' AND mc.col_type = 'vmg_chosen_member' AND mc.col_name = " . $this->EE->db->escape($column_name) . ")");
         } else {
             $this->EE->db->where('cf.field_type', 'vmg_chosen_member');

@@ -1,4 +1,4 @@
-<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+<?php if (! defined('BASEPATH')) exit('No direct script access allowed');
 
 /**
  * VMG Chosen Member Module Class
@@ -22,7 +22,7 @@ class Vmg_chosen_member {
 		$this->EE =& get_instance();
 
 		// Load our helper
-		if ( ! class_exists('ChosenHelper') || ! is_a($this->chosen_helper, 'ChosenHelper')) {
+		if (! class_exists('ChosenHelper') || ! is_a($this->chosen_helper, 'ChosenHelper')) {
 			require_once PATH_THIRD.'vmg_chosen_member/helper.php';
 			$this->chosen_helper = new ChosenHelper;
 		}
@@ -123,6 +123,33 @@ class Vmg_chosen_member {
 		);
 
 		if (empty($entries)) return $this->EE->TMPL->no_results();
+
+		// Trick EE in to thinking this is a Channel Entries Loop
+		if ($display_entries == 'yes') {
+
+			$entry_id_param = (! $this->EE->TMPL->fetch_param('orderby')) ? 'fixed_order' : 'entry_id';
+			$this->EE->TMPL->tagparams[$entry_id_param] = '0|' . implode('|', $entries);
+			$this->EE->TMPL->tagparams['dynamic'] = 'no';
+
+			if (! isset($this->EE->TMPL->tagparams['disable'])) {
+				$this->EE->TMPL->tagparams['disable'] = 'categories|category_fields|member_data|pagination';
+			}
+
+			$vars = $this->EE->functions->assign_variables($this->EE->TMPL->tagdata);
+			$this->EE->TMPL->var_single = $vars['var_single'];
+			$this->EE->TMPL->var_pair = $vars['var_pair'];
+
+			if (method_exists($this->EE->TMPL, '_fetch_site_ids')) {
+				$this->EE->TMPL->_fetch_site_ids();
+			}
+
+			if (! class_exists('Channel')) {
+				require PATH_MOD.'channel/mod.channel.php';
+			}
+
+			$channel = new Channel();
+    		return $channel->entries();
+		}
 
 		$results = array(
 			$prefix . 'entry_ids' => implode('|', array_unique($entries))
