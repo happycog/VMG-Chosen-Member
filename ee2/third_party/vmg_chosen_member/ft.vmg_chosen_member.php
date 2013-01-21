@@ -422,6 +422,11 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 			$this->chosen_helper->saveSelections($member_ids, $this->ft_data);
 		}
 
+		// Cleanup old records 20% of the time
+		if (rand(1, 100) <= 20) {
+			$this->chosen_helper->cleanUp();
+		}
+
 		return true;
 	}
 

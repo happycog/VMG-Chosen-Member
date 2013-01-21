@@ -145,7 +145,7 @@ class Vmg_chosen_member_upd
 
 		$this->EE->dbforge->create_table('vmg_chosen_member', true);
 
-		$this->EE->db->query("ALTER TABLE exp_vmg_chosen_member ADD UNIQUE KEY `unique_all` (`entry_id`, `field_id`, `col_id`, `row_id`, `var_id`, `member_id`)");
+		$this->EE->db->query("ALTER TABLE " . $this->EE->db->dbprefix . "vmg_chosen_member ADD UNIQUE KEY `unique_all` (`entry_id`, `field_id`, `col_id`, `row_id`, `var_id`, `member_id`)");
 
 		return true;
 	}

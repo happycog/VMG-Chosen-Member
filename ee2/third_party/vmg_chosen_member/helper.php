@@ -168,6 +168,53 @@ class ChosenHelper
     }
 
     /**
+     * Remove records for fields/columns/variables that no longer exist
+     */
+    public function cleanUp()
+    {
+        // Remove old Matrix records
+        $matrix_data = $this->EE->db->select('vcm.row_id')
+            ->from('vmg_chosen_member AS vcm')
+            ->join('matrix_data AS md', 'md.row_id = vcm.row_id', 'LEFT OUTER')
+            ->where('vcm.row_id != 0')
+            ->where('(vcm.field_id != 0 OR vcm.var_id != 0)')
+            ->where('md.row_id IS NULL')
+            ->group_by('vcm.row_id')
+            ->get()
+            ->result_array();
+
+        $bad_matrix_rows = array();
+        foreach ($matrix_data AS $row) {
+            $bad_matrix_rows[] = $row['row_id'];
+        }
+
+        if ( ! empty($bad_matrix_rows)) {
+            $this->EE->db->where_in('row_id', $bad_matrix_rows)
+                ->delete('vmg_chosen_member');
+        }
+
+        // Remove old Low Variable records
+        $var_data = $this->EE->db->select('vcm.var_id')
+            ->from('vmg_chosen_member AS vcm')
+            ->join('global_variables AS gv', 'gv.variable_id = vcm.var_id', 'LEFT OUTER')
+            ->where('vcm.var_id != 0')
+            ->where('gv.variable_id IS NULL')
+            ->group_by('vcm.var_id')
+            ->get()
+            ->result_array();
+
+        $bad_var_rows = array();
+        foreach ($var_data AS $row) {
+            $bad_var_rows[] = $row['var_id'];
+        }
+
+        if ( ! empty($bad_var_rows)) {
+            $this->EE->db->where_in('var_id', $bad_var_rows)
+                ->delete('vmg_chosen_member');
+        }
+    }
+
+    /**
      * Save current selections to database
      */
     public function saveSelections($selections, $settings)
@@ -184,7 +231,7 @@ class ChosenHelper
         // Save them all
         foreach ($selections AS $key => $selection) {
 
-            $this->EE->db->query("INSERT INTO exp_vmg_chosen_member SET entry_id = ?, field_id = ?, col_id = ?, row_id = ?, var_id = ?, member_id = ?, `order` = ? ON DUPLICATE KEY UPDATE `order` = ?", array_merge($data, array(
+            $this->EE->db->query("INSERT INTO " . $this->EE->db->dbprefix . "vmg_chosen_member SET entry_id = ?, field_id = ?, col_id = ?, row_id = ?, var_id = ?, member_id = ?, `order` = ? ON DUPLICATE KEY UPDATE `order` = ?", array_merge($data, array(
                     $selection,
                     $key,
                     $key,
@@ -200,7 +247,7 @@ class ChosenHelper
     public function getMemberGroups()
     {
         return $this->EE->db->select("mg.group_id, mg.group_title")
-            ->from('exp_member_groups AS mg')
+            ->from('member_groups AS mg')
             ->group_by('mg.group_id')
             ->get()
             ->result_array();
@@ -212,7 +259,7 @@ class ChosenHelper
     public function getCustomMemberFields()
     {
         return $this->EE->db->select("m_field_id, m_field_name, m_field_label")
-            ->from('exp_member_fields')
+            ->from('member_fields')
             ->order_by('m_field_order', 'asc')
             ->get()
             ->result_array();
