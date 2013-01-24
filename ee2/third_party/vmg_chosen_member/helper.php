@@ -8,7 +8,6 @@
  * @author      Luke Wilkins <luke@vectormediagroup.com>
  * @copyright   Copyright (c) 2011-2013 Vector Media Group, Inc.
  */
-
 class ChosenHelper
 {
     protected $disallowed_fields = array('password', 'unique_id', 'crypt_key', 'salt');
@@ -166,7 +165,8 @@ class ChosenHelper
             ->where('field_id', $settings['field_id'])
             ->where('col_id', $settings['col_id'])
             ->where('row_id', $settings['row_id'])
-            ->where('var_id', $settings['var_id']);
+            ->where('var_id', $settings['var_id'])
+            ->where('is_draft', $settings['is_draft']);
 
         // Clear everything for this field if no selections are made
         if (empty($selections)) {
@@ -180,10 +180,59 @@ class ChosenHelper
     }
 
     /**
+     * Make draft data live
+     */
+    public function publishDraft($settings)
+    {
+        // Delete current live selections
+        $this->EE->db->where('entry_id', $settings['entry_id'])
+            ->where('is_draft', 0)
+            ->delete('vmg_chosen_member');
+
+        // Make draft selections live
+        $this->EE->db->where('entry_id', $settings['entry_id'])
+            ->where('is_draft', 1)
+            ->update('vmg_chosen_member', array(
+                'is_draft' => 0,
+            ));
+    }
+
+    /**
+     * Remove all draft entries
+     */
+    public function discardDraft($settings)
+    {
+        $this->EE->db->where('entry_id', $settings['entry_id'])
+            ->where('is_draft', 1)
+            ->delete('vmg_chosen_member');
+
+        return $this->EE->db->affected_rows();
+    }
+
+    /**
      * Remove records for fields/columns/variables that no longer exist
      */
     public function cleanUp()
     {
+        // Remove old records for deleted fields
+        $field_data = $this->EE->db->select('vcm.field_id')
+            ->from('vmg_chosen_member AS vcm')
+            ->join('channel_fields AS cf', 'cf.field_id = vcm.field_id', 'LEFT OUTER')
+            ->where('vcm.field_id != 0')
+            ->where('cf.field_id IS NULL')
+            ->get()
+            ->result_array();
+
+        $bad_field_rows = array();
+        foreach ($field_data AS $row) {
+            $bad_field_rows[] = $row['field_id'];
+        }
+
+        if (! empty($bad_field_rows)) {
+            $this->EE->db->where_in('field_id', $bad_field_rows)
+                ->delete('vmg_chosen_member');
+        }
+
         // Remove old Matrix records
         $matrix_data = $this->EE->db->select('vcm.row_id')
             ->from('vmg_chosen_member AS vcm')
@@ -238,12 +287,13 @@ class ChosenHelper
             $settings['col_id'],
             $settings['row_id'],
             $settings['var_id'],
+            $settings['is_draft'],
         );
 
         // Save them all
         foreach ($selections AS $key => $selection) {
 
-            $this->EE->db->query("INSERT INTO " . $this->EE->db->dbprefix . "vmg_chosen_member SET entry_id = ?, field_id = ?, col_id = ?, row_id = ?, var_id = ?, member_id = ?, `order` = ? ON DUPLICATE KEY UPDATE `order` = ?", array_merge($data, array(
+            $this->EE->db->query("INSERT INTO " . $this->EE->db->dbprefix . "vmg_chosen_member SET entry_id = ?, field_id = ?, col_id = ?, row_id = ?, var_id = ?, is_draft = ?, member_id = ?, `order` = ? ON DUPLICATE KEY UPDATE `order` = ?", array_merge($data, array(
                     $selection,
                     $key,
                     $key,
@@ -369,6 +419,11 @@ class ChosenHelper
      */
     public function initData(&$obj)
     {
+        $is_draft = false;
+        if ((isset($this->cache['is_draft']) && $this->cache['is_draft']) || (isset($this->EE->session->cache['ep_better_workflow']['is_draft']) && $this->EE->session->cache['ep_better_workflow']['is_draft'])) {
+            $is_draft = true;
+        }
+
         $obj->ft_data = array(
             'entry_id' => $this->getSetting($obj, 'entry_id', 0, true),
             'field_name' => $this->getSetting($obj, 'cell_name', 'field_name'),
@@ -380,9 +435,10 @@ class ChosenHelper
             'max_selections' => $this->getSetting($obj, 'max_selections', null, true),
             'placeholder_text' => $this->getSetting($obj, 'placeholder_text', null, true),
             'search_fields' => $this->getSetting($obj, 'search_fields', null, true),
+            'is_draft' => ($is_draft ? 1 : 0),
         );
 
-        $obj->ft_data['cache_key'] = md5("{$obj->ft_data['entry_id']}_{$obj->ft_data['field_id']}_{$obj->ft_data['col_id']}_{$obj->ft_data['var_id']}");
+        $obj->ft_data['cache_key'] = md5("{$obj->ft_data['field_id']}_{$obj->ft_data['col_id']}_{$obj->ft_data['var_id']}");
 
         return $obj->ft_data;
     }

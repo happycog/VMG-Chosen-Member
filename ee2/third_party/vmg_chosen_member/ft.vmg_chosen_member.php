@@ -8,7 +8,6 @@
  * @author		Luke Wilkins <luke@vectormediagroup.com>
  * @copyright	Copyright (c) 2011-2013 Vector Media Group, Inc.
  */
-
 class Vmg_chosen_member_ft extends EE_Fieldtype
 {
 	public $info = array(
@@ -177,11 +176,6 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 				$disable = ! empty($params['disable']) ? explode('|', $params['disable']) : array();
 				$prefix = isset($params['prefix']) ? $params['prefix'] : 'cm_';
 				$backspace = isset($params['backspace']) ? $params['backspace'] : null;
-
-				// Processing for Better Workflow support
-				if (isset($this->EE->session->cache['ep_better_workflow']['is_draft']) && $this->EE->session->cache['ep_better_workflow']['is_draft']) {
-					if (is_array($data)) $data = implode($data, '|');
-				}
 
 				// Get associations
 				$results = $this->chosen_helper->memberAssociations(
@@ -432,8 +426,8 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 			unset($this->cache[$this->ft_data['cache_key']]);
 		}
 
-		// Cleanup old records 20% of the time
-		if (rand(1, 100) <= 20) {
+		// Cleanup old records 25% of the time
+		if (rand(1, 100) <= 25) {
 			$this->chosen_helper->cleanUp();
 		}
 
@@ -454,6 +448,37 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 	public function post_save_var($data)
 	{
 		return $this->post_save($data);
+	}
+
+	/**
+	 * Better Workflow - Save
+	 */
+	public function draft_save($data, $draft_action)
+	{
+		$this->cache['is_draft'] = true;
+
+		$this->save($data);
+		return $this->post_save($data);
+	}
+
+	/**
+	 * Better Workflow - Delete
+	 */
+	function draft_discard()
+	{
+		$this->chosen_helper->discardDraft($this->settings);
+
+		return;
+	}
+
+	/**
+	 * Better Workflow - Publish
+	 */
+	function draft_publish()
+	{
+		$this->chosen_helper->publishDraft($this->settings);
+
+		return;
 	}
 
 }

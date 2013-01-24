@@ -8,7 +8,6 @@
  * @author		Luke Wilkins <luke@vectormediagroup.com>
  * @copyright	Copyright (c) 2011-2013 Vector Media Group, Inc.
  */
-
 class Vmg_chosen_member_upd
 {
 	public $version = '1.6';
@@ -141,11 +140,12 @@ class Vmg_chosen_member_upd
 			'var_id' => array('type' => 'int', 'constraint' => 6, 'unsigned' => true, 'default' => 0, 'null' => false),
 			'member_id' => array('type' => 'int', 'constraint' => 10, 'unsigned' => true, 'default' => 0, 'null' => false),
 			'order' => array('type' => 'int', 'constraint' => 4, 'unsigned' => true, 'default' => 0, 'null' => false),
+			'is_draft' => array('type' => 'TINYINT', 'constraint' => '1', 'unsigned' => TRUE, 'default' => 0),
 		));
 
 		$this->EE->dbforge->create_table('vmg_chosen_member', true);
 
-		$this->EE->db->query("ALTER TABLE " . $this->EE->db->dbprefix . "vmg_chosen_member ADD UNIQUE KEY `unique_all` (`entry_id`, `field_id`, `col_id`, `row_id`, `var_id`, `member_id`)");
+		$this->EE->db->query("ALTER TABLE " . $this->EE->db->dbprefix . "vmg_chosen_member ADD UNIQUE KEY `unique_all` (`entry_id`, `field_id`, `col_id`, `row_id`, `var_id`, `member_id`, `is_draft`)");
 
 		return true;
 	}
