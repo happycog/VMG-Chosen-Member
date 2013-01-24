@@ -8,7 +8,6 @@
  * @author		Luke Wilkins <luke@vectormediagroup.com>
  * @copyright	Copyright (c) 2011-2013 Vector Media Group, Inc.
  */
-
 class Vmg_chosen_member {
 
 	public $return_data;
@@ -113,7 +112,7 @@ class Vmg_chosen_member {
 		$field = $this->EE->TMPL->fetch_param('field');
 		$col = $this->EE->TMPL->fetch_param('col');
 		$member_id = $this->EE->TMPL->fetch_param('member_id', '');
-		$display_entries = $this->EE->TMPL->fetch_param('display_entries', 'no');
+		$display_entries = $this->EE->TMPL->fetch_param('display_entries', 'yes');
 
 		$field_data = $this->chosen_helper->convertFieldName($field, $col);
 		$entries = $this->chosen_helper->associatedChannelEntries(

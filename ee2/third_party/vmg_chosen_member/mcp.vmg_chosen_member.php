@@ -8,7 +8,6 @@
  * @author		Luke Wilkins <luke@vectormediagroup.com>
  * @copyright	Copyright (c) 2011-2013 Vector Media Group, Inc.
  */
-
 class Vmg_chosen_member_mcp
 {
 	public $return_data;
