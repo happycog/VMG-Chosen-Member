@@ -210,11 +210,17 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 
 			$results = $this->cache['pair_' . $this->ft_data['cache_key']];
 
-			$results = $this->chosen_helper->setPrefix($results, $prefix);
+			// Set prefix if applicable
+			if ( ! $tagdata) {
+				$results = $this->chosen_helper->setPrefix($results, $prefix);
+			}
+
 			$output = $this->EE->TMPL->parse_variables($tagdata, $results);
 
 			// Handle backspace if applicable
-			$output = $this->chosen_helper->backspace($output, $backspace);
+			if ( ! $tagdata) {
+				$output = $this->chosen_helper->backspace($output, $backspace);
+			}
 
 			return $output;
 		}
