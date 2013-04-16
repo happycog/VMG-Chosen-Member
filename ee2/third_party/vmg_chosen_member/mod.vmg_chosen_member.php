@@ -4,9 +4,9 @@
  * VMG Chosen Member Module Class
  *
  * @package		VMG Chosen Member
- * @version		1.5.5
+ * @version		1.5.6
  * @author		Luke Wilkins <luke@vectormediagroup.com>
- * @copyright	Copyright (c) 2011-2012 Vector Media Group, Inc.
+ * @copyright	Copyright (c) 2011-2013 Vector Media Group, Inc.
  **/
 
 class Vmg_chosen_member {
@@ -190,13 +190,32 @@ class Vmg_chosen_member {
 
 		if (empty($member_ids)) return $this->EE->TMPL->no_results();
 
-		// Check if this is a valid field
-		$db->select("cf.field_id AS field_id, mc.col_id, IF(mc.col_id IS NULL, cf.field_name, mc.col_name) AS field_name", false)
-			->from('exp_channel_fields AS cf')
-			->join('exp_matrix_cols AS mc', 'mc.field_id = cf.field_id', 'left')
-			->where("((cf.field_type = 'vmg_chosen_member' || cf.field_type = 'matrix') AND cf.field_name = " . $db->escape($field) . ")");
+		// Check if Matrix is installed
+        if ( ! isset($this->EE->session->cache[__CLASS__]['matrix_installed'])) {
+            $check = $db->from('exp_fieldtypes')
+                ->where('name', 'matrix')
+                ->get()
+                ->num_rows();
 
-		if ( ! empty($col)) $db->where("(cf.field_type = 'matrix' AND mc.col_type = 'vmg_chosen_member' AND mc.col_name = " . $db->escape($col) . ")");
+            $this->EE->session->cache[__CLASS__]['matrix_installed'] = ($check > 0 ? true : false);
+        }
+
+        // Check if this is a valid field
+        if ($this->EE->session->cache[__CLASS__]['matrix_installed']) {
+            $db->select("cf.field_id AS field_id, mc.col_id, IF(mc.col_id IS NULL, cf.field_name, mc.col_name) AS field_name", false)
+                ->from('exp_channel_fields AS cf')
+                ->join('exp_matrix_cols AS mc', 'mc.field_id = cf.field_id', 'left')
+                ->where("((cf.field_type = 'vmg_chosen_member' || cf.field_type = 'matrix') AND cf.field_name = " . $db->escape($field) . ")");
+
+            if ( ! empty($col)) {
+                $db->where("(cf.field_type = 'matrix' AND mc.col_type = 'vmg_chosen_member' AND mc.col_name = " . $db->escape($col) . ")");
+            }
+
+        } else {
+            $db->select("cf.field_id AS field_id, NULL AS col_id, cf.field_name AS field_name", false)
+                ->from('exp_channel_fields AS cf')
+                ->where("(cf.field_type = 'vmg_chosen_member' AND cf.field_name = " . $db->escape($field) . ")");
+        }
 
 		$field = $db->get()->row_array();
 
