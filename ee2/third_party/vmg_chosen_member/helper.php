@@ -34,7 +34,7 @@ class ChosenHelper
     /**
      * Gather associated member data info
      */
-    public function memberAssociations($entry_id, $field_id = null, $col_id = null, $row_id = null, $var_id = null, $settings = null, $select_fields = null, $group_by = 'vcm.member_id')
+    public function memberAssociations($entry_id = null, $field_id = null, $col_id = null, $row_id = null, $var_id = null, $settings = null, $select_fields = null, $group_by = 'vcm.member_id')
     {
         // Return specific fields from query
         if (! is_null($select_fields)) {
@@ -51,12 +51,15 @@ class ChosenHelper
             $this->EE->db->join('member_data AS md', 'md.member_id = vcm.member_id', 'inner');
         }
 
+        if ( ! is_null($entry_id)) {
+            $this->EE->db->where('vcm.entry_id', $entry_id);
+        }
+
         // Make general restrictions for this particular field
-        $this->EE->db->where('vcm.entry_id', $entry_id)
-            ->where('vcm.field_id', $field_id)
-            ->where('vcm.col_id', $col_id)
-            ->where('vcm.row_id', $row_id)
-            ->where('vcm.var_id', $var_id);
+        $this->EE->db->where('vcm.field_id', $field_id);
+        $this->EE->db->where('vcm.col_id', (is_null($col_id) ? '0' : $col_id));
+        if ( ! is_null($row_id)) $this->EE->db->where('vcm.row_id', $row_id);
+        if ( ! is_null($var_id)) $this->EE->db->where('vcm.var_id', $var_id);
 
         if (isset($settings['allowed_groups']) && is_array($settings['allowed_groups']) && ! empty($settings['allowed_groups'])) {
             $this->EE->db->where_in('m.group_id', $settings['allowed_groups']);

@@ -159,6 +159,63 @@ class Vmg_chosen_member {
 		return $this->EE->TMPL->parse_variables_row($this->EE->TMPL->tagdata, $results);
 	}
 
+	/**
+	 * Return all members selected through a specific field
+	 */
+	public function assoc_field_members()
+	{
+		$prefix = $this->EE->TMPL->fetch_param('prefix', 'cm_');
+		$field = $this->EE->TMPL->fetch_param('field');
+		$col = $this->EE->TMPL->fetch_param('col');
+		$backspace = $this->EE->TMPL->fetch_param('backspace');
+		$disable = $this->EE->TMPL->fetch_param('disable');
+
+		$disable = ! empty($params['disable']) ? explode('|', $params['disable']) : array();
+		$field_data = $this->chosen_helper->convertFieldName($field, $col);
+
+		// Bail if field couldn't be found
+		if (empty($field_data['field_id']) || empty($field_data['field_name'])) {
+			return $this->EE->TMPL->no_results();
+		}
+
+		$settings = $this->chosen_helper->fieldSettings($field_data['field_id'], $field_data['col_id']);
+
+		// Get associations
+		$results = $this->chosen_helper->memberAssociations(
+			null,
+			$field_data['field_id'],
+			$field_data['col_id'],
+			null,
+			null,
+			$settings,
+			'm.*' . (! in_array('member_data', $disable) ? ', md.*' : '')
+		);
+
+		if (empty($results)) return $this->EE->TMPL->no_results();
+
+		// Rename member data fields if we retrieved them
+		if (! in_array('member_data', $disable)) {
+			$member_fields = $this->chosen_helper->getCustomMemberFields();
+
+			foreach ($results AS $key => $member) {
+				foreach ($member_fields AS $field) {
+					$results[$key][$field['m_field_name']] = $member['m_field_id_' . $field['m_field_id']];
+					unset($results[$key]['m_field_id_' . $field['m_field_id']]);
+				}
+			}
+		}
+
+		// Handle prefix if applicable
+		$results = $this->chosen_helper->setPrefix($results, $prefix);
+
+		$output = $this->EE->TMPL->parse_variables($this->EE->TMPL->tagdata, $results);
+
+		// Handle backspace if applicable
+		$output = $this->chosen_helper->backspace($output, $backspace);
+
+		return $output;
+	}
+
 }
 
 /* End of file mod.vmg_chosen_member.php */
