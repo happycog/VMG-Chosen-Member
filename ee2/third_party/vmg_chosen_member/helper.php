@@ -146,13 +146,20 @@ class ChosenHelper
             $this->EE->db->limit($settings['max_selections']);
         }
 
-        $results = $this->EE->db->order_by('member_id', 'asc')
-            ->get()
+        $results = $this->EE->db->get()
             ->result_array();
 
-        $output = array();
+        $temp_output = array();
         foreach ($results AS $result) {
-            $output[] = $result['member_id'];
+            $temp_output[] = $result['member_id'];
+        }
+
+        // Rebuild order based on original selection
+        $output = array();
+        foreach ($selections AS $selection) {
+            if (in_array($selection, $temp_output)) {
+                $output[] = $selection;
+            }
         }
 
         return $output;
