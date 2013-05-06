@@ -604,18 +604,12 @@ class ChosenHelper
     public function associatedChannelEntries($field_id, $col_id, $member_ids)
     {
         $col_id = (is_numeric($col_id) && $col_id > 0) ? $col_id : 0;
-
-        $data = $this->EE->db->select('vcm.entry_id')
-            ->from('vmg_chosen_member AS vcm')
-            ->where('vcm.field_id', $field_id)
-            ->where('vcm.col_id', $col_id)
-            ->where_in('vcm.member_id', $member_ids)
-            ->get()
-            ->result_array();
-
         $results = array();
-        foreach ($data AS $entry) {
-            $results[] = $entry['entry_id'];
+
+        // Handle CURRENT_MEMBER option if set
+        if (in_array('CURRENT_MEMBER', $member_ids) && $this->EE->session->userdata('member_id') > 0) {
+            $member_ids[] = $this->EE->session->userdata('member_id');
+            unset($member_ids[array_search('CURRENT_MEMBER', $member_ids)]);
         }
 
         // Handle OR_EMPTY option for standard field
@@ -646,6 +640,20 @@ class ChosenHelper
             foreach ($data AS $entry) {
                 $results[] = $entry['entry_id'];
             }
+
+            unset($member_ids[array_search('OR_EMPTY', $member_ids)]);
+        }
+
+        $data = $this->EE->db->select('vcm.entry_id')
+            ->from('vmg_chosen_member AS vcm')
+            ->where('vcm.field_id', $field_id)
+            ->where('vcm.col_id', $col_id)
+            ->where_in('vcm.member_id', $member_ids)
+            ->get()
+            ->result_array();
+
+        foreach ($data AS $entry) {
+            $results[] = $entry['entry_id'];
         }
 
         return $results;
