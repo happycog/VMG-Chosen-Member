@@ -603,10 +603,12 @@ class ChosenHelper
      */
     public function associatedChannelEntries($field_id, $col_id, $member_ids)
     {
+        $col_id = (is_numeric($col_id) && $col_id > 0) ? $col_id : 0;
+
         $data = $this->EE->db->select('vcm.entry_id')
             ->from('vmg_chosen_member AS vcm')
             ->where('vcm.field_id', $field_id)
-            ->where('vcm.col_id', (is_numeric($col_id) && $col_id > 0 ? $col_id : 0))
+            ->where('vcm.col_id', $col_id)
             ->where_in('vcm.member_id', $member_ids)
             ->get()
             ->result_array();
@@ -614,6 +616,36 @@ class ChosenHelper
         $results = array();
         foreach ($data AS $entry) {
             $results[] = $entry['entry_id'];
+        }
+
+        // Handle OR_EMPTY option for standard field
+        if (in_array('OR_EMPTY', $member_ids)) {
+
+            // Get channel info
+            $channel_data = $this->EE->db->select('c.channel_id')
+                ->from('channel_fields AS cf')
+                ->join('channels AS c', 'c.field_group = cf.group_id', 'inner')
+                ->where('cf.field_id', $field_id)
+                ->group_by('c.channel_id')
+                ->get()
+                ->result_array();
+
+            $channels = array(0);
+            foreach ($channel_data AS $channel) {
+                $channels[] = $channel['channel_id'];
+            }
+
+            $data = $this->EE->db->select('ct.entry_id')
+                ->from('channel_titles AS ct')
+                ->join('vmg_chosen_member AS vcm', 'vcm.entry_id = ct.entry_id AND vcm.field_id = ' . $this->EE->db->escape($field_id) . ' AND vcm.col_id = ' . $this->EE->db->escape($col_id), 'LEFT OUTER')
+                ->where_in('ct.channel_id', $channels)
+                ->where('vcm.entry_id IS NULL')
+                ->get()
+                ->result_array();
+
+            foreach ($data AS $entry) {
+                $results[] = $entry['entry_id'];
+            }
         }
 
         return $results;
