@@ -109,6 +109,9 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 	{
 		$this->chosen_helper->initData($this);
 
+		$prefix = isset($params['prefix']) ? $params['prefix'] : 'cm_';
+		$backspace = isset($params['backspace']) ? $params['backspace'] : null;
+
 		// Build settings array
 		$settings = array(
 			'allowed_groups' => $this->settings['allowed_groups'],
@@ -146,81 +149,63 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 		// Single tag simply returns a pipe delimited Member IDs
 		if (! $tagdata) {
 
-			if (! isset($this->cache['single_' . $this->ft_data['cache_key']])) {
+			// Get associations
+			$members = $this->chosen_helper->memberAssociations(
+				$this->ft_data['entry_id'],
+				$this->ft_data['field_id'],
+				$this->ft_data['col_id'],
+				$this->ft_data['row_id'],
+				$this->ft_data['var_id'],
+				$settings,
+				'm.member_id'
+			);
 
-				// Get associations
-				$members = $this->chosen_helper->memberAssociations(
-					$this->ft_data['entry_id'],
-					$this->ft_data['field_id'],
-					$this->ft_data['col_id'],
-					$this->ft_data['row_id'],
-					$this->ft_data['var_id'],
-					$settings,
-					'm.member_id'
-				);
-
-				$members_list = array();
-				foreach ($members AS $member) {
-					$members_list[] = $member['member_id'];
-				}
-
-				$this->cache['single_' . $this->ft_data['cache_key']] = implode('|', $members_list);
+			$members_list = array();
+			foreach ($members AS $member) {
+				$members_list[] = $member['member_id'];
 			}
 
-			return $this->cache['single_' . $this->ft_data['cache_key']];
+			return implode('|', $members_list);
 
 		} else {
 
-			if (! isset($this->cache['pair_' . $this->ft_data['cache_key']])) {
+			$disable = ! empty($params['disable']) ? explode('|', $params['disable']) : array();
 
-				$disable = ! empty($params['disable']) ? explode('|', $params['disable']) : array();
-				$prefix = isset($params['prefix']) ? $params['prefix'] : 'cm_';
-				$backspace = isset($params['backspace']) ? $params['backspace'] : null;
+			// Get associations
+			$results = $this->chosen_helper->memberAssociations(
+				$this->ft_data['entry_id'],
+				$this->ft_data['field_id'],
+				$this->ft_data['col_id'],
+				$this->ft_data['row_id'],
+				$this->ft_data['var_id'],
+				$settings,
+				'm.*' . (! in_array('member_data', $disable) ? ', md.*' : '')
+			);
 
-				// Get associations
-				$results = $this->chosen_helper->memberAssociations(
-					$this->ft_data['entry_id'],
-					$this->ft_data['field_id'],
-					$this->ft_data['col_id'],
-					$this->ft_data['row_id'],
-					$this->ft_data['var_id'],
-					$settings,
-					'm.*' . (! in_array('member_data', $disable) ? ', md.*' : '')
-				);
+			// Return empty if no results
+			if (empty($results)) {
+				return '';
+			}
 
-				// Return empty if no results
-				if (empty($results)) {
-					return '';
-				}
+			// Rename member data fields if we retrieved them
+			if (! in_array('member_data', $disable)) {
+				$member_fields = $this->chosen_helper->getCustomMemberFields();
 
-				// Rename member data fields if we retrieved them
-				if (! in_array('member_data', $disable)) {
-					$member_fields = $this->chosen_helper->getCustomMemberFields();
-
-					foreach ($results AS $key => $member) {
-						foreach ($member_fields AS $field) {
-							$results[$key][$field['m_field_name']] = $member['m_field_id_' . $field['m_field_id']];
-							unset($results[$key]['m_field_id_' . $field['m_field_id']]);
-						}
+				foreach ($results AS $key => $member) {
+					foreach ($member_fields AS $field) {
+						$results[$key][$field['m_field_name']] = $member['m_field_id_' . $field['m_field_id']];
+						unset($results[$key]['m_field_id_' . $field['m_field_id']]);
 					}
 				}
-
-				$this->cache['pair_' . $this->ft_data['cache_key']] = $results;
 			}
 
-			$results = $this->cache['pair_' . $this->ft_data['cache_key']];
-
-			// Set prefix if applicable
-			if ($tagdata) {
-				$results = $this->chosen_helper->setPrefix($results, $prefix);
-			}
+			// Handle prefix if applicable
+			$results = $this->chosen_helper->setPrefix($results, $prefix);
 
 			$output = $this->EE->TMPL->parse_variables($tagdata, $results);
 
 			// Handle backspace if applicable
-			if ($tagdata) {
-				$output = $this->chosen_helper->backspace($output, $backspace);
-			}
+			$output = $this->chosen_helper->backspace($output, $backspace);
 
 			return $output;
 		}

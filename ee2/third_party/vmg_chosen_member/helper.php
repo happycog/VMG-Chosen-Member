@@ -36,81 +36,87 @@ class ChosenHelper
      */
     public function memberAssociations($entry_id = null, $field_id = null, $col_id = null, $row_id = null, $var_id = null, $settings = null, $select_fields = null, $group_by = 'vcm.member_id')
     {
-        // Return specific fields from query
-        if (! is_null($select_fields)) {
-            $this->EE->db->select($select_fields);
-        } else {
-            $this->EE->db->select('m.*');
-        }
+        $cache_key = serialize(func_get_args());
 
-        $this->EE->db->from('vmg_chosen_member AS vcm')
-            ->join('members AS m', 'm.member_id = vcm.member_id', 'inner');
+        if ( ! isset($this->cache['memberAssociations'][$cache_key])) {
 
-        // Add join to member_data if that is within the select statement
-        if (strpos($select_fields, 'md.') !== false) {
-            $this->EE->db->join('member_data AS md', 'md.member_id = vcm.member_id', 'inner');
-        }
+            // Return specific fields from query
+            if (! is_null($select_fields)) {
+                $this->EE->db->select($select_fields);
+            } else {
+                $this->EE->db->select('m.*');
+            }
 
-        if ( ! is_null($entry_id)) {
-            $this->EE->db->where('vcm.entry_id', $entry_id);
-        }
+            $this->EE->db->from('vmg_chosen_member AS vcm')
+                ->join('members AS m', 'm.member_id = vcm.member_id', 'inner');
 
-        // Make general restrictions for this particular field
-        $this->EE->db->where('vcm.field_id', $field_id);
-        $this->EE->db->where('vcm.col_id', (is_null($col_id) ? '0' : $col_id));
-        if ( ! is_null($row_id)) $this->EE->db->where('vcm.row_id', $row_id);
-        if ( ! is_null($var_id)) $this->EE->db->where('vcm.var_id', $var_id);
+            // Add join to member_data if that is within the select statement
+            if (strpos($select_fields, 'md.') !== false) {
+                $this->EE->db->join('member_data AS md', 'md.member_id = vcm.member_id', 'inner');
+            }
 
-        if (isset($settings['allowed_groups']) && is_array($settings['allowed_groups']) && ! empty($settings['allowed_groups'])) {
-            $this->EE->db->where_in('m.group_id', $settings['allowed_groups']);
-        }
+            if ( ! is_null($entry_id)) {
+                $this->EE->db->where('vcm.entry_id', $entry_id);
+            }
 
-        if (isset($settings['max_selections']) && is_numeric($settings['max_selections']) && $settings['max_selections'] > 0) {
-            $this->EE->db->limit($settings['max_selections']);
-        }
+            // Make general restrictions for this particular field
+            $this->EE->db->where('vcm.field_id', $field_id);
+            $this->EE->db->where('vcm.col_id', (is_null($col_id) ? '0' : $col_id));
+            if ( ! is_null($row_id)) $this->EE->db->where('vcm.row_id', $row_id);
+            if ( ! is_null($var_id)) $this->EE->db->where('vcm.var_id', $var_id);
 
-        if (! is_null($group_by)) {
-            $this->EE->db->group_by($group_by);
-        }
+            if (isset($settings['allowed_groups']) && is_array($settings['allowed_groups']) && ! empty($settings['allowed_groups'])) {
+                $this->EE->db->where_in('m.group_id', $settings['allowed_groups']);
+            }
 
-        // Handle custom search restrictions
-        if (isset($settings['search']) && is_array($settings['search'])) {
-            foreach ($settings['search'] AS $field => $values) {
-                if (is_array($values)) {
-                    $this->EE->db->where_in('m.' . $field, $values);
-                } else {
-                    $this->EE->db->where('m.' . $field, $values);
+            if (isset($settings['max_selections']) && is_numeric($settings['max_selections']) && $settings['max_selections'] > 0) {
+                $this->EE->db->limit($settings['max_selections']);
+            }
+
+            if (! is_null($group_by)) {
+                $this->EE->db->group_by($group_by);
+            }
+
+            // Handle custom search restrictions
+            if (isset($settings['search']) && is_array($settings['search'])) {
+                foreach ($settings['search'] AS $field => $values) {
+                    if (is_array($values)) {
+                        $this->EE->db->where_in('m.' . $field, $values);
+                    } else {
+                        $this->EE->db->where('m.' . $field, $values);
+                    }
                 }
             }
-        }
 
-        if (isset($settings['order_by']) && ! empty($settings['order_by'])) {
-            $order_by = $settings['order_by'];
-        } else {
-            $order_by = 'vcm.order';
-        }
-
-        if (isset($settings['sort']) && strtolower($settings['sort']) == 'desc') {
-            $sort = 'desc';
-        } else {
-            $sort = 'asc';
-        }
-
-        $this->EE->db->order_by($order_by, $sort);
-
-        if (isset($settings['limit']) && is_numeric($settings['limit']) && $settings['limit'] > 0) {
-
-            // Make sure we don't conflict with the max_selections
-            if (! isset($settings['max_selections']) || $settings['max_selections'] == 0) {
-                $this->EE->db->limit($settings['limit']);
+            if (isset($settings['order_by']) && ! empty($settings['order_by'])) {
+                $order_by = $settings['order_by'];
             } else {
-                $this->EE->db->limit(($settings['limit'] < $settings['max_selections']) ? $settings['limit'] : $settings['max_selections']);
+                $order_by = 'vcm.order';
             }
 
+            if (isset($settings['sort']) && strtolower($settings['sort']) == 'desc') {
+                $sort = 'desc';
+            } else {
+                $sort = 'asc';
+            }
+
+            $this->EE->db->order_by($order_by, $sort);
+
+            if (isset($settings['limit']) && is_numeric($settings['limit']) && $settings['limit'] > 0) {
+
+                // Make sure we don't conflict with the max_selections
+                if (! isset($settings['max_selections']) || $settings['max_selections'] == 0) {
+                    $this->EE->db->limit($settings['limit']);
+                } else {
+                    $this->EE->db->limit(($settings['limit'] < $settings['max_selections']) ? $settings['limit'] : $settings['max_selections']);
+                }
+
+            }
+
+            $this->cache['memberAssociations'][$cache_key] = $this->EE->db->get()->result_array();
         }
 
-        return $this->EE->db->get()
-            ->result_array();
+        return $this->cache['memberAssociations'][$cache_key];
     }
 
     /**
@@ -448,7 +454,7 @@ class ChosenHelper
             'is_draft' => ($is_draft ? 1 : 0),
         );
 
-        $obj->ft_data['cache_key'] = md5("{$obj->ft_data['field_id']}_{$obj->ft_data['col_id']}_{$obj->ft_data['var_id']}");
+        $obj->ft_data['cache_key'] = md5("{$obj->ft_data['entry_id']}_{$obj->ft_data['field_id']}_{$obj->ft_data['col_id']}_{$obj->ft_data['var_id']}");
 
         return $obj->ft_data;
     }
