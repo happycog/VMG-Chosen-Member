@@ -73,8 +73,12 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 			'm.member_id, m.screen_name'
 		);
 
-		// Include the CSS/JS
-		$this->chosen_helper->includeAssets();
+		// Include the CSS/JS automatically if in CP
+		$current = $this->EE->functions->create_url($_SERVER['PHP_SELF']);
+		$cp = $this->EE->functions->create_url(SYSDIR);
+		if (strstr($current, $cp) !== false) {
+			$this->chosen_helper->includeAssets();
+		}
 
 		$default_view_path = $this->EE->load->_ci_view_path;
 		$this->EE->load->_ci_view_path = PATH_THIRD . 'vmg_chosen_member/views/';

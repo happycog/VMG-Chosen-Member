@@ -378,15 +378,40 @@ class ChosenHelper
     {
         if (! isset($this->cache['assets_included']))
         {
-            $this->EE->cp->add_to_head('<link rel="stylesheet" type="text/css" href="' . $this->EE->config->item('theme_folder_url') . 'third_party/vmg_chosen_member/chosen/chosen.css' . '" />');
-            $this->EE->cp->add_to_head('<link rel="stylesheet" type="text/css" href="' . $this->EE->config->item('theme_folder_url') . 'third_party/vmg_chosen_member/vmg_chosen_member.css' . '" />');
-            $this->EE->cp->add_to_foot('<script type="text/javascript" src="' . $this->EE->config->item('theme_folder_url') . 'third_party/vmg_chosen_member/chosen/chosen.jquery.js' . '"></script>');
-            $this->EE->cp->add_to_foot('<script type="text/javascript" src="' . $this->EE->config->item('theme_folder_url') . 'third_party/vmg_chosen_member/vmg_chosen_member.js' . '"></script>');
+            foreach ($this->buildCss() AS $css) {
+                $this->EE->cp->add_to_head('<link rel="stylesheet" type="text/css" href="' . $css . '" />');
+            }
+
+            foreach ($this->buildJs() AS $js) {
+                $this->EE->cp->add_to_foot('<script type="text/javascript" src="' . $js . '"></script>');
+            }
 
             $this->cache['assets_included'] = true;
         }
 
         return true;
+    }
+
+    /**
+     * Build CSS files
+     */
+    public function buildCss()
+    {
+        return array(
+            $this->EE->config->item('theme_folder_url') . 'third_party/vmg_chosen_member/chosen/chosen.css',
+            $this->EE->config->item('theme_folder_url') . 'third_party/vmg_chosen_member/vmg_chosen_member.css',
+        );
+    }
+
+    /**
+     * Build JS files
+     */
+    public function buildJs()
+    {
+        return array(
+            $this->EE->config->item('theme_folder_url') . 'third_party/vmg_chosen_member/chosen/chosen.jquery.js',
+            $this->EE->config->item('theme_folder_url') . 'third_party/vmg_chosen_member/vmg_chosen_member.js',
+        );
     }
 
     /**

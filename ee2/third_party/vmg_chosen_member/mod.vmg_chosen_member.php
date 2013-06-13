@@ -216,6 +216,31 @@ class Vmg_chosen_member {
 		return $output;
 	}
 
+	/**
+	 * Initialize CSS/JS assets
+	 */
+	public function init_ft()
+	{
+		$type = $this->EE->TMPL->fetch_param('type', 'css|js');
+		$type = explode('|', $type);
+
+		$output = array();
+
+		if (in_array('css', $type)) {
+			foreach ($this->chosen_helper->buildCss() AS $css) {
+				$output[] = '<link rel="stylesheet" type="text/css" href="' . $css . '" />';
+			}
+		}
+
+		if (in_array('js', $type)) {
+			foreach ($this->chosen_helper->buildJs() AS $js) {
+				$output[] = '<script type="text/javascript" src="' . $js . '"></script>';
+			}
+		}
+
+		return implode("\n", $output);
+	}
+
 }
 
 /* End of file mod.vmg_chosen_member.php */
