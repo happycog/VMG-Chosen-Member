@@ -70,7 +70,7 @@ class Vmg_chosen_member {
 
 				// Add "additional" text for default fields
 				foreach ($this->chosen_helper->default_search_fields AS $field_id => $field_label) {
-					if (isset($member[$field_id]) && empty($additional_text) && ! in_array($field_id, array('username', 'screen_name')) && strpos($member[$field_id], $query) !== false) {
+					if (isset($member[$field_id]) && empty($additional_text) && ! in_array($field_id, array('username', 'screen_name')) && stripos($member[$field_id], $query) !== false) {
 						$additional_text = '&nbsp;&nbsp;&nbsp;(' . $field_label . ': ' . $this->chosen_helper->cleanFieldPreview($member[$field_id], $query) . ')';
 					}
 				}
@@ -79,7 +79,7 @@ class Vmg_chosen_member {
 				if (empty($additional_text)) {
 					foreach ($custom_search_fields AS $field_id => $field_label) {
 
-						if (isset($member[$custom_field_map[$field_id]]) && empty($additional_text) && strpos($member[$custom_field_map[$field_id]], $query) !== false) {
+						if (isset($member[$custom_field_map[$field_id]]) && empty($additional_text) && stripos($member[$custom_field_map[$field_id]], $query) !== false) {
 							$additional_text = '&nbsp;&nbsp;&nbsp;(' . $field_label . ': ' . $this->chosen_helper->cleanFieldPreview($member[$custom_field_map[$field_id]], $query) . ')';
 						}
 

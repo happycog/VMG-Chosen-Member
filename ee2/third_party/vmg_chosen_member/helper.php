@@ -517,7 +517,7 @@ class ChosenHelper
     {
         if (strlen($text) > $max_length) {
             $text = preg_replace('/[^[:alnum:][:punct:] ]/', '', $text);
-            $find_string = strpos($text, $search);
+            $find_string = stripos($text, $search);
             $text = substr($text, $find_string - $max_length, strlen($search) + ($max_length*2));
 
             $text = '...' . $text . '...';
