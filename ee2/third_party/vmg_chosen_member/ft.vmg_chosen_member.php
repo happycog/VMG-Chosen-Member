@@ -4,7 +4,7 @@
  * VMG Chosen Member Fieldtype Class
  *
  * @package		VMG Chosen Member
- * @version		1.5.6
+ * @version		1.5.7
  * @author		Luke Wilkins <luke@vectormediagroup.com>
  * @copyright	Copyright (c) 2011-2013 Vector Media Group, Inc.
  **/
@@ -17,7 +17,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 	 * ------------------------------------------------------------ */
 	public $info = array(
 		'name' 			=> 'VMG Chosen Member',
-		'version'		=> '1.5.6',
+		'version'		=> '1.5.7',
 	);
 
 	public $has_array_data = TRUE;
@@ -33,7 +33,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 	 */
 	public function __construct()
 	{
-		parent::EE_Fieldtype();
+		parent::__construct();
 	}
 
 	/* --------------------------------------------------------------
@@ -97,12 +97,12 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 			$this->EE->session->cache['vmg_chosen_member']['assets_included'] = true;
 		}
 
-		$default_view_path = $this->EE->load->_ci_view_path;
-		$this->EE->load->_ci_view_path = PATH_THIRD . 'vmg_chosen_member/views/';
+
+		$this->EE->load->add_package_path( PATH_THIRD . 'vmg_chosen_member/' );
 
 		$view = $this->EE->load->view('display_field', $vars, TRUE);
 
-		$this->EE->load->_ci_view_path = $default_view_path;
+		$this->EE->load->remove_package_path();
 
 		return $view;
 	}
@@ -146,6 +146,9 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 	    	$db->select('member_id');
 				$db->from('exp_members AS m');
 				$db->where_in('m.member_id', $members);
+				if (!empty($this->settings['allowed_groups'])) $db->where_in('m.group_id', $this->settings['allowed_groups']);
+				if (!empty($params['group_id'])) $db->where_in('m.group_id', explode('|', $params['group_id']));
+				
 				$results = $db->get()->result_array();
 
 				foreach ($results AS $result) $members_list[] = $result['member_id'];

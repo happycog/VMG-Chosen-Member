@@ -4,7 +4,7 @@
  * VMG Chosen Member Module Class
  *
  * @package		VMG Chosen Member
- * @version		1.5.6
+ * @version		1.5.7
  * @author		Luke Wilkins <luke@vectormediagroup.com>
  * @copyright	Copyright (c) 2011-2013 Vector Media Group, Inc.
  **/
@@ -141,7 +141,7 @@ class Vmg_chosen_member {
 
 		$this->EE->load->library('javascript');
 
-		exit($this->EE->javascript->generate_json($result, TRUE));
+		exit( json_encode($result) );
 	}
 
 	// ----------------------------------------------------------------
