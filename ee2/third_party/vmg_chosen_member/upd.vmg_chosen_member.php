@@ -11,7 +11,7 @@
 
 class Vmg_chosen_member_upd {
 
-	public $version = '1.5.6';
+	public $version = '1.5.7';
 
 	private $EE;
 

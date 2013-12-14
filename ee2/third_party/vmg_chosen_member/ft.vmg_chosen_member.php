@@ -4,7 +4,7 @@
  * VMG Chosen Member Fieldtype Class
  *
  * @package		VMG Chosen Member
- * @version		1.5.6
+ * @version		1.5.7
  * @author		Luke Wilkins <luke@vectormediagroup.com>
  * @copyright	Copyright (c) 2011-2013 Vector Media Group, Inc.
  **/
@@ -17,7 +17,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 	 * ------------------------------------------------------------ */
 	public $info = array(
 		'name' 			=> 'VMG Chosen Member',
-		'version'		=> '1.5.6',
+		'version'		=> '1.5.7',
 	);
 
 	public $has_array_data = TRUE;
