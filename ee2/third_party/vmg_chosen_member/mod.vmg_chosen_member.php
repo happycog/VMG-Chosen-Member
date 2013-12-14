@@ -141,7 +141,7 @@ class Vmg_chosen_member {
 
 		$this->EE->load->library('javascript');
 
-		exit($this->EE->javascript->generate_json($result, TRUE));
+		exit( json_encode($result) );
 	}
 
 	// ----------------------------------------------------------------
