@@ -33,7 +33,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 	 */
 	public function __construct()
 	{
-		parent::EE_Fieldtype();
+		parent::__construct();
 	}
 
 	/* --------------------------------------------------------------
@@ -97,12 +97,12 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 			$this->EE->session->cache['vmg_chosen_member']['assets_included'] = true;
 		}
 
-		$default_view_path = $this->EE->load->_ci_view_path;
-		$this->EE->load->_ci_view_path = PATH_THIRD . 'vmg_chosen_member/views/';
+
+		$this->EE->load->add_package_path( PATH_THIRD . 'vmg_chosen_member/' );
 
 		$view = $this->EE->load->view('display_field', $vars, TRUE);
 
-		$this->EE->load->_ci_view_path = $default_view_path;
+		$this->EE->load->remove_package_path();
 
 		return $view;
 	}
