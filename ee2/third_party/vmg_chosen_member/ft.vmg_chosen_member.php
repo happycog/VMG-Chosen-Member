@@ -146,6 +146,9 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 	    	$db->select('member_id');
 				$db->from('exp_members AS m');
 				$db->where_in('m.member_id', $members);
+				if (!empty($this->settings['allowed_groups'])) $db->where_in('m.group_id', $this->settings['allowed_groups']);
+				if (!empty($params['group_id'])) $db->where_in('m.group_id', explode('|', $params['group_id']));
+				
 				$results = $db->get()->result_array();
 
 				foreach ($results AS $result) $members_list[] = $result['member_id'];
