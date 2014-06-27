@@ -422,8 +422,8 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 			unset($this->cache[$this->ft_data['cache_key']]);
 		}
 
-		// Cleanup old records 25% of the time
-		if (rand(1, 100) <= 25) {
+		// Cleanup old records 10% of the time
+		if (rand(1, 10) == 1) {
 			$this->chosen_helper->cleanUp();
 		}
 
