@@ -53,7 +53,7 @@ class Vmg_chosen_member_upd
 			return false;
 		}
 
-		if (version_compare($current, '1.6', '<'))
+		if (version_compare($current, '2.0', '<'))
 		{
 			// We now store our data in its own table
 			$this->create_table();

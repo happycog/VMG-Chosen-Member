@@ -65,7 +65,7 @@ Usage
 
 To view Channel Entries that a member has been selected in (via a VMG Chosen Member field), you can use the {exp:vmg_chosen_member:assoc_entries} tag.
 
-**NOTE:** As of v1.6, this tag mimics the functionality of a Channel Entries loop. To disable this, and simply return a pipe-delimited list of entry IDs, set *display_entries="no"*.
+**NOTE:** As of v2.0, this tag mimics the functionality of a Channel Entries loop. To disable this, and simply return a pipe-delimited list of entry IDs, set *display_entries="no"*.
 
 	{!-- Standard usage --}
 	{exp:vmg_chosen_member:assoc_entries
