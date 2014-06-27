@@ -1,18 +1,20 @@
-<?php if (! defined('BASEPATH')) exit('No direct script access allowed');
+<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+// include config file
+require_once PATH_THIRD.'vmg_chosen_member/config.php';
 
 /**
  * VMG Chosen Member Fieldtype Class
  *
  * @package		VMG Chosen Member
- * @version		1.6
  * @author		Luke Wilkins <luke@vectormediagroup.com>
- * @copyright	Copyright (c) 2011-2013 Vector Media Group, Inc.
+ * @copyright	Copyright (c) 2011-2014 Vector Media Group, Inc.
  */
 class Vmg_chosen_member_ft extends EE_Fieldtype
 {
 	public $info = array(
 		'name' 			=> 'VMG Chosen Member',
-		'version'		=> '1.6',
+		'version'		=> VMG_CM_VERSION,
 	);
 
 	public $chosen_helper;
@@ -25,20 +27,20 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 	 */
 	public function __construct()
 	{
-		parent::EE_Fieldtype();
+		parent::__construct();
 
 		// Load our helper
-		if (! class_exists('ChosenHelper') || ! is_a($this->chosen_helper, 'ChosenHelper')) {
+		if ( ! class_exists('ChosenHelper') || ! is_a($this->chosen_helper, 'ChosenHelper')) {
 			require_once PATH_THIRD.'vmg_chosen_member/helper.php';
 			$this->chosen_helper = new ChosenHelper;
 		}
 
 		// Prep cache
-		if (! isset($this->EE->session->cache['vmg_chosen_member'])) {
-			$this->EE->session->cache['vmg_chosen_member'] = array();
+		if ( ! isset(ee()->session->cache['vmg_chosen_member'])) {
+			ee()->session->cache['vmg_chosen_member'] = array();
 		}
 
-		$this->cache =& $this->EE->session->cache['vmg_chosen_member'];
+		$this->cache =& ee()->session->cache['vmg_chosen_member'];
 	}
 
 	/**
@@ -74,18 +76,18 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 		);
 
 		// Include the CSS/JS automatically if in CP
-		$current = $this->EE->functions->create_url($_SERVER['PHP_SELF']);
-		$cp = $this->EE->functions->create_url(SYSDIR);
+		$current = ee()->functions->create_url($_SERVER['PHP_SELF']);
+		$cp = ee()->functions->create_url(SYSDIR);
 		if (strstr($current, $cp) !== false) {
 			$this->chosen_helper->includeAssets();
 		}
 
-		$default_view_path = $this->EE->load->_ci_view_path;
-		$this->EE->load->_ci_view_path = PATH_THIRD . 'vmg_chosen_member/views/';
+		$default_view_path = ee()->load->_ci_view_path;
+		ee()->load->_ci_view_path = PATH_THIRD . 'vmg_chosen_member/views/';
 
-		$view = $this->EE->load->view('display_field', $this->ft_data, true);
+		$view = ee()->load->view('display_field', $this->ft_data, true);
 
-		$this->EE->load->_ci_view_path = $default_view_path;
+		ee()->load->_ci_view_path = $default_view_path;
 
 		return $view;
 	}
@@ -124,12 +126,12 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 		);
 
 		// Limit to specific members
-		if (! empty($params['member_id'])) {
+		if ( ! empty($params['member_id'])) {
 			$settings['search']['member_id'] = explode('|', $params['member_id']);
 		}
 
 		// Limit to specific member groups
-		if (! empty($params['group_id'])) {
+		if ( ! empty($params['group_id'])) {
 			$settings['search']['group_id'] = explode('|', $params['group_id']);
 		}
 
@@ -151,7 +153,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 		}
 
 		// Single tag simply returns a pipe delimited Member IDs
-		if (! $tagdata) {
+		if ( ! $tagdata) {
 
 			// Get associations
 			$members = $this->chosen_helper->memberAssociations(
@@ -183,7 +185,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 				$this->ft_data['row_id'],
 				$this->ft_data['var_id'],
 				$settings,
-				'm.*' . (! in_array('member_data', $disable) ? ', md.*' : '')
+				'm.*' . ( ! in_array('member_data', $disable) ? ', md.*' : '')
 			);
 
 			// Return empty if no results
@@ -192,7 +194,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 			}
 
 			// Rename member data fields if we retrieved them
-			if (! in_array('member_data', $disable)) {
+			if ( ! in_array('member_data', $disable)) {
 				$member_fields = $this->chosen_helper->getCustomMemberFields();
 
 				foreach ($results AS $key => $member) {
@@ -206,7 +208,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 			// Handle prefix if applicable
 			$results = $this->chosen_helper->setPrefix($results, $prefix);
 
-			$output = $this->EE->TMPL->parse_variables($tagdata, $results);
+			$output = ee()->TMPL->parse_variables($tagdata, $results);
 
 			// Handle backspace if applicable
 			$output = $this->chosen_helper->backspace($output, $backspace);
@@ -284,19 +286,19 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 		$settings = array(
 			array(
 				'<strong>Allowed groups</strong>',
-				form_multiselect('allowed_groups[]', $member_groups, (! empty($data['allowed_groups']) ? $data['allowed_groups'] : array()))
+				form_multiselect('allowed_groups[]', $member_groups, ( ! empty($data['allowed_groups']) ? $data['allowed_groups'] : array()))
 			),
 			array(
 				'<strong>Max selections allowed</strong><br/>Leave blank for no limit.',
-				form_input('max_selections', (! empty($data['max_selections']) ? $data['max_selections'] : ''))
+				form_input('max_selections', ( ! empty($data['max_selections']) ? $data['max_selections'] : ''))
 			),
 			array(
 				'<strong>Placeholder text</strong><br/>Displayed if <i>"Max selections allowed"</i> does not equal 1.',
-				form_input(array('name' => 'placeholder_text', 'class' => 'fullfield'), (! empty($data['placeholder_text']) ? $data['placeholder_text'] : 'Begin typing a member\'s name...'))
+				form_input(array('name' => 'placeholder_text', 'class' => 'fullfield'), ( ! empty($data['placeholder_text']) ? $data['placeholder_text'] : 'Begin typing a member\'s name...'))
 			),
 			array(
 				'<strong>Search fields</strong><br/>Determines which member fields will be searched.<br/><i>Defaults to Username &amp; Screen Name if no selections are made.</i>',
-				form_multiselect('search_fields[]', $search_fields, (! empty($data['search_fields']) ? $data['search_fields'] : array()))
+				form_multiselect('search_fields[]', $search_fields, ( ! empty($data['search_fields']) ? $data['search_fields'] : array()))
 			),
 		);
 
@@ -307,7 +309,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 
 		// Return standard settings as table rows
 		foreach ($settings as $setting) {
-			$this->EE->table->add_row($setting[0], $setting[1]);
+			ee()->table->add_row($setting[0], $setting[1]);
 		}
 	}
 
@@ -333,14 +335,14 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 	public function save_settings($data)
 	{
 		$settings = array(
-			'allowed_groups' => (isset($data['allowed_groups'])) ? $data['allowed_groups'] : $this->EE->input->post('allowed_groups'),
-			'max_selections' => (isset($data['max_selections'])) ? $data['max_selections'] : $this->EE->input->post('max_selections'),
-			'placeholder_text' => (isset($data['placeholder_text'])) ? $data['placeholder_text'] : $this->EE->input->post('placeholder_text'),
-			'search_fields' => (isset($data['search_fields'])) ? $data['search_fields'] : $this->EE->input->post('search_fields'),
+			'allowed_groups' => (isset($data['allowed_groups'])) ? $data['allowed_groups'] : ee()->input->post('allowed_groups'),
+			'max_selections' => (isset($data['max_selections'])) ? $data['max_selections'] : ee()->input->post('max_selections'),
+			'placeholder_text' => (isset($data['placeholder_text'])) ? $data['placeholder_text'] : ee()->input->post('placeholder_text'),
+			'search_fields' => (isset($data['search_fields'])) ? $data['search_fields'] : ee()->input->post('search_fields'),
 		);
 
 		// Ensure search field defaults if no selections were made
-		if (! is_array($settings['search_fields']) || empty($settings['search_fields'])) $settings['search_fields'] = array('username', 'screen_name');
+		if ( ! is_array($settings['search_fields']) || empty($settings['search_fields'])) $settings['search_fields'] = array('username', 'screen_name');
 
 		return $settings;
 	}

@@ -1,12 +1,14 @@
-<?php if (! defined('BASEPATH')) die('No direct script access allowed');
+<?php if ( ! defined('BASEPATH')) die('No direct script access allowed');
+
+// include config file
+require_once PATH_THIRD.'vmg_chosen_member/config.php';
 
 /**
  * VMG Chosen Member Helper Class
  *
  * @package     VMG Chosen Member
- * @version     1.6
  * @author      Luke Wilkins <luke@vectormediagroup.com>
- * @copyright   Copyright (c) 2011-2013 Vector Media Group, Inc.
+ * @copyright   Copyright (c) 2011-2014 Vector Media Group, Inc.
  */
 class ChosenHelper
 {
@@ -21,14 +23,12 @@ class ChosenHelper
 
     public function __construct()
     {
-        $this->EE =& get_instance();
-
         // Prep cache
-        if (! isset($this->EE->session->cache['vmg_chosen_member'])) {
-            $this->EE->session->cache['vmg_chosen_member'] = array();
+        if ( ! isset(ee()->session->cache['vmg_chosen_member'])) {
+            ee()->session->cache['vmg_chosen_member'] = array();
         }
 
-        $this->cache =& $this->EE->session->cache['vmg_chosen_member'];
+        $this->cache =& ee()->session->cache['vmg_chosen_member'];
     }
 
     /**
@@ -41,49 +41,49 @@ class ChosenHelper
         if ( ! isset($this->cache['memberAssociations'][$cache_key])) {
 
             // Return specific fields from query
-            if (! is_null($select_fields)) {
-                $this->EE->db->select($select_fields);
+            if ( ! is_null($select_fields)) {
+                ee()->db->select($select_fields);
             } else {
-                $this->EE->db->select('m.*');
+                ee()->db->select('m.*');
             }
 
-            $this->EE->db->from('vmg_chosen_member AS vcm')
+            ee()->db->from('vmg_chosen_member AS vcm')
                 ->join('members AS m', 'm.member_id = vcm.member_id', 'inner');
 
             // Add join to member_data if that is within the select statement
             if (strpos($select_fields, 'md.') !== false) {
-                $this->EE->db->join('member_data AS md', 'md.member_id = vcm.member_id', 'inner');
+                ee()->db->join('member_data AS md', 'md.member_id = vcm.member_id', 'inner');
             }
 
             if ( ! is_null($entry_id)) {
-                $this->EE->db->where('vcm.entry_id', $entry_id);
+                ee()->db->where('vcm.entry_id', $entry_id);
             }
 
             // Make general restrictions for this particular field
-            $this->EE->db->where('vcm.field_id', $field_id);
-            $this->EE->db->where('vcm.col_id', (is_null($col_id) ? '0' : $col_id));
-            if ( ! is_null($row_id)) $this->EE->db->where('vcm.row_id', $row_id);
-            if ( ! is_null($var_id)) $this->EE->db->where('vcm.var_id', $var_id);
+            ee()->db->where('vcm.field_id', $field_id);
+            ee()->db->where('vcm.col_id', (is_null($col_id) ? '0' : $col_id));
+            if ( ! is_null($row_id)) ee()->db->where('vcm.row_id', $row_id);
+            if ( ! is_null($var_id)) ee()->db->where('vcm.var_id', $var_id);
 
             if (isset($settings['allowed_groups']) && is_array($settings['allowed_groups']) && ! empty($settings['allowed_groups'])) {
-                $this->EE->db->where_in('m.group_id', $settings['allowed_groups']);
+                ee()->db->where_in('m.group_id', $settings['allowed_groups']);
             }
 
             if (isset($settings['max_selections']) && is_numeric($settings['max_selections']) && $settings['max_selections'] > 0) {
-                $this->EE->db->limit($settings['max_selections']);
+                ee()->db->limit($settings['max_selections']);
             }
 
-            if (! is_null($group_by)) {
-                $this->EE->db->group_by($group_by);
+            if ( ! is_null($group_by)) {
+                ee()->db->group_by($group_by);
             }
 
             // Handle custom search restrictions
             if (isset($settings['search']) && is_array($settings['search'])) {
                 foreach ($settings['search'] AS $field => $values) {
                     if (is_array($values)) {
-                        $this->EE->db->where_in('m.' . $field, $values);
+                        ee()->db->where_in('m.' . $field, $values);
                     } else {
-                        $this->EE->db->where('m.' . $field, $values);
+                        ee()->db->where('m.' . $field, $values);
                     }
                 }
             }
@@ -100,20 +100,20 @@ class ChosenHelper
                 $sort = 'asc';
             }
 
-            $this->EE->db->order_by($order_by, $sort);
+            ee()->db->order_by($order_by, $sort);
 
             if (isset($settings['limit']) && is_numeric($settings['limit']) && $settings['limit'] > 0) {
 
                 // Make sure we don't conflict with the max_selections
-                if (! isset($settings['max_selections']) || $settings['max_selections'] == 0) {
-                    $this->EE->db->limit($settings['limit']);
+                if ( ! isset($settings['max_selections']) || $settings['max_selections'] == 0) {
+                    ee()->db->limit($settings['limit']);
                 } else {
-                    $this->EE->db->limit(($settings['limit'] < $settings['max_selections']) ? $settings['limit'] : $settings['max_selections']);
+                    ee()->db->limit(($settings['limit'] < $settings['max_selections']) ? $settings['limit'] : $settings['max_selections']);
                 }
 
             }
 
-            $this->cache['memberAssociations'][$cache_key] = $this->EE->db->get()->result_array();
+            $this->cache['memberAssociations'][$cache_key] = ee()->db->get()->result_array();
         }
 
         return $this->cache['memberAssociations'][$cache_key];
@@ -140,19 +140,19 @@ class ChosenHelper
      */
     public function validateSelections($selections, $settings)
     {
-        $this->EE->db->select('member_id')
+        ee()->db->select('member_id')
             ->from('members')
             ->where_in('member_id', $selections);
 
         if (isset($settings['allowed_groups']) && is_array($settings['allowed_groups']) && ! empty($settings['allowed_groups'])) {
-            $this->EE->db->where_in('group_id', $settings['allowed_groups']);
+            ee()->db->where_in('group_id', $settings['allowed_groups']);
         }
 
         if (isset($settings['max_selections']) && is_numeric($settings['max_selections']) && $settings['max_selections'] > 0) {
-            $this->EE->db->limit($settings['max_selections']);
+            ee()->db->limit($settings['max_selections']);
         }
 
-        $results = $this->EE->db->get()
+        $results = ee()->db->get()
             ->result_array();
 
         $temp_output = array();
@@ -177,7 +177,7 @@ class ChosenHelper
     public function clearOldSelections($selections, $settings)
     {
         // Make general restrictions for this particular field
-        $this->EE->db->where('entry_id', $settings['entry_id'])
+        ee()->db->where('entry_id', $settings['entry_id'])
             ->where('field_id', $settings['field_id'])
             ->where('col_id', $settings['col_id'])
             ->where('row_id', $settings['row_id'])
@@ -189,10 +189,10 @@ class ChosenHelper
             $selections = array(0);
         }
 
-        $this->EE->db->where_not_in('member_id', $selections)
+        ee()->db->where_not_in('member_id', $selections)
             ->delete('vmg_chosen_member');
 
-        return $this->EE->db->affected_rows();
+        return ee()->db->affected_rows();
     }
 
     /**
@@ -201,12 +201,12 @@ class ChosenHelper
     public function publishDraft($settings)
     {
         // Delete current live selections
-        $this->EE->db->where('entry_id', $settings['entry_id'])
+        ee()->db->where('entry_id', $settings['entry_id'])
             ->where('is_draft', 0)
             ->delete('vmg_chosen_member');
 
         // Make draft selections live
-        $this->EE->db->where('entry_id', $settings['entry_id'])
+        ee()->db->where('entry_id', $settings['entry_id'])
             ->where('is_draft', 1)
             ->update('vmg_chosen_member', array(
                 'is_draft' => 0,
@@ -218,11 +218,11 @@ class ChosenHelper
      */
     public function discardDraft($settings)
     {
-        $this->EE->db->where('entry_id', $settings['entry_id'])
+        ee()->db->where('entry_id', $settings['entry_id'])
             ->where('is_draft', 1)
             ->delete('vmg_chosen_member');
 
-        return $this->EE->db->affected_rows();
+        return ee()->db->affected_rows();
     }
 
     /**
@@ -231,7 +231,7 @@ class ChosenHelper
     public function cleanUp()
     {
         // Remove old records for deleted fields
-        $field_data = $this->EE->db->select('vcm.field_id')
+        $field_data = ee()->db->select('vcm.field_id')
             ->from('vmg_chosen_member AS vcm')
             ->join('channel_fields AS cf', 'cf.field_id = vcm.field_id', 'LEFT OUTER')
             ->where('vcm.field_id != 0')
@@ -244,13 +244,13 @@ class ChosenHelper
             $bad_field_rows[] = $row['field_id'];
         }
 
-        if (! empty($bad_field_rows)) {
-            $this->EE->db->where_in('field_id', $bad_field_rows)
+        if ( ! empty($bad_field_rows)) {
+            ee()->db->where_in('field_id', $bad_field_rows)
                 ->delete('vmg_chosen_member');
         }
 
         // Remove old Matrix records
-        $matrix_data = $this->EE->db->select('vcm.row_id')
+        $matrix_data = ee()->db->select('vcm.row_id')
             ->from('vmg_chosen_member AS vcm')
             ->join('matrix_data AS md', 'md.row_id = vcm.row_id', 'LEFT OUTER')
             ->where('vcm.row_id != 0')
@@ -265,13 +265,13 @@ class ChosenHelper
             $bad_matrix_rows[] = $row['row_id'];
         }
 
-        if (! empty($bad_matrix_rows)) {
-            $this->EE->db->where_in('row_id', $bad_matrix_rows)
+        if ( ! empty($bad_matrix_rows)) {
+            ee()->db->where_in('row_id', $bad_matrix_rows)
                 ->delete('vmg_chosen_member');
         }
 
         // Remove old Low Variable records
-        $var_data = $this->EE->db->select('vcm.var_id')
+        $var_data = ee()->db->select('vcm.var_id')
             ->from('vmg_chosen_member AS vcm')
             ->join('global_variables AS gv', 'gv.variable_id = vcm.var_id', 'LEFT OUTER')
             ->where('vcm.var_id != 0')
@@ -285,8 +285,8 @@ class ChosenHelper
             $bad_var_rows[] = $row['var_id'];
         }
 
-        if (! empty($bad_var_rows)) {
-            $this->EE->db->where_in('var_id', $bad_var_rows)
+        if ( ! empty($bad_var_rows)) {
+            ee()->db->where_in('var_id', $bad_var_rows)
                 ->delete('vmg_chosen_member');
         }
     }
@@ -309,7 +309,7 @@ class ChosenHelper
         // Save them all
         foreach ($selections AS $key => $selection) {
 
-            $this->EE->db->query("INSERT INTO " . $this->EE->db->dbprefix . "vmg_chosen_member SET entry_id = ?, field_id = ?, col_id = ?, row_id = ?, var_id = ?, is_draft = ?, member_id = ?, `order` = ? ON DUPLICATE KEY UPDATE `order` = ?", array_merge($data, array(
+            ee()->db->query("INSERT INTO " . ee()->db->dbprefix . "vmg_chosen_member SET entry_id = ?, field_id = ?, col_id = ?, row_id = ?, var_id = ?, is_draft = ?, member_id = ?, `order` = ? ON DUPLICATE KEY UPDATE `order` = ?", array_merge($data, array(
                     $selection,
                     $key,
                     $key,
@@ -324,7 +324,7 @@ class ChosenHelper
      */
     public function getMemberGroups()
     {
-        return $this->EE->db->select("mg.group_id, mg.group_title")
+        return ee()->db->select("mg.group_id, mg.group_title")
             ->from('member_groups AS mg')
             ->group_by('mg.group_id')
             ->get()
@@ -336,7 +336,7 @@ class ChosenHelper
      */
     public function getCustomMemberFields()
     {
-        return $this->EE->db->select("m_field_id, m_field_name, m_field_label")
+        return ee()->db->select("m_field_id, m_field_name, m_field_label")
             ->from('member_fields')
             ->order_by('m_field_order', 'asc')
             ->get()
@@ -348,8 +348,8 @@ class ChosenHelper
      */
     public function actionId($method, $full_path = false)
     {
-        if (! isset($this->cache['action'][$method])) {
-            $action = $this->EE->db->select('action_id')
+        if ( ! isset($this->cache['action'][$method])) {
+            $action = ee()->db->select('action_id')
                 ->from('actions')
                 ->where('class', 'Vmg_chosen_member')
                 ->where('method', $method)
@@ -362,7 +362,7 @@ class ChosenHelper
         if (isset($this->cache['action'][$method]['action_id'])) {
 
             if ($full_path) {
-                return $this->EE->functions->fetch_site_index(0, 0) . QUERY_MARKER . 'ACT=' . $this->cache['action'][$method]['action_id'];
+                return ee()->functions->fetch_site_index(0, 0) . QUERY_MARKER . 'ACT=' . $this->cache['action'][$method]['action_id'];
             }
 
             return $this->cache['action'][$method]['action_id'];
@@ -376,14 +376,14 @@ class ChosenHelper
      */
     public function includeAssets()
     {
-        if (! isset($this->cache['assets_included']))
+        if ( ! isset($this->cache['assets_included']))
         {
             foreach ($this->buildCss() AS $css) {
-                $this->EE->cp->add_to_head('<link rel="stylesheet" type="text/css" href="' . $css . '" />');
+                ee()->cp->add_to_head('<link rel="stylesheet" type="text/css" href="' . $css . '" />');
             }
 
             foreach ($this->buildJs() AS $js) {
-                $this->EE->cp->add_to_foot('<script type="text/javascript" src="' . $js . '"></script>');
+                ee()->cp->add_to_foot('<script type="text/javascript" src="' . $js . '"></script>');
             }
 
             $this->cache['assets_included'] = true;
@@ -398,8 +398,8 @@ class ChosenHelper
     public function buildCss()
     {
         return array(
-            $this->EE->config->item('theme_folder_url') . 'third_party/vmg_chosen_member/chosen/chosen.css',
-            $this->EE->config->item('theme_folder_url') . 'third_party/vmg_chosen_member/vmg_chosen_member.css',
+            ee()->config->item('theme_folder_url') . 'third_party/vmg_chosen_member/chosen/chosen.css',
+            ee()->config->item('theme_folder_url') . 'third_party/vmg_chosen_member/vmg_chosen_member.css',
         );
     }
 
@@ -409,8 +409,8 @@ class ChosenHelper
     public function buildJs()
     {
         return array(
-            $this->EE->config->item('theme_folder_url') . 'third_party/vmg_chosen_member/chosen/chosen.jquery.js',
-            $this->EE->config->item('theme_folder_url') . 'third_party/vmg_chosen_member/vmg_chosen_member.js',
+            ee()->config->item('theme_folder_url') . 'third_party/vmg_chosen_member/chosen/chosen.jquery.js',
+            ee()->config->item('theme_folder_url') . 'third_party/vmg_chosen_member/vmg_chosen_member.js',
         );
     }
 
@@ -461,7 +461,7 @@ class ChosenHelper
     public function initData(&$obj)
     {
         $is_draft = false;
-        if ((isset($this->cache['is_draft']) && $this->cache['is_draft']) || (isset($this->EE->session->cache['ep_better_workflow']['is_draft']) && $this->EE->session->cache['ep_better_workflow']['is_draft'])) {
+        if ((isset($this->cache['is_draft']) && $this->cache['is_draft']) || (isset(ee()->session->cache['ep_better_workflow']['is_draft']) && ee()->session->cache['ep_better_workflow']['is_draft'])) {
             $is_draft = true;
         }
 
@@ -497,7 +497,7 @@ class ChosenHelper
         } elseif (isset($obj->$name)) {
             return $obj->$name;
         } elseif (isset($_POST[$name]) || isset($_GET[$name])) {
-            return $this->EE->input->get_post($name);
+            return ee()->input->get_post($name);
         }
 
         // Handle fallback
@@ -534,16 +534,16 @@ class ChosenHelper
         if (is_numeric($col_id) && $col_id > 0) {
 
             // Matrix column settings
-            $this->EE->db->select('mc.col_settings AS setting_data')
+            ee()->db->select('mc.col_settings AS setting_data')
                 ->from('matrix_cols AS mc');
 
             if (is_numeric($var_id) && $var_id > 0) {
-                $this->EE->db->where('mc.var_id', $var_id);
+                ee()->db->where('mc.var_id', $var_id);
             } else {
-                $this->EE->db->where('mc.field_id', $field_id);
+                ee()->db->where('mc.field_id', $field_id);
             }
 
-            $settings = $this->EE->db->where('mc.col_id', $col_id)
+            $settings = ee()->db->where('mc.col_id', $col_id)
                 ->where('mc.col_type', 'vmg_chosen_member')
                 ->get()
                 ->row_array();
@@ -551,7 +551,7 @@ class ChosenHelper
         } elseif (is_numeric($var_id) && $var_id > 0) {
 
             // Low variable settings
-            $settings = $this->EE->db->select('lv.variable_type, lv.variable_settings AS setting_data')
+            $settings = ee()->db->select('lv.variable_type, lv.variable_settings AS setting_data')
                 ->from('low_variables AS lv')
                 ->where('lv.variable_id', $var_id)
                 ->where('lv.variable_type', 'vmg_chosen_member')
@@ -561,7 +561,7 @@ class ChosenHelper
         } else {
 
             // Standard field settings
-            $settings = $this->EE->db->select('cf.field_settings AS setting_data')
+            $settings = ee()->db->select('cf.field_settings AS setting_data')
                 ->from('channel_fields AS cf')
                 ->where('cf.field_id', $field_id)
                 ->where('cf.field_type', 'vmg_chosen_member')
@@ -582,7 +582,7 @@ class ChosenHelper
      */
     public function customMemberFields()
     {
-        return $this->EE->db->select("m_field_id, m_field_name, m_field_label")
+        return ee()->db->select("m_field_id, m_field_name, m_field_label")
             ->from('member_fields')
             ->order_by('m_field_order', 'asc')
             ->get()
@@ -594,7 +594,7 @@ class ChosenHelper
      */
     public function memberAutoComplete($settings, $search_fields, $search_fields_where)
     {
-        return $this->EE->db->select('m.member_id, m.username, m.screen_name, ' . implode($search_fields, ', '))
+        return ee()->db->select('m.member_id, m.username, m.screen_name, ' . implode($search_fields, ', '))
             ->from('members AS m')
             ->join('member_data AS md', 'md.member_id = m.member_id', 'left')
             ->where_in('m.group_id', $settings['allowed_groups'])
@@ -609,18 +609,18 @@ class ChosenHelper
      */
     public function convertFieldName($field_name, $column_name = false)
     {
-        $this->EE->db->select("cf.field_id AS field_id, mc.col_id, IF(mc.col_id IS NULL, cf.field_name, mc.col_name) AS field_name", false)
+        ee()->db->select("cf.field_id AS field_id, mc.col_id, IF(mc.col_id IS NULL, cf.field_name, mc.col_name) AS field_name", false)
             ->from('channel_fields AS cf')
             ->join('matrix_cols AS mc', 'mc.field_id = cf.field_id', 'left')
-            ->where("((cf.field_type = 'vmg_chosen_member' || cf.field_type = 'matrix') AND cf.field_name = " . $this->EE->db->escape($field_name) . ")");
+            ->where("((cf.field_type = 'vmg_chosen_member' || cf.field_type = 'matrix') AND cf.field_name = " . ee()->db->escape($field_name) . ")");
 
-        if (! empty($column_name)) {
-            $this->EE->db->where("(cf.field_type = 'matrix' AND mc.col_type = 'vmg_chosen_member' AND mc.col_name = " . $this->EE->db->escape($column_name) . ")");
+        if ( ! empty($column_name)) {
+            ee()->db->where("(cf.field_type = 'matrix' AND mc.col_type = 'vmg_chosen_member' AND mc.col_name = " . ee()->db->escape($column_name) . ")");
         } else {
-            $this->EE->db->where('cf.field_type', 'vmg_chosen_member');
+            ee()->db->where('cf.field_type', 'vmg_chosen_member');
         }
 
-        $field = $this->EE->db->get()->row_array();
+        $field = ee()->db->get()->row_array();
 
         return array(
             'field_id' => (isset($field['field_id']) ? $field['field_id'] : null),
@@ -638,8 +638,8 @@ class ChosenHelper
         $results = array();
 
         // Handle CURRENT_MEMBER option if set
-        if (in_array('CURRENT_MEMBER', $member_ids) && $this->EE->session->userdata('member_id') > 0) {
-            $member_ids[] = $this->EE->session->userdata('member_id');
+        if (in_array('CURRENT_MEMBER', $member_ids) && ee()->session->userdata('member_id') > 0) {
+            $member_ids[] = ee()->session->userdata('member_id');
             unset($member_ids[array_search('CURRENT_MEMBER', $member_ids)]);
         }
 
@@ -647,7 +647,7 @@ class ChosenHelper
         if (in_array('OR_EMPTY', $member_ids)) {
 
             // Get channel info
-            $channel_data = $this->EE->db->select('c.channel_id')
+            $channel_data = ee()->db->select('c.channel_id')
                 ->from('channel_fields AS cf')
                 ->join('channels AS c', 'c.field_group = cf.group_id', 'inner')
                 ->where('cf.field_id', $field_id)
@@ -660,9 +660,9 @@ class ChosenHelper
                 $channels[] = $channel['channel_id'];
             }
 
-            $data = $this->EE->db->select('ct.entry_id')
+            $data = ee()->db->select('ct.entry_id')
                 ->from('channel_titles AS ct')
-                ->join('vmg_chosen_member AS vcm', 'vcm.entry_id = ct.entry_id AND vcm.field_id = ' . $this->EE->db->escape($field_id) . ' AND vcm.col_id = ' . $this->EE->db->escape($col_id), 'LEFT OUTER')
+                ->join('vmg_chosen_member AS vcm', 'vcm.entry_id = ct.entry_id AND vcm.field_id = ' . ee()->db->escape($field_id) . ' AND vcm.col_id = ' . ee()->db->escape($col_id), 'LEFT OUTER')
                 ->where_in('ct.channel_id', $channels)
                 ->where('vcm.entry_id IS NULL')
                 ->get()
@@ -675,7 +675,7 @@ class ChosenHelper
             unset($member_ids[array_search('OR_EMPTY', $member_ids)]);
         }
 
-        $data = $this->EE->db->select('vcm.entry_id')
+        $data = ee()->db->select('vcm.entry_id')
             ->from('vmg_chosen_member AS vcm')
             ->where('vcm.field_id', $field_id)
             ->where('vcm.col_id', $col_id)

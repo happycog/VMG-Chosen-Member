@@ -1,12 +1,14 @@
-<?php if (! defined('BASEPATH')) exit('No direct script access allowed');
+<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+// include config file
+require_once PATH_THIRD.'vmg_chosen_member/config.php';
 
 /**
  * VMG Chosen Member Module Class
  *
  * @package		VMG Chosen Member
- * @version		1.6
  * @author		Luke Wilkins <luke@vectormediagroup.com>
- * @copyright	Copyright (c) 2011-2013 Vector Media Group, Inc.
+ * @copyright	Copyright (c) 2011-2014 Vector Media Group, Inc.
  */
 class Vmg_chosen_member {
 
@@ -18,10 +20,8 @@ class Vmg_chosen_member {
 	 */
 	public function __construct()
 	{
-		$this->EE =& get_instance();
-
 		// Load our helper
-		if (! class_exists('ChosenHelper') || ! is_a($this->chosen_helper, 'ChosenHelper')) {
+		if ( ! class_exists('ChosenHelper') || ! is_a($this->chosen_helper, 'ChosenHelper')) {
 			require_once PATH_THIRD.'vmg_chosen_member/helper.php';
 			$this->chosen_helper = new ChosenHelper;
 		}
@@ -33,15 +33,15 @@ class Vmg_chosen_member {
 	public function get_results()
 	{
 		$result = array();
-		$field_id = $this->EE->input->get('field_id');
-		$col_id = $this->EE->input->get('col_id');
-		$var_id = $this->EE->input->get('var_id');
-		$query = $this->EE->db->escape_like_str(strtolower($this->EE->input->post('query')));
+		$field_id = ee()->input->get('field_id');
+		$col_id = ee()->input->get('col_id');
+		$var_id = ee()->input->get('var_id');
+		$query = ee()->db->escape_like_str(strtolower(ee()->input->post('query')));
 
 		// Retrieve settings for this field
 		$settings = $this->chosen_helper->fieldSettings($field_id, $col_id, $var_id);
 
-		if ($settings !== false && $this->EE->input->is_ajax_request())
+		if ($settings !== false && ee()->input->is_ajax_request())
 		{
 			$search_fields = $search_fields_where = $custom_search_fields = $custom_field_map = array();
 			if (empty($settings['search_fields'])) $settings['search_fields'] = array('username', 'screen_name');
@@ -93,8 +93,8 @@ class Vmg_chosen_member {
 			}
 		}
 
-		$this->EE->load->library('javascript');
-		exit($this->EE->javascript->generate_json($result, true));
+		ee()->load->library('javascript');
+		exit(ee()->javascript->generate_json($result, true));
 	}
 
 	/**
@@ -103,16 +103,16 @@ class Vmg_chosen_member {
 	public function assoc_entries()
 	{
 		// Assist parsing of global variables as parameters
-		foreach ($this->EE->TMPL->tagparams AS $key => $val)
+		foreach (ee()->TMPL->tagparams AS $key => $val)
 		{
-			$this->EE->TMPL->tagparams[$key] = $this->EE->TMPL->parse_globals($val);
+			ee()->TMPL->tagparams[$key] = ee()->TMPL->parse_globals($val);
 		}
 
-		$prefix = $this->EE->TMPL->fetch_param('prefix', 'cm_');
-		$field = $this->EE->TMPL->fetch_param('field');
-		$col = $this->EE->TMPL->fetch_param('col');
-		$member_id = $this->EE->TMPL->fetch_param('member_id', '');
-		$display_entries = $this->EE->TMPL->fetch_param('display_entries', 'yes');
+		$prefix = ee()->TMPL->fetch_param('prefix', 'cm_');
+		$field = ee()->TMPL->fetch_param('field');
+		$col = ee()->TMPL->fetch_param('col');
+		$member_id = ee()->TMPL->fetch_param('member_id', '');
+		$display_entries = ee()->TMPL->fetch_param('display_entries', 'yes');
 
 		$field_data = $this->chosen_helper->convertFieldName($field, $col);
 		$entries = $this->chosen_helper->associatedChannelEntries(
@@ -121,28 +121,28 @@ class Vmg_chosen_member {
 			explode('|', $member_id)
 		);
 
-		if (empty($entries)) return $this->EE->TMPL->no_results();
+		if (empty($entries)) return ee()->TMPL->no_results();
 
 		// Trick EE in to thinking this is a Channel Entries Loop
 		if ($display_entries == 'yes') {
 
-			$entry_id_param = (! $this->EE->TMPL->fetch_param('orderby')) ? 'fixed_order' : 'entry_id';
-			$this->EE->TMPL->tagparams[$entry_id_param] = '0|' . implode('|', $entries);
-			$this->EE->TMPL->tagparams['dynamic'] = 'no';
+			$entry_id_param = ( ! ee()->TMPL->fetch_param('orderby')) ? 'fixed_order' : 'entry_id';
+			ee()->TMPL->tagparams[$entry_id_param] = '0|' . implode('|', $entries);
+			ee()->TMPL->tagparams['dynamic'] = 'no';
 
-			if (! isset($this->EE->TMPL->tagparams['disable'])) {
-				$this->EE->TMPL->tagparams['disable'] = 'categories|category_fields|member_data|pagination';
+			if ( ! isset(ee()->TMPL->tagparams['disable'])) {
+				ee()->TMPL->tagparams['disable'] = 'categories|category_fields|member_data|pagination';
 			}
 
-			$vars = $this->EE->functions->assign_variables($this->EE->TMPL->tagdata);
-			$this->EE->TMPL->var_single = $vars['var_single'];
-			$this->EE->TMPL->var_pair = $vars['var_pair'];
+			$vars = ee()->functions->assign_variables(ee()->TMPL->tagdata);
+			ee()->TMPL->var_single = $vars['var_single'];
+			ee()->TMPL->var_pair = $vars['var_pair'];
 
-			if (method_exists($this->EE->TMPL, '_fetch_site_ids')) {
-				$this->EE->TMPL->_fetch_site_ids();
+			if (method_exists(ee()->TMPL, '_fetch_site_ids')) {
+				ee()->TMPL->_fetch_site_ids();
 			}
 
-			if (! class_exists('Channel')) {
+			if ( ! class_exists('Channel')) {
 				require PATH_MOD.'channel/mod.channel.php';
 			}
 
@@ -154,9 +154,9 @@ class Vmg_chosen_member {
 			$prefix . 'entry_ids' => implode('|', array_unique($entries))
 		);
 
-		if (empty($this->EE->TMPL->tagdata)) return $results[$prefix . 'entry_ids'];
+		if (empty(ee()->TMPL->tagdata)) return $results[$prefix . 'entry_ids'];
 
-		return $this->EE->TMPL->parse_variables_row($this->EE->TMPL->tagdata, $results);
+		return ee()->TMPL->parse_variables_row(ee()->TMPL->tagdata, $results);
 	}
 
 	/**
@@ -164,18 +164,18 @@ class Vmg_chosen_member {
 	 */
 	public function assoc_field_members()
 	{
-		$prefix = $this->EE->TMPL->fetch_param('prefix', 'cm_');
-		$field = $this->EE->TMPL->fetch_param('field');
-		$col = $this->EE->TMPL->fetch_param('col');
-		$backspace = $this->EE->TMPL->fetch_param('backspace');
-		$disable = $this->EE->TMPL->fetch_param('disable');
+		$prefix = ee()->TMPL->fetch_param('prefix', 'cm_');
+		$field = ee()->TMPL->fetch_param('field');
+		$col = ee()->TMPL->fetch_param('col');
+		$backspace = ee()->TMPL->fetch_param('backspace');
+		$disable = ee()->TMPL->fetch_param('disable');
 
 		$disable = ! empty($params['disable']) ? explode('|', $params['disable']) : array();
 		$field_data = $this->chosen_helper->convertFieldName($field, $col);
 
 		// Bail if field couldn't be found
 		if (empty($field_data['field_id']) || empty($field_data['field_name'])) {
-			return $this->EE->TMPL->no_results();
+			return ee()->TMPL->no_results();
 		}
 
 		$settings = $this->chosen_helper->fieldSettings($field_data['field_id'], $field_data['col_id']);
@@ -188,13 +188,13 @@ class Vmg_chosen_member {
 			null,
 			null,
 			$settings,
-			'm.*' . (! in_array('member_data', $disable) ? ', md.*' : '')
+			'm.*' . ( ! in_array('member_data', $disable) ? ', md.*' : '')
 		);
 
-		if (empty($results)) return $this->EE->TMPL->no_results();
+		if (empty($results)) return ee()->TMPL->no_results();
 
 		// Rename member data fields if we retrieved them
-		if (! in_array('member_data', $disable)) {
+		if ( ! in_array('member_data', $disable)) {
 			$member_fields = $this->chosen_helper->getCustomMemberFields();
 
 			foreach ($results AS $key => $member) {
@@ -208,7 +208,7 @@ class Vmg_chosen_member {
 		// Handle prefix if applicable
 		$results = $this->chosen_helper->setPrefix($results, $prefix);
 
-		$output = $this->EE->TMPL->parse_variables($this->EE->TMPL->tagdata, $results);
+		$output = ee()->TMPL->parse_variables(ee()->TMPL->tagdata, $results);
 
 		// Handle backspace if applicable
 		$output = $this->chosen_helper->backspace($output, $backspace);
@@ -221,7 +221,7 @@ class Vmg_chosen_member {
 	 */
 	public function init_ft()
 	{
-		$type = $this->EE->TMPL->fetch_param('type', 'css|js');
+		$type = ee()->TMPL->fetch_param('type', 'css|js');
 		$type = explode('|', $type);
 
 		$output = array();

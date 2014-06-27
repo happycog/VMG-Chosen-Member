@@ -1,4 +1,4 @@
-<?php  if (! defined('BASEPATH')) exit('No direct script access allowed');
+<?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 $lang = array(
 	'vmg_chosen_member_module_name' =>
