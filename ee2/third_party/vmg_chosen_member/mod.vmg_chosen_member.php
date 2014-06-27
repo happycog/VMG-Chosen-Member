@@ -93,8 +93,7 @@ class Vmg_chosen_member {
 			}
 		}
 
-		ee()->load->library('javascript');
-		exit(ee()->javascript->generate_json($result, true));
+		exit(json_encode($result));
 	}
 
 	/**

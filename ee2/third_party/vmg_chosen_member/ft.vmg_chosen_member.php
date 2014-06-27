@@ -82,12 +82,11 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 			$this->chosen_helper->includeAssets();
 		}
 
-		$default_view_path = ee()->load->_ci_view_path;
-		ee()->load->_ci_view_path = PATH_THIRD . 'vmg_chosen_member/views/';
+		ee()->load->add_package_path(PATH_THIRD . 'vmg_chosen_member/');
 
 		$view = ee()->load->view('display_field', $this->ft_data, true);
 
-		ee()->load->_ci_view_path = $default_view_path;
+		ee()->load->remove_package_path();
 
 		return $view;
 	}
