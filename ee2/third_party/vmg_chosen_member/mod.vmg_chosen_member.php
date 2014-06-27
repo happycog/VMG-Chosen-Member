@@ -1,96 +1,60 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
+// include config file
+require_once PATH_THIRD.'vmg_chosen_member/config.php';
+
 /**
  * VMG Chosen Member Module Class
  *
  * @package		VMG Chosen Member
- * @version		1.5.6
  * @author		Luke Wilkins <luke@vectormediagroup.com>
- * @copyright	Copyright (c) 2011-2013 Vector Media Group, Inc.
- **/
-
+ * @copyright	Copyright (c) 2011-2014 Vector Media Group, Inc.
+ */
 class Vmg_chosen_member {
 
 	public $return_data;
-
-	private $default_search_fields = array(
-		'username' => 'Username', 'screen_name' => 'Screen Name', 'email' => 'Email', 'url' => 'URL',
-		'location' => 'Location', 'occupation' => 'Occupation', 'interests' => 'Interests',
-		'aol_im' => 'AOL IM', 'yahoo_im' => 'Yahoo! IM', 'msn_im' => 'MSN IM', 'icq' => 'ICQ',
-		'bio' => 'Bio', 'signature' => 'Signature',
-	);
+	public $chosen_helper;
 
 	/**
 	 * Constructor
 	 */
 	public function __construct()
 	{
-		$this->EE =& get_instance();
+		// Load our helper
+		if ( ! class_exists('ChosenHelper') || ! is_a($this->chosen_helper, 'ChosenHelper')) {
+			require_once PATH_THIRD.'vmg_chosen_member/helper.php';
+			$this->chosen_helper = new ChosenHelper;
+		}
 	}
 
-	// ----------------------------------------------------------------
-
-	function get_results()
+	/**
+	 * Return JSON results for member autocomplete
+	 */
+	public function get_results()
 	{
-		$db = $this->EE->db;
 		$result = array();
+		$field_id = ee()->input->get('field_id');
+		$col_id = ee()->input->get('col_id');
+		$var_id = ee()->input->get('var_id');
+		$query = ee()->db->escape_like_str(strtolower(ee()->input->post('query')));
 
-		$field_id = $this->EE->input->get('field_id');
-		$is_matrix = ($this->EE->input->get('type') == 'matrix' ? true : false);
-		$is_low_var = ($this->EE->input->get('type') == 'lowvar' ? true : false);
-		$query = $db->escape_like_str(strtolower($this->EE->input->post('query')));
+		// Retrieve settings for this field
+		$settings = $this->chosen_helper->fieldSettings($field_id, $col_id, $var_id);
 
-		if ($is_matrix)
+		if ($settings !== false && ee()->input->is_ajax_request())
 		{
-			// Check/Get field/col settings
-			$db->select('mc.col_settings AS setting_data', false);
-			$db->from('exp_matrix_cols AS mc');
-			$db->where('mc.field_id', $field_id);
-			$db->where('mc.col_type', 'vmg_chosen_member');
-			$settings = $db->get()->row_array();
-		}
-		elseif ($is_low_var)
-		{
-			// Check/Get var settings
-			$db->select('lv.variable_type, lv.variable_settings AS setting_data');
-			$db->from('exp_low_variables AS lv');
-			$db->where('lv.variable_id', $field_id);
-			$db->where('lv.variable_type', 'vmg_chosen_member');
-			$settings = $db->get()->row_array();
-		}
-		else
-		{
-			// Check/Get field/col settings
-			$db->select('cf.field_settings AS setting_data', false);
-			$db->from('exp_channel_fields AS cf');
-			$db->where('cf.field_id', $field_id);
-			$db->where('cf.field_type', 'vmg_chosen_member');
-			$settings = $db->get()->row_array();
-		}
-
-		if (!empty($settings) && $this->EE->input->is_ajax_request())
-		{
-			$settings = unserialize(base64_decode($settings['setting_data']));
-
 			$search_fields = $search_fields_where = $custom_search_fields = $custom_field_map = array();
 			if (empty($settings['search_fields'])) $settings['search_fields'] = array('username', 'screen_name');
 
 			// Get member custom field list
-			$db->select("m_field_id, m_field_name, m_field_label");
-			$db->from('exp_member_fields');
-			$db->order_by('m_field_order', 'asc');
-			$fields = $db->get()->result_array();
-
-			foreach ($fields AS $key => $value)
-			{
+			foreach ($this->chosen_helper->customMemberFields() AS $key => $value) {
 				$custom_search_fields[$value['m_field_name']] = $value['m_field_label'];
 				$custom_field_map[$value['m_field_name']] = 'm_field_id_' . $value['m_field_id'];
 			}
 
-			foreach ($settings['search_fields'] AS $field)
-			{
-				if (array_key_exists($field, $this->default_search_fields) || array_key_exists($field, $custom_search_fields))
-				{
+			foreach ($settings['search_fields'] AS $field) {
+				if (array_key_exists($field, $this->chosen_helper->default_search_fields) || array_key_exists($field, $custom_search_fields)) {
+
 					if (array_key_exists($field, $custom_search_fields)) $field = $custom_field_map[$field];
 
 					$search_fields[] = $field;
@@ -99,36 +63,26 @@ class Vmg_chosen_member {
 			}
 
 			// Gather and format results
-			$db->select('m.member_id, m.username, m.screen_name, ' . implode($search_fields, ', '));
-			$db->from('exp_members AS m');
-			$db->join('exp_member_data AS md', 'md.member_id = m.member_id', 'left');
-			$db->where_in('m.group_id', $settings['allowed_groups']);
-			$db->where('(' . implode(' OR ', $search_fields_where) . ')');
-			$db->limit(50);
-			$results = $db->get()->result_array();
+			$results = $this->chosen_helper->memberAutoComplete($settings, $search_fields, $search_fields_where);
 
-			foreach ($results AS $member)
-			{
+			foreach ($results AS $member) {
 				$additional_text = '';
 
 				// Add "additional" text for default fields
-				foreach ($this->default_search_fields AS $field_id => $field_label)
-				{
-					if (isset($member[$field_id]) && empty($additional_text) && !in_array($field_id, array('username', 'screen_name')) && strpos($member[$field_id], $query) !== FALSE)
-					{
-						$additional_text = '&nbsp;&nbsp;&nbsp;(' . $field_label . ': ' . $this->clean_additional($member[$field_id], $query) . ')';
+				foreach ($this->chosen_helper->default_search_fields AS $field_id => $field_label) {
+					if (isset($member[$field_id]) && empty($additional_text) && ! in_array($field_id, array('username', 'screen_name')) && stripos($member[$field_id], $query) !== false) {
+						$additional_text = '&nbsp;&nbsp;&nbsp;(' . $field_label . ': ' . $this->chosen_helper->cleanFieldPreview($member[$field_id], $query) . ')';
 					}
 				}
 
 				// Add "additional" text for custom fields
-				if (empty($additional_text))
-				{
-					foreach ($custom_search_fields AS $field_id => $field_label)
-					{
-						if (isset($member[$custom_field_map[$field_id]]) && empty($additional_text) && strpos($member[$custom_field_map[$field_id]], $query) !== FALSE)
-						{
-							$additional_text = '&nbsp;&nbsp;&nbsp;(' . $field_label . ': ' . $this->clean_additional($member[$custom_field_map[$field_id]], $query) . ')';
+				if (empty($additional_text)) {
+					foreach ($custom_search_fields AS $field_id => $field_label) {
+
+						if (isset($member[$custom_field_map[$field_id]]) && empty($additional_text) && stripos($member[$custom_field_map[$field_id]], $query) !== false) {
+							$additional_text = '&nbsp;&nbsp;&nbsp;(' . $field_label . ': ' . $this->chosen_helper->cleanFieldPreview($member[$custom_field_map[$field_id]], $query) . ')';
 						}
+
 					}
 				}
 
@@ -139,123 +93,154 @@ class Vmg_chosen_member {
 			}
 		}
 
-		$this->EE->load->library('javascript');
-
-		exit($this->EE->javascript->generate_json($result, TRUE));
+		exit(json_encode($result));
 	}
 
-	// ----------------------------------------------------------------
-
-	private function clean_additional($text, $search, $max_length = 25)
-	{
-		if (strlen($text) > $max_length)
-		{
-			$text = preg_replace('/[^[:alnum:][:punct:] ]/', '', $text);
-			$find_string = strpos($text, $search);
-			$text = substr($text, $find_string - $max_length, strlen($search) + ($max_length*2));
-
-			$text = '...' . $text . '...';
-		}
-
-		return '<i>' . $text . '</i>';
-	}
-
-	// ----------------------------------------------------------------
-
+	/**
+	 * Return Channel Entries that a user has been selected in
+	 */
 	public function assoc_entries()
 	{
-		$db = $this->EE->db;
-		$tagdata = $this->EE->TMPL->tagdata;
-
 		// Assist parsing of global variables as parameters
-		foreach ($this->EE->TMPL->tagparams AS $key => $val)
+		foreach (ee()->TMPL->tagparams AS $key => $val)
 		{
-			$this->EE->TMPL->tagparams[$key] = $this->EE->TMPL->parse_globals($val);
+			ee()->TMPL->tagparams[$key] = ee()->TMPL->parse_globals($val);
 		}
 
-		$prefix = $this->EE->TMPL->fetch_param('prefix', 'cm_');
-		$field = $this->EE->TMPL->fetch_param('field');
-		$col = $this->EE->TMPL->fetch_param('col');
-		$member_id = $this->EE->TMPL->fetch_param('member_id', '');
-		$member_ids = explode('|', $member_id);
+		$prefix = ee()->TMPL->fetch_param('prefix', 'cm_');
+		$field = ee()->TMPL->fetch_param('field');
+		$col = ee()->TMPL->fetch_param('col');
+		$member_id = ee()->TMPL->fetch_param('member_id', '');
+		$display_entries = ee()->TMPL->fetch_param('display_entries', 'yes');
 
-		// Let's guarantee that we only consider users that still exist
-		$db->select('member_id');
-		$db->from('exp_members AS m');
-		$db->where_in('m.member_id', $member_ids);
-		$member_results = $db->get()->result_array();
-
-		$member_ids = array();
-		foreach ($member_results AS $member) $member_ids[] = $member['member_id'];
-
-		if (empty($member_ids)) return $this->EE->TMPL->no_results();
-
-		// Check if Matrix is installed
-        if ( ! isset($this->EE->session->cache[__CLASS__]['matrix_installed'])) {
-            $check = $db->from('exp_fieldtypes')
-                ->where('name', 'matrix')
-                ->get()
-                ->num_rows();
-
-            $this->EE->session->cache[__CLASS__]['matrix_installed'] = ($check > 0 ? true : false);
-        }
-
-        // Check if this is a valid field
-        if ($this->EE->session->cache[__CLASS__]['matrix_installed']) {
-            $db->select("cf.field_id AS field_id, mc.col_id, IF(mc.col_id IS NULL, cf.field_name, mc.col_name) AS field_name", false)
-                ->from('exp_channel_fields AS cf')
-                ->join('exp_matrix_cols AS mc', 'mc.field_id = cf.field_id', 'left')
-                ->where("((cf.field_type = 'vmg_chosen_member' || cf.field_type = 'matrix') AND cf.field_name = " . $db->escape($field) . ")");
-
-            if ( ! empty($col)) {
-                $db->where("(cf.field_type = 'matrix' AND mc.col_type = 'vmg_chosen_member' AND mc.col_name = " . $db->escape($col) . ")");
-            }
-
-        } else {
-            $db->select("cf.field_id AS field_id, NULL AS col_id, cf.field_name AS field_name", false)
-                ->from('exp_channel_fields AS cf')
-                ->where("(cf.field_type = 'vmg_chosen_member' AND cf.field_name = " . $db->escape($field) . ")");
-        }
-
-		$field = $db->get()->row_array();
-
-		$temp_results = array();
-
-		if (!empty($field['field_id']) && is_numeric($field['field_id']) && empty($field['col_id']))
-		{
-			// Get channel entries
-			$db->select('cd.entry_id')
-				->from('exp_channel_data AS cd');
-
-			foreach ($member_ids AS $member_id) $db->or_where("(field_id_" . $field['field_id'] . " REGEXP '^" . $member_id . "$|^" . $member_id . "\\\||\\\|" . $member_id . "\\\||\\\|" . $member_id . "$')");
-
-			$temp_results = $db->get()->result_array();
-		}
-		elseif (!empty($field['field_id']) && !empty($field['col_id']) && is_numeric($field['col_id']))
-		{
-			// Get matrix entries
-			$db->select('md.entry_id')
-				->from('exp_matrix_data AS md');
-
-			foreach ($member_ids AS $member_id) $db->or_where("(col_id_" . $field['col_id'] . " REGEXP '^" . $member_id . "$|^" . $member_id . "\\\||\\\|" . $member_id . "\\\||\\\|" . $member_id . "$')");
-
-			$temp_results = $db->get()->result_array();
-		}
-
-		if (empty($temp_results)) return $this->EE->TMPL->no_results();
-
-		foreach ($temp_results AS $result) $results[] = $result['entry_id'];
-
-		$results = array(
-			$prefix . 'entry_ids' => implode('|', array_unique($results))
+		$field_data = $this->chosen_helper->convertFieldName($field, $col);
+		$entries = $this->chosen_helper->associatedChannelEntries(
+			$field_data['field_id'],
+			$field_data['col_id'],
+			explode('|', $member_id)
 		);
 
-		if (empty($tagdata)) return $this->return_data = $results[$prefix . 'entry_ids'];
+		if (empty($entries)) return ee()->TMPL->no_results();
 
-		$this->return_data = $this->EE->TMPL->parse_variables_row($tagdata, $results);
-		return $this->return_data;
+		// Trick EE in to thinking this is a Channel Entries Loop
+		if ($display_entries == 'yes') {
+
+			$entry_id_param = ( ! ee()->TMPL->fetch_param('orderby')) ? 'fixed_order' : 'entry_id';
+			ee()->TMPL->tagparams[$entry_id_param] = '0|' . implode('|', $entries);
+			ee()->TMPL->tagparams['dynamic'] = 'no';
+
+			if ( ! isset(ee()->TMPL->tagparams['disable'])) {
+				ee()->TMPL->tagparams['disable'] = 'categories|category_fields|member_data|pagination';
+			}
+
+			$vars = ee()->functions->assign_variables(ee()->TMPL->tagdata);
+			ee()->TMPL->var_single = $vars['var_single'];
+			ee()->TMPL->var_pair = $vars['var_pair'];
+
+			if (method_exists(ee()->TMPL, '_fetch_site_ids')) {
+				ee()->TMPL->_fetch_site_ids();
+			}
+
+			if ( ! class_exists('Channel')) {
+				require PATH_MOD.'channel/mod.channel.php';
+			}
+
+			$channel = new Channel();
+    		return $channel->entries();
+		}
+
+		$results = array(
+			$prefix . 'entry_ids' => implode('|', array_unique($entries))
+		);
+
+		if (empty(ee()->TMPL->tagdata)) return $results[$prefix . 'entry_ids'];
+
+		return ee()->TMPL->parse_variables_row(ee()->TMPL->tagdata, $results);
+	}
+
+	/**
+	 * Return all members selected through a specific field
+	 */
+	public function assoc_field_members()
+	{
+		$prefix = ee()->TMPL->fetch_param('prefix', 'cm_');
+		$field = ee()->TMPL->fetch_param('field');
+		$col = ee()->TMPL->fetch_param('col');
+		$backspace = ee()->TMPL->fetch_param('backspace');
+		$disable = ee()->TMPL->fetch_param('disable');
+
+		$disable = ! empty($params['disable']) ? explode('|', $params['disable']) : array();
+		$field_data = $this->chosen_helper->convertFieldName($field, $col);
+
+		// Bail if field couldn't be found
+		if (empty($field_data['field_id']) || empty($field_data['field_name'])) {
+			return ee()->TMPL->no_results();
+		}
+
+		$settings = $this->chosen_helper->fieldSettings($field_data['field_id'], $field_data['col_id']);
+
+		// Get associations
+		$results = $this->chosen_helper->memberAssociations(
+			null,
+			$field_data['field_id'],
+			$field_data['col_id'],
+			null,
+			null,
+			$settings,
+			'm.*' . ( ! in_array('member_data', $disable) ? ', md.*' : '')
+		);
+
+		if (empty($results)) return ee()->TMPL->no_results();
+
+		// Rename member data fields if we retrieved them
+		if ( ! in_array('member_data', $disable)) {
+			$member_fields = $this->chosen_helper->getCustomMemberFields();
+
+			foreach ($results AS $key => $member) {
+				foreach ($member_fields AS $field) {
+					$results[$key][$field['m_field_name']] = $member['m_field_id_' . $field['m_field_id']];
+					unset($results[$key]['m_field_id_' . $field['m_field_id']]);
+				}
+			}
+		}
+
+		// Handle prefix if applicable
+		$results = $this->chosen_helper->setPrefix($results, $prefix);
+
+		$output = ee()->TMPL->parse_variables(ee()->TMPL->tagdata, $results);
+
+		// Handle backspace if applicable
+		$output = $this->chosen_helper->backspace($output, $backspace);
+
+		return $output;
+	}
+
+	/**
+	 * Initialize CSS/JS assets
+	 */
+	public function init_ft()
+	{
+		$type = ee()->TMPL->fetch_param('type', 'css|js');
+		$type = explode('|', $type);
+
+		$output = array();
+
+		if (in_array('css', $type)) {
+			foreach ($this->chosen_helper->buildCss() AS $css) {
+				$output[] = '<link rel="stylesheet" type="text/css" href="' . $css . '" />';
+			}
+		}
+
+		if (in_array('js', $type)) {
+			foreach ($this->chosen_helper->buildJs() AS $js) {
+				$output[] = '<script type="text/javascript" src="' . $js . '"></script>';
+			}
+		}
+
+		return implode("\n", $output);
 	}
 
 }
+
 /* End of file mod.vmg_chosen_member.php */
 /* Location: /system/expressionengine/third_party/vmg_chosen_member/mod.vmg_chosen_member.php */
