@@ -76,7 +76,9 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 		);
 
 		// Include the CSS/JS automatically if in CP
-		$this->chosen_helper->includeAssets();
+		if (defined('REQ') && REQ == 'CP') {
+			$this->chosen_helper->includeAssets();
+		}
 
 		ee()->load->add_package_path(PATH_THIRD . 'vmg_chosen_member/');
 
