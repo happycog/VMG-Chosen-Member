@@ -249,25 +249,34 @@ class ChosenHelper
                 ->delete('vmg_chosen_member');
         }
 
-        // Remove old Matrix records
-        $matrix_data = ee()->db->select('vcm.row_id')
-            ->from('vmg_chosen_member AS vcm')
-            ->join('matrix_data AS md', 'md.row_id = vcm.row_id', 'LEFT OUTER')
-            ->where('vcm.row_id != 0')
-            ->where('(vcm.field_id != 0 OR vcm.var_id != 0)')
-            ->where('md.row_id IS NULL')
-            ->group_by('vcm.row_id')
+        // Remove old Matrix records (if Matrix is installed)
+        $matrix_check = (boolean) ee()->db->select('ft.fieldtype_id')
+            ->from('exp_fieldtypes AS ft')
+            ->where('ft.name', 'matrix')
             ->get()
-            ->result_array();
+            ->num_rows();
 
-        $bad_matrix_rows = array();
-        foreach ($matrix_data AS $row) {
-            $bad_matrix_rows[] = $row['row_id'];
-        }
+        if ($matrix_check)
+        {
+            $matrix_data = ee()->db->select('vcm.row_id')
+                ->from('vmg_chosen_member AS vcm')
+                ->join('matrix_data AS md', 'md.row_id = vcm.row_id', 'LEFT OUTER')
+                ->where('vcm.row_id != 0')
+                ->where('(vcm.field_id != 0 OR vcm.var_id != 0)')
+                ->where('md.row_id IS NULL')
+                ->group_by('vcm.row_id')
+                ->get()
+                ->result_array();
 
-        if ( ! empty($bad_matrix_rows)) {
-            ee()->db->where_in('row_id', $bad_matrix_rows)
-                ->delete('vmg_chosen_member');
+            $bad_matrix_rows = array();
+            foreach ($matrix_data AS $row) {
+                $bad_matrix_rows[] = $row['row_id'];
+            }
+
+            if ( ! empty($bad_matrix_rows)) {
+                ee()->db->where_in('row_id', $bad_matrix_rows)
+                    ->delete('vmg_chosen_member');
+            }
         }
 
         // Remove old Low Variable records
