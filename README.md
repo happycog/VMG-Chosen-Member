@@ -108,7 +108,7 @@ To view Channel Entries that a member has been selected in (via a VMG Chosen Mem
 
 > Returns all relevant entries. If **display\_entries** = "no", outputs the prefixed {entry_ids} tag.
 
-### Useage with Channel Form / SafeCracker
+### Usage with Channel Form / SafeCracker
 
 In order to correctly render the Chosen field within Channel Form or SafeCracker, you will need to ensure that the field assets are loaded. Simply include the following tag somewhere on your page:
 
