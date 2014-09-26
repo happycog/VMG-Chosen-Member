@@ -108,6 +108,14 @@ To view Channel Entries that a member has been selected in (via a VMG Chosen Mem
 
 > Returns all relevant entries. If **display\_entries** = "no", outputs the prefixed {entry_ids} tag.
 
+### Useage with Channel Form / SafeCracker
+
+In order to correctly render the Chosen field within Channel Form or SafeCracker, you will need to ensure that the field assets are loaded. Simply include the following tag somewhere on your page:
+
+`{exp:vmg_chosen_member:init_ft type="css|js"}`
+
+Note that you can pass a `type` parameter to render the CSS, JS, or both.
+
 ### Support for other fieldtypes/add-ons
 
 VMG Chosen Member can be used within [Matrix](http://pixelandtonic.com/matrix/), [Low Variables](http://gotolow.com/addons/low-variables/), and [Better Workflow](http://devot-ee.com/add-ons/better-workflow/).
