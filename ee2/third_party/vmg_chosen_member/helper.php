@@ -488,7 +488,7 @@ class ChosenHelper
             'is_draft' => ($is_draft ? 1 : 0),
         );
 
-        $obj->ft_data['cache_key'] = md5("{$obj->ft_data['entry_id']}_{$obj->ft_data['field_id']}_{$obj->ft_data['col_id']}_{$obj->ft_data['var_id']}");
+        $obj->ft_data['cache_key'] = md5("{$obj->ft_data['field_id']}_{$obj->ft_data['col_id']}_{$obj->ft_data['var_id']}");
 
         return $obj->ft_data;
     }
