@@ -10,7 +10,7 @@
 
 if ( ! defined('VMG_CM_VERSION'))
 {
-	define('VMG_CM_VERSION', '2.0.2');
+	define('VMG_CM_VERSION', '2.1');
 }
 
 /**

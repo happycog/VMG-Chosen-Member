@@ -113,7 +113,29 @@ class ChosenHelper
 
             }
 
-            $this->cache['memberAssociations'][$cache_key] = ee()->db->get()->result_array();
+            $results = ee()->db->get()->result_array();
+
+            // Clean sensitive data and create dynamic items
+            $sensitive_keys = array('authcode', 'crypt_key', 'password', 'salt', 'unique_id');
+            $image_url_fields = array('avatar' => 'enable_avatars', 'photo' => 'enable_photos', 'sig_img' => 'sig_allow_img_upload');
+
+            foreach ($results as &$result) {
+                foreach ($sensitive_keys as $sensitive_key) {
+                    unset($result[$sensitive_key]);
+                }
+
+                foreach ($image_url_fields as $image_url_field => $config_var) {
+                    if (array_key_exists($image_url_field . '_filename', $result)) {
+                        $result[$image_url_field . '_url'] = null;
+
+                        if (ee()->config->item($config_var) === 'y' && ! empty($result[$image_url_field . '_filename'])) {
+                            $result[$image_url_field . '_url'] = ee()->config->item($image_url_field . '_url') . $result[$image_url_field . '_filename'];
+                        }
+                    }
+                }
+            }
+
+            $this->cache['memberAssociations'][$cache_key] = $results;
         }
 
         return $this->cache['memberAssociations'][$cache_key];
