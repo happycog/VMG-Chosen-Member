@@ -26,7 +26,7 @@ Upgrading
 
 Importing Old Member Selections
 -------
-If you are upgrading to VMG Chosen Member from a different field type that contains pipe-delimited `member_id`s, you can have those selection automatically imported in to VMG Chosen Member's data structure by following the steps below:
+If you are upgrading to VMG Chosen Member from a different field type that contains pipe-delimited member IDs, you can have those selection automatically imported in to VMG Chosen Member's data structure by following the steps below:
 *	Ensure the desired fields have been switched to the VMG Chosen Member field type.
 *	Go to Add-Ons > Modules > VMG Chosen Member
 *	Click the "Convert old field data" button, and your previous selections will be automatically imported.
