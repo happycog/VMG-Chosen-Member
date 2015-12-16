@@ -8,7 +8,7 @@ require_once PATH_THIRD.'vmg_chosen_member/config.php';
  *
  * @package     VMG Chosen Member
  * @author      Luke Wilkins <luke@vectormediagroup.com>
- * @copyright   Copyright (c) 2011-2014 Vector Media Group, Inc.
+ * @copyright   Copyright (c) 2011-2015 Vector Media Group, Inc.
  */
 class ChosenHelper
 {
@@ -33,6 +33,15 @@ class ChosenHelper
 
     /**
      * Gather associated member data info
+     * @param  int $entry_id
+     * @param  int $field_id
+     * @param  int $col_id
+     * @param  int $row_id
+     * @param  int $var_id
+     * @param  array $settings
+     * @param  array $select_fields
+     * @param  string $group_by
+     * @return array
      */
     public function memberAssociations($entry_id = null, $field_id = null, $col_id = null, $row_id = null, $var_id = null, $settings = null, $select_fields = null, $group_by = 'vcm.member_id')
     {
@@ -143,6 +152,8 @@ class ChosenHelper
 
     /**
      * Ensure required data is available to save this record
+     * @param  array $record
+     * @return boolean
      */
     public function validRecord($record)
     {
@@ -159,6 +170,9 @@ class ChosenHelper
 
     /**
      * Return list of valid Member IDs from selected list
+     * @param  array $selections
+     * @param  array $settings
+     * @return array
      */
     public function validateSelections($selections, $settings)
     {
@@ -195,6 +209,9 @@ class ChosenHelper
 
     /**
      * Clear selections from database that are no longer selected
+     * @param  array $selections
+     * @param  array $settings
+     * @return int
      */
     public function clearOldSelections($selections, $settings)
     {
@@ -219,6 +236,8 @@ class ChosenHelper
 
     /**
      * Make draft data live
+     * @param  array $settings
+     * @return boolean
      */
     public function publishDraft($settings)
     {
@@ -233,10 +252,14 @@ class ChosenHelper
             ->update('vmg_chosen_member', array(
                 'is_draft' => 0,
             ));
+
+        return true;
     }
 
     /**
      * Remove all draft entries
+     * @param  array $settings
+     * @return int
      */
     public function discardDraft($settings)
     {
@@ -249,6 +272,7 @@ class ChosenHelper
 
     /**
      * Remove records for fields/columns/variables that no longer exist
+     * @return boolean
      */
     public function cleanUp()
     {
@@ -320,10 +344,15 @@ class ChosenHelper
             ee()->db->where_in('var_id', $bad_var_rows)
                 ->delete('vmg_chosen_member');
         }
+
+        return true;
     }
 
     /**
      * Save current selections to database
+     * @param  array $selections
+     * @param  array $settings
+     * @return boolean
      */
     public function saveSelections($selections, $settings)
     {
@@ -348,10 +377,13 @@ class ChosenHelper
             ));
 
         }
+
+        return true;
     }
 
     /**
      * Get all available member groups
+     * @return boolean
      */
     public function getMemberGroups()
     {
@@ -364,6 +396,7 @@ class ChosenHelper
 
     /**
      * Get all custom member fields
+     * @return array
      */
     public function getCustomMemberFields()
     {
@@ -376,6 +409,9 @@ class ChosenHelper
 
     /**
      * Get action_id for a specific method
+     * @param  string  $method
+     * @param  boolean $full_path
+     * @return string
      */
     public function actionId($method, $full_path = false)
     {
@@ -404,6 +440,7 @@ class ChosenHelper
 
     /**
      * Include the required CSS and JS
+     * @return boolean
      */
     public function includeAssets()
     {
@@ -425,6 +462,7 @@ class ChosenHelper
 
     /**
      * Build CSS files
+     * @return array
      */
     public function buildCss()
     {
@@ -436,6 +474,7 @@ class ChosenHelper
 
     /**
      * Build JS files
+     * @return array
      */
     public function buildJs()
     {
@@ -447,6 +486,8 @@ class ChosenHelper
 
     /**
      * Prefix array for custom output
+     * @param array $array
+     * @param string $prefix
      */
     public function setPrefix($array, $prefix = '')
     {
@@ -476,6 +517,9 @@ class ChosenHelper
 
     /**
      * Remove X number of characters from end of string
+     * @param  string $string
+     * @param  int $backspace
+     * @return string
      */
     public function backspace($string, $backspace)
     {
@@ -488,6 +532,8 @@ class ChosenHelper
 
     /**
      * Build base fieldtype data array
+     * @param  stdClass &$obj
+     * @return array
      */
     public function initData(&$obj)
     {
@@ -517,6 +563,11 @@ class ChosenHelper
 
     /**
      * Return settings value by auto handling fallbacks
+     * @param  stdClass  &$obj
+     * @param  string  $name
+     * @param  string  $fallback
+     * @param  boolean $literal_fallback
+     * @return mixed
      */
     public function getSetting(&$obj, $name, $fallback, $literal_fallback = false)
     {
@@ -543,6 +594,10 @@ class ChosenHelper
 
     /**
      * Returns simple preview of a string with formatting removed
+     * @param  string  $text
+     * @param  string  $search
+     * @param  integer $max_length
+     * @return string
      */
     public function cleanFieldPreview($text, $search, $max_length = 25)
     {
@@ -559,6 +614,10 @@ class ChosenHelper
 
     /**
      * Get field settings array
+     * @param  int  $field_id
+     * @param  int $col_id
+     * @param  int $var_id
+     * @return array/boolean
      */
     public function fieldSettings($field_id, $col_id = 0, $var_id = 0)
     {
@@ -610,6 +669,7 @@ class ChosenHelper
 
     /**
      * Get all custom member fields
+     * @return array
      */
     public function customMemberFields()
     {
@@ -622,6 +682,10 @@ class ChosenHelper
 
     /**
      * Member autocomplete results
+     * @param  array $settings
+     * @param  array $search_fields
+     * @param  array $search_fields_where
+     * @return array
      */
     public function memberAutoComplete($settings, $search_fields, $search_fields_where)
     {
@@ -637,6 +701,9 @@ class ChosenHelper
 
     /**
      * Convert field/column name to ID
+     * @param  string  $field_name
+     * @param  string $column_name
+     * @return array
      */
     public function convertFieldName($field_name, $column_name = false)
     {
@@ -662,6 +729,10 @@ class ChosenHelper
 
     /**
      * Get Channel Entries containing member
+     * @param  int $field_id
+     * @param  int $col_id
+     * @param  array $member_ids
+     * @return array
      */
     public function associatedChannelEntries($field_id, $col_id, $member_ids)
     {
@@ -719,6 +790,102 @@ class ChosenHelper
         }
 
         return $results;
+    }
+
+    /**
+     * Convert data from standard fields in to vmg_chosen_member table
+     * @return boolean
+     */
+    public function convertStandardFieldData()
+    {
+        $fields = ee()->db->select('field_id')
+            ->from('channel_fields')
+            ->where('field_type', 'vmg_chosen_member')
+            ->get()
+            ->result_array();
+
+        foreach ($fields AS $field) {
+            $entries = ee()->db->select("entry_id, '".$field['field_id']."' AS field_id, field_id_".$field['field_id']." AS member_ids", false)
+                ->from('channel_data')
+                ->where('field_id_' . $field['field_id'] . ' !=', '')
+                ->get()
+                ->result_array();
+
+            foreach ($entries AS $entry) {
+                $this->saveAssociation($entry);
+            }
+        }
+
+        // Convert data from matrix fields
+        if (ee()->db->table_exists('matrix_cols')) {
+            $fields = ee()->db->select('col_id, field_id, var_id')
+                ->from('matrix_cols')
+                ->where('col_type', 'vmg_chosen_member')
+                ->get()
+                ->result_array();
+
+            foreach ($fields AS $field) {
+                $entries = ee()->db->select("entry_id, '".$field['field_id']."' AS field_id, '".$field['col_id']."' AS col_id, '".$field['var_id']."' AS var_id, row_id, col_id_".$field['col_id']." AS member_ids", false)
+                    ->from('matrix_data')
+                    ->where('col_id_' . $field['col_id'] . ' !=', '')
+                    ->get()
+                    ->result_array();
+
+                foreach ($entries AS $entry) {
+                    $this->saveAssociation($entry);
+                }
+            }
+        }
+
+        // Convert data from low variable fields
+        if (ee()->db->table_exists('low_variables')) {
+            $entries = ee()->db->select("lv.variable_id AS var_id, gv.variable_data AS member_ids", false)
+                ->from('low_variables AS lv')
+                ->join('global_variables AS gv', 'gv.variable_id = lv.variable_id', 'inner')
+                ->where('lv.variable_type', 'vmg_chosen_member')
+                ->where('gv.variable_data !=', '')
+                ->get()
+                ->result_array();
+
+            foreach ($entries AS $entry) {
+                $this->saveAssociation($entry);
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Save field associations from convertStandardFieldData()
+     * @param  array $entry
+     * @return boolean
+     */
+    private function saveAssociation($entry)
+    {
+        $member_ids = explode('|', $entry['member_ids']);
+        unset($entry['member_ids']);
+
+        $valid_fields = array('entry_id', 'field_id', 'col_id', 'row_id', 'var_id', );
+        $fields = $field_values = array();
+        foreach ($entry as $key => $value) {
+            if (in_array($key, $valid_fields)) {
+                $fields[] = '`'.$key.'`';
+                $field_values[] = (int) $value;
+            }
+        }
+
+        $table = ee()->db->dbprefix.'vmg_chosen_member';
+
+        $order = 0;
+        foreach ($member_ids AS $member_id) {
+            $member_id = (int) $member_id;
+            $keys = array_merge(array('`member_id`', '`order`'), $fields);
+            $values = array_merge(array($member_id, $order++), $field_values);
+
+            ee()->db->query("INSERT INTO ".$table." (".implode(', ', $keys).") VALUES (".implode(', ', $values).") ON DUPLICATE KEY UPDATE member_id = ".$member_id);
+        }
+
+        return true;
     }
 
 }

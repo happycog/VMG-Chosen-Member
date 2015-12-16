@@ -8,7 +8,7 @@ require_once PATH_THIRD.'vmg_chosen_member/config.php';
  *
  * @package		VMG Chosen Member
  * @author		Luke Wilkins <luke@vectormediagroup.com>
- * @copyright	Copyright (c) 2011-2014 Vector Media Group, Inc.
+ * @copyright	Copyright (c) 2011-2015 Vector Media Group, Inc.
  */
 class Vmg_chosen_member_ft extends EE_Fieldtype
 {

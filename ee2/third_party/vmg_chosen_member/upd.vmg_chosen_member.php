@@ -8,11 +8,12 @@ require_once PATH_THIRD.'vmg_chosen_member/config.php';
  *
  * @package		VMG Chosen Member
  * @author		Luke Wilkins <luke@vectormediagroup.com>
- * @copyright	Copyright (c) 2011-2014 Vector Media Group, Inc.
+ * @copyright	Copyright (c) 2011-2015 Vector Media Group, Inc.
  */
 class Vmg_chosen_member_upd
 {
 	public $version = VMG_CM_VERSION;
+	public $chosen_helper;
 
 	/**
 	 * Installation Method
@@ -24,7 +25,7 @@ class Vmg_chosen_member_upd
 		$mod_data = array(
 			'module_name'			=> 'Vmg_chosen_member',
 			'module_version'		=> $this->version,
-			'has_cp_backend'		=> "n",
+			'has_cp_backend'		=> 'y',
 			'has_publish_fields'	=> 'n'
 		);
 
@@ -53,65 +54,25 @@ class Vmg_chosen_member_upd
 			return false;
 		}
 
+		// Load our helper
+		if ( ! class_exists('ChosenHelper') || ! is_a($this->chosen_helper, 'ChosenHelper')) {
+			require_once PATH_THIRD.'vmg_chosen_member/helper.php';
+			$this->chosen_helper = new ChosenHelper;
+		}
+
 		if (version_compare($current, '2.0', '<'))
 		{
 			// We now store our data in its own table
 			$this->create_table();
 
 			// Convert data from standard fields
-			$fields = ee()->db->select('field_id')
-				->from('channel_fields')
-				->where('field_type', 'vmg_chosen_member')
-				->get()
-				->result_array();
+			$this->chosen_helper->convertStandardFieldData();
+		}
 
-			foreach ($fields AS $field) {
-				$entries = ee()->db->select("entry_id, '".$field['field_id']."' AS field_id, field_id_".$field['field_id']." AS member_ids", false)
-					->from('channel_data')
-					->where('field_id_' . $field['field_id'] . ' !=', '')
-					->get()
-					->result_array();
-
-				foreach ($entries AS $entry) {
-					$this->save_association($entry);
-				}
-			}
-
-			// Convert data from matrix fields
-			if (ee()->db->table_exists('matrix_cols')) {
-				$fields = ee()->db->select('col_id, field_id, var_id')
-					->from('matrix_cols')
-					->where('col_type', 'vmg_chosen_member')
-					->get()
-					->result_array();
-
-				foreach ($fields AS $field) {
-					$entries = ee()->db->select("entry_id, '".$field['field_id']."' AS field_id, '".$field['col_id']."' AS col_id, '".$field['var_id']."' AS var_id, row_id, col_id_".$field['col_id']." AS member_ids", false)
-						->from('matrix_data')
-						->where('col_id_' . $field['col_id'] . ' !=', '')
-						->get()
-						->result_array();
-
-					foreach ($entries AS $entry) {
-						$this->save_association($entry);
-					}
-				}
-			}
-
-			// Convert data from low variable fields
-			if (ee()->db->table_exists('low_variables')) {
-				$entries = ee()->db->select("lv.variable_id AS var_id, gv.variable_data AS member_ids", false)
-					->from('low_variables AS lv')
-					->join('global_variables AS gv', 'gv.variable_id = lv.variable_id', 'inner')
-					->where('lv.variable_type', 'vmg_chosen_member')
-					->where('gv.variable_data !=', '')
-					->get()
-					->result_array();
-
-				foreach ($entries AS $entry) {
-					$this->save_association($entry);
-				}
-			}
+		if (version_compare($current, '2.2', '<'))
+		{
+			ee()->db->where('module_name', 'Vmg_chosen_member')
+				->update('modules', array('has_cp_backend' => 'y'));
 		}
 
 		// Update ft data
@@ -141,19 +102,6 @@ class Vmg_chosen_member_upd
 		ee()->db->query("ALTER TABLE " . ee()->db->dbprefix . "vmg_chosen_member ADD UNIQUE KEY `unique_all` (`entry_id`, `field_id`, `col_id`, `row_id`, `var_id`, `member_id`, `is_draft`)");
 
 		return true;
-	}
-
-	private function save_association($entry)
-	{
-		$member_ids = explode('|', $entry['member_ids']);
-		unset($entry['member_ids']);
-
-		$order = 0;
-		foreach ($member_ids AS $member_id) {
-			ee()->db->set('member_id', $member_id)
-				->set('order', $order++)
-				->insert('vmg_chosen_member', $entry);
-		}
 	}
 
 	/**

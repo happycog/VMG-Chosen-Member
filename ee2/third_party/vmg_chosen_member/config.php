@@ -5,12 +5,12 @@
  *
  * @package		VMG Chosen Member
  * @author		Luke Wilkins <luke@vectormediagroup.com>
- * @copyright	Copyright (c) 2011-2014 Vector Media Group, Inc.
+ * @copyright	Copyright (c) 2011-2015 Vector Media Group, Inc.
  */
 
 if ( ! defined('VMG_CM_VERSION'))
 {
-	define('VMG_CM_VERSION', '2.1');
+	define('VMG_CM_VERSION', '2.2');
 }
 
 /**
