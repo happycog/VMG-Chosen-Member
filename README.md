@@ -15,6 +15,7 @@ Installation
 *	Upload themes/third_party/vmg_chosen_member to themes/third_party
 *	Install the fieldtype by going to Add-Ons &rarr; Fieldtypes
 *	Ensure that both the Fieldtype and Module are installed
+*	See `Importing Old Member Selections` below if you are converting from a different field type that contains pipe-delimited `member_id`s.
 
 Upgrading
 -------
@@ -22,6 +23,13 @@ Upgrading
 *	Upload ee2/third_party/vmg_chosen_member to system/expressionengine/third_party
 *	Upload themes/third_party/vmg_chosen_member to themes/third_party
 *	Go to Add-Ons > Modules and click the "Run Module Updates" button
+
+Importing Old Member Selections
+-------
+If you are upgrading to VMG Chosen Member from a different field type that contains pipe-delimited `member_id`s, you can have those selection automatically imported in to VMG Chosen Member's data structure by following the steps below:
+*	Ensure the desired fields have been switched to the VMG Chosen Member field type.
+*	Go to Add-Ons > Modules > VMG Chosen Member
+*	Click the "Convert old field data" button, and your previous selections will be automatically imported.
 
 Usage
 -------
