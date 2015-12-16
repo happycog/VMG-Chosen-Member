@@ -15,7 +15,7 @@ Installation
 *	Upload themes/third_party/vmg_chosen_member to themes/third_party
 *	Install the fieldtype by going to Add-Ons &rarr; Fieldtypes
 *	Ensure that both the Fieldtype and Module are installed
-*	See `Importing Old Member Selections` below if you are converting from a different field type that contains pipe-delimited `member_id`s.
+*	See [Importing Old Member Selections](#importing-old-member-selections) below if you are converting from a different field type that contains pipe-delimited member IDs.
 
 Upgrading
 -------
