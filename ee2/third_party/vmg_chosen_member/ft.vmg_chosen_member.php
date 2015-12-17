@@ -282,20 +282,50 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 		// Build up the settings array
 		$settings = array(
 			array(
-				'<strong>Allowed groups</strong>',
-				form_multiselect('allowed_groups[]', $member_groups, ( ! empty($data['allowed_groups']) ? $data['allowed_groups'] : array()))
+				'title' => 'Allowed groups',
+				'desc' => null,
+				'type' => 'multiselect',
+				'fields' => array(
+                    'allowed_groups' => array(
+                        'value'=> ( ! empty($data['allowed_groups']) ? $data['allowed_groups'] : array()),
+                        'type' => 'multiselect',
+                        'choices' => $member_groups,
+                    ),
+                ),
 			),
 			array(
-				'<strong>Max selections allowed</strong><br/>Leave blank for no limit.',
-				form_input('max_selections', ( ! empty($data['max_selections']) ? $data['max_selections'] : ''))
+				'title' => 'Max selections allowed',
+				'desc' => 'Leave blank for no limit.',
+				'type' => 'text',
+				'fields' => array(
+                    'max_selections' => array(
+                        'value'=> ( ! empty($data['max_selections']) ? $data['max_selections'] : ''),
+                        'type' => 'text',
+                    )
+                ),
 			),
 			array(
-				'<strong>Placeholder text</strong><br/>Displayed if <i>"Max selections allowed"</i> does not equal 1.',
-				form_input(array('name' => 'placeholder_text', 'class' => 'fullfield'), ( ! empty($data['placeholder_text']) ? $data['placeholder_text'] : 'Begin typing a member\'s name...'))
+				'title' => 'Placeholder text',
+				'desc' => 'Displayed if <i>"Max selections allowed"</i> does not equal 1.',
+				'type' => 'text',
+				'fields' => array(
+                    'placeholder_text' => array(
+                        'value'=> ( ! empty($data['placeholder_text']) ? $data['placeholder_text'] : 'Begin typing a member\'s name...'),
+                        'type' => 'text',
+                    ),
+                ),
 			),
 			array(
-				'<strong>Search fields</strong><br/>Determines which member fields will be searched.<br/><i>Defaults to Username &amp; Screen Name if no selections are made.</i>',
-				form_multiselect('search_fields[]', $search_fields, ( ! empty($data['search_fields']) ? $data['search_fields'] : array()))
+				'title' => 'Search fields',
+				'desc' => 'Determines which member fields will be searched.<br/><i>Defaults to Username &amp; Screen Name if no selections are made.</i>',
+				'type' => 'multiselect',
+				'fields' => array(
+                    'search_fields' => array(
+                        'value'=> ( ! empty($data['search_fields']) ? $data['search_fields'] : array()),
+                        'type' => 'multiselect',
+                        'choices' => $search_fields,
+                    ),
+                ),
 			),
 		);
 
@@ -304,10 +334,13 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 			return $settings;
 		}
 
-		// Return standard settings as table rows
-		foreach ($settings as $setting) {
-			ee()->table->add_row($setting[0], $setting[1]);
-		}
+		return array(
+			'field_options_vmg_cm' => array(
+				'label' => 'field_options',
+            	'group' => 'vmg_chosen_member',
+            	'settings' => $settings,
+			),
+		);
 	}
 
 	/**

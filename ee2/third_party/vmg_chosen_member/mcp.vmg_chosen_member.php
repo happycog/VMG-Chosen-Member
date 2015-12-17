@@ -21,7 +21,7 @@ class Vmg_chosen_member_mcp
 	 */
 	public function __construct()
 	{
-		$this->_base_url = BASE.AMP.'C=addons_modules'.AMP.'M=show_module_cp'.AMP.'module=vmg_chosen_member';
+		$this->_base_url = 'index.php?/cp/addons/settings/vmg_chosen_member';
 
 		// Load our helper
 		if ( ! class_exists('ChosenHelper') || ! is_a($this->chosen_helper, 'ChosenHelper')) {
@@ -45,7 +45,10 @@ class Vmg_chosen_member_mcp
 			// Convert data from standard fields
 			$this->chosen_helper->convertStandardFieldData();
 
-			ee()->session->set_flashdata('message_success', 'Successfully built VMG Chosen Member data!');
+			ee('CP/Alert')->makeBanner('Success!')
+				->asSuccess()
+				->withTitle('Successfully built VMG Chosen Member data!')
+				->defer();
 
 			return ee()->functions->redirect($this->_base_url);
 		}
