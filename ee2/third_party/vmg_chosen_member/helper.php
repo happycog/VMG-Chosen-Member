@@ -8,7 +8,7 @@ require_once PATH_THIRD.'vmg_chosen_member/config.php';
  *
  * @package     VMG Chosen Member
  * @author      Luke Wilkins <luke@vectormediagroup.com>
- * @copyright   Copyright (c) 2011-2015 Vector Media Group, Inc.
+ * @copyright   Copyright (c) 2011-2016 Vector Media Group, Inc.
  */
 class ChosenHelper
 {
@@ -467,8 +467,8 @@ class ChosenHelper
     public function buildCss()
     {
         return array(
-            ee()->config->item('theme_folder_url') . 'third_party/vmg_chosen_member/chosen/chosen.css',
-            ee()->config->item('theme_folder_url') . 'third_party/vmg_chosen_member/vmg_chosen_member.css',
+            ee()->config->item('theme_folder_url') . 'user/vmg_chosen_member/chosen/chosen.css',
+            ee()->config->item('theme_folder_url') . 'user/vmg_chosen_member/vmg_chosen_member.css',
         );
     }
 
@@ -479,8 +479,8 @@ class ChosenHelper
     public function buildJs()
     {
         return array(
-            ee()->config->item('theme_folder_url') . 'third_party/vmg_chosen_member/chosen/chosen.jquery.js',
-            ee()->config->item('theme_folder_url') . 'third_party/vmg_chosen_member/vmg_chosen_member.js',
+            ee()->config->item('theme_folder_url') . 'user/vmg_chosen_member/chosen/chosen.jquery.js',
+            ee()->config->item('theme_folder_url') . 'user/vmg_chosen_member/vmg_chosen_member.js',
         );
     }
 
@@ -543,7 +543,7 @@ class ChosenHelper
         }
 
         $obj->ft_data = array(
-            'entry_id' => $this->getSetting($obj, 'entry_id', 0, true),
+            'entry_id' => $this->getSetting($obj, 'content_id', 0, true),
             'field_name' => $this->getSetting($obj, 'cell_name', 'field_name'),
             'field_id' => $this->getSetting($obj, 'field_id', 0, true),
             'row_id' => $this->getSetting($obj, 'row_id', 0, true),
@@ -572,7 +572,9 @@ class ChosenHelper
     public function getSetting(&$obj, $name, $fallback, $literal_fallback = false)
     {
         // Try to locate the setting
-        if (isset($obj->settings[$name])) {
+        if (method_exists($obj, $name)) {
+            return $obj->$name();
+        } elseif (isset($obj->settings[$name])) {
             return $obj->settings[$name];
         } elseif (isset($obj->row[$name])) {
             return $obj->row[$name];
@@ -661,6 +663,10 @@ class ChosenHelper
         }
 
         if (isset($settings['setting_data'])) {
+            if ($json = json_decode($settings['setting_data'], true)) {
+                return $json;
+            }
+
             return unserialize(base64_decode($settings['setting_data']));
         }
 
