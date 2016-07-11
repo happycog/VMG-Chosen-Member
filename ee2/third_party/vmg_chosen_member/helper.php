@@ -296,13 +296,8 @@ class ChosenHelper
         }
 
         // Remove old Matrix records (if Matrix is installed)
-        $matrix_check = (boolean) ee()->db->select('ft.fieldtype_id')
-            ->from('exp_fieldtypes AS ft')
-            ->where('ft.name', 'matrix')
-            ->get()
-            ->num_rows();
 
-        if ($matrix_check)
+        if ($this->checkMatrix())
         {
             $matrix_data = ee()->db->select('vcm.row_id')
                 ->from('vmg_chosen_member AS vcm')
@@ -713,10 +708,17 @@ class ChosenHelper
      */
     public function convertFieldName($field_name, $column_name = false)
     {
-        ee()->db->select("cf.field_id AS field_id, mc.col_id, IF(mc.col_id IS NULL, cf.field_name, mc.col_name) AS field_name", false)
-            ->from('channel_fields AS cf')
-            ->join('matrix_cols AS mc', 'mc.field_id = cf.field_id', 'left')
-            ->where("((cf.field_type = 'vmg_chosen_member' || cf.field_type = 'matrix') AND cf.field_name = " . ee()->db->escape($field_name) . ")");
+
+        if ($this->checkMatrix()) {
+            ee()->db->select("cf.field_id AS field_id, mc.col_id, IF(mc.col_id IS NULL, cf.field_name, mc.col_name) AS field_name", false)
+                ->join('matrix_cols AS mc', 'mc.field_id = cf.field_id', 'left');
+        } else {
+            ee()->db->select("cf.field_id AS field_id, NULL as col_id, cf.field_name AS field_name", false);
+        }
+
+        ee()->db->from('channel_fields AS cf');
+
+        ee()->db->where("((cf.field_type = 'vmg_chosen_member' || cf.field_type = 'matrix') AND cf.field_name = " . ee()->db->escape($field_name) . ")");
 
         if ( ! empty($column_name)) {
             ee()->db->where("(cf.field_type = 'matrix' AND mc.col_type = 'vmg_chosen_member' AND mc.col_name = " . ee()->db->escape($column_name) . ")");
@@ -892,6 +894,19 @@ class ChosenHelper
         }
 
         return true;
+    }
+
+    /**
+     * Checks if Matrix is installed
+     * @return boolean
+     */
+    private function checkMatrix()
+    {
+        return (boolean) ee()->db->select('ft.fieldtype_id')
+            ->from('exp_fieldtypes AS ft')
+            ->where('ft.name', 'matrix')
+            ->get()
+            ->num_rows();
     }
 
 }
