@@ -8,7 +8,7 @@ require_once PATH_THIRD.'vmg_chosen_member/config.php';
  *
  * @package     VMG Chosen Member
  * @author      Luke Wilkins <luke@vectormediagroup.com>
- * @copyright   Copyright (c) 2011-2015 Vector Media Group, Inc.
+ * @copyright   Copyright (c) 2011-2016 Vector Media Group, Inc.
  */
 class ChosenHelper
 {
@@ -296,13 +296,8 @@ class ChosenHelper
         }
 
         // Remove old Matrix records (if Matrix is installed)
-        $matrix_check = (boolean) ee()->db->select('ft.fieldtype_id')
-            ->from('exp_fieldtypes AS ft')
-            ->where('ft.name', 'matrix')
-            ->get()
-            ->num_rows();
 
-        if ($matrix_check)
+        if ($this->checkMatrix())
         {
             $matrix_data = ee()->db->select('vcm.row_id')
                 ->from('vmg_chosen_member AS vcm')
@@ -467,8 +462,8 @@ class ChosenHelper
     public function buildCss()
     {
         return array(
-            ee()->config->item('theme_folder_url') . 'third_party/vmg_chosen_member/chosen/chosen.css',
-            ee()->config->item('theme_folder_url') . 'third_party/vmg_chosen_member/vmg_chosen_member.css',
+            ee()->config->item('theme_folder_url') . 'user/vmg_chosen_member/chosen/chosen.css',
+            ee()->config->item('theme_folder_url') . 'user/vmg_chosen_member/vmg_chosen_member.css',
         );
     }
 
@@ -479,8 +474,8 @@ class ChosenHelper
     public function buildJs()
     {
         return array(
-            ee()->config->item('theme_folder_url') . 'third_party/vmg_chosen_member/chosen/chosen.jquery.js',
-            ee()->config->item('theme_folder_url') . 'third_party/vmg_chosen_member/vmg_chosen_member.js',
+            ee()->config->item('theme_folder_url') . 'user/vmg_chosen_member/chosen/chosen.jquery.js',
+            ee()->config->item('theme_folder_url') . 'user/vmg_chosen_member/vmg_chosen_member.js',
         );
     }
 
@@ -543,7 +538,7 @@ class ChosenHelper
         }
 
         $obj->ft_data = array(
-            'entry_id' => $this->getSetting($obj, 'entry_id', 0, true),
+            'entry_id' => $this->getSetting($obj, 'content_id', 0, true),
             'field_name' => $this->getSetting($obj, 'cell_name', 'field_name'),
             'field_id' => $this->getSetting($obj, 'field_id', 0, true),
             'row_id' => $this->getSetting($obj, 'row_id', 0, true),
@@ -572,7 +567,9 @@ class ChosenHelper
     public function getSetting(&$obj, $name, $fallback, $literal_fallback = false)
     {
         // Try to locate the setting
-        if (isset($obj->settings[$name])) {
+        if (method_exists($obj, $name)) {
+            return $obj->$name();
+        } elseif (isset($obj->settings[$name])) {
             return $obj->settings[$name];
         } elseif (isset($obj->row[$name])) {
             return $obj->row[$name];
@@ -661,6 +658,10 @@ class ChosenHelper
         }
 
         if (isset($settings['setting_data'])) {
+            if ($json = json_decode($settings['setting_data'], true)) {
+                return $json;
+            }
+
             return unserialize(base64_decode($settings['setting_data']));
         }
 
@@ -707,10 +708,17 @@ class ChosenHelper
      */
     public function convertFieldName($field_name, $column_name = false)
     {
-        ee()->db->select("cf.field_id AS field_id, mc.col_id, IF(mc.col_id IS NULL, cf.field_name, mc.col_name) AS field_name", false)
-            ->from('channel_fields AS cf')
-            ->join('matrix_cols AS mc', 'mc.field_id = cf.field_id', 'left')
-            ->where("((cf.field_type = 'vmg_chosen_member' || cf.field_type = 'matrix') AND cf.field_name = " . ee()->db->escape($field_name) . ")");
+
+        if ($this->checkMatrix()) {
+            ee()->db->select("cf.field_id AS field_id, mc.col_id, IF(mc.col_id IS NULL, cf.field_name, mc.col_name) AS field_name", false)
+                ->join('matrix_cols AS mc', 'mc.field_id = cf.field_id', 'left');
+        } else {
+            ee()->db->select("cf.field_id AS field_id, NULL as col_id, cf.field_name AS field_name", false);
+        }
+
+        ee()->db->from('channel_fields AS cf');
+
+        ee()->db->where("((cf.field_type = 'vmg_chosen_member' || cf.field_type = 'matrix') AND cf.field_name = " . ee()->db->escape($field_name) . ")");
 
         if ( ! empty($column_name)) {
             ee()->db->where("(cf.field_type = 'matrix' AND mc.col_type = 'vmg_chosen_member' AND mc.col_name = " . ee()->db->escape($column_name) . ")");
@@ -886,6 +894,19 @@ class ChosenHelper
         }
 
         return true;
+    }
+
+    /**
+     * Checks if Matrix is installed
+     * @return boolean
+     */
+    private function checkMatrix()
+    {
+        return (boolean) ee()->db->select('ft.fieldtype_id')
+            ->from('exp_fieldtypes AS ft')
+            ->where('ft.name', 'matrix')
+            ->get()
+            ->num_rows();
     }
 
 }

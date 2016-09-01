@@ -8,7 +8,7 @@ require_once PATH_THIRD.'vmg_chosen_member/config.php';
  *
  * @package		VMG Chosen Member
  * @author		Luke Wilkins <luke@vectormediagroup.com>
- * @copyright	Copyright (c) 2011-2015 Vector Media Group, Inc.
+ * @copyright	Copyright (c) 2011-2016 Vector Media Group, Inc.
  */
 class Vmg_chosen_member_ft extends EE_Fieldtype
 {
@@ -41,6 +41,17 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 		}
 
 		$this->cache =& ee()->session->cache['vmg_chosen_member'];
+	}
+
+	/**
+	 * Grid compatibility.
+	 *
+	 * @param $name
+	 * @return bool
+	 */
+	public function accepts_content_type($name)
+	{
+		return ($name == 'channel' || $name == 'grid');
 	}
 
 	/**
@@ -101,6 +112,14 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 	 * Display Variable Field
 	 */
 	public function display_var_field($data)
+	{
+		return $this->display_field($data);
+	}
+
+	/**
+	 * Display Grid Field
+	 */
+	function grid_display_field($data)
 	{
 		return $this->display_field($data);
 	}
@@ -261,7 +280,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 	/**
 	 * Display the fieldtype settings
 	 */
-	public function display_settings($data, $return_settings = false)
+	public function display_settings($data)
 	{
 		// Prep member all possible groups
 		$groups = $this->chosen_helper->getMemberGroups();
@@ -282,32 +301,56 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 		// Build up the settings array
 		$settings = array(
 			array(
-				'<strong>Allowed groups</strong>',
-				form_multiselect('allowed_groups[]', $member_groups, ( ! empty($data['allowed_groups']) ? $data['allowed_groups'] : array()))
+				'title' => 'Allowed groups',
+				'desc' => null,
+				'fields' => array(
+                    'allowed_groups' => array(
+                        'value'=> ( ! empty($data['allowed_groups']) ? $data['allowed_groups'] : array(5)),
+                        'type' => 'checkbox',
+                        'choices' => $member_groups,
+                    ),
+                ),
 			),
 			array(
-				'<strong>Max selections allowed</strong><br/>Leave blank for no limit.',
-				form_input('max_selections', ( ! empty($data['max_selections']) ? $data['max_selections'] : ''))
+				'title' => 'Max selections allowed',
+				'desc' => 'Leave blank for no limit.',
+				'fields' => array(
+                    'max_selections' => array(
+                        'value'=> ( ! empty($data['max_selections']) ? $data['max_selections'] : ''),
+                        'type' => 'text',
+                    )
+                ),
 			),
 			array(
-				'<strong>Placeholder text</strong><br/>Displayed if <i>"Max selections allowed"</i> does not equal 1.',
-				form_input(array('name' => 'placeholder_text', 'class' => 'fullfield'), ( ! empty($data['placeholder_text']) ? $data['placeholder_text'] : 'Begin typing a member\'s name...'))
+				'title' => 'Placeholder text',
+				'desc' => 'Displayed if <i>"Max selections allowed"</i> does not equal 1.',
+				'fields' => array(
+                    'placeholder_text' => array(
+                        'value'=> ( ! empty($data['placeholder_text']) ? $data['placeholder_text'] : 'Begin typing a member\'s name...'),
+                        'type' => 'text',
+                    ),
+                ),
 			),
 			array(
-				'<strong>Search fields</strong><br/>Determines which member fields will be searched.<br/><i>Defaults to Username &amp; Screen Name if no selections are made.</i>',
-				form_multiselect('search_fields[]', $search_fields, ( ! empty($data['search_fields']) ? $data['search_fields'] : array()))
+				'title' => 'Search fields',
+				'desc' => 'Determines which member fields will be searched.<br/><i>Defaults to Username &amp; Screen Name if no selections are made.</i>',
+				'fields' => array(
+                    'search_fields' => array(
+                        'value'=> ( ! empty($data['search_fields']) ? $data['search_fields'] : array('username', 'screen_name')),
+                        'type' => 'checkbox',
+                        'choices' => $search_fields,
+                    ),
+                ),
 			),
 		);
 
-		// Just return settings if this is matrix or low variable
-		if ($return_settings) {
-			return $settings;
-		}
-
-		// Return standard settings as table rows
-		foreach ($settings as $setting) {
-			ee()->table->add_row($setting[0], $setting[1]);
-		}
+		return array(
+			'field_options' => array(
+				'label' => 'field_options',
+            	'group' => 'vmg_chosen_member',
+            	'settings' => $settings,
+			),
+		);
 	}
 
 	/**
@@ -315,7 +358,7 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 	 */
 	public function display_cell_settings($data)
 	{
-		return $this->display_settings($data, true);
+		return $this->display_settings($data);
 	}
 
 	/**
@@ -323,7 +366,15 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 	 */
 	public function display_var_settings($data)
 	{
-		return $this->display_settings($data, true);
+		return $this->display_settings($data);
+	}
+
+	/**
+	 * Display Grid Settings
+	 */
+	function grid_display_settings($data)
+	{
+		return $this->display_settings($data);
 	}
 
 	/**
