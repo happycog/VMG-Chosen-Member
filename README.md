@@ -1,7 +1,9 @@
 VMG Chosen Member
 ========
-Fieldtype for Expression Engine 2
+Fieldtype for ExpressionEngine 2 + 3
 --------
+
+*Note: if you're using ExpressionEngine 2, download [VMG Chosen Member version 2.2 here.](https://github.com/vector/VMG-Chosen-Member/releases/tag/v2.2)*
 
 **VMG Chosen Member** is a fieldtype for allowing the selection of one or more members inside an entry. It's specifically designed for use on sites with a large amount of members, in cases where a regular `<select>` dropdown with thousands of `<option>`s would decrease publish page performance.
 
@@ -11,8 +13,8 @@ It includes autocomplete capabilities and the friendly selection/listing of larg
 
 Installation
 -------
-*	Upload ee2/third_party/vmg_chosen_member to system/expressionengine/third_party
-*	Upload themes/third_party/vmg_chosen_member to themes/third_party
+*	Upload ee2/third_party/vmg_chosen_member to system/user/addons
+*	Upload themes/third_party/vmg_chosen_member to themes/user
 *	Install the fieldtype by going to Add-Ons &rarr; Fieldtypes
 *	Ensure that both the Fieldtype and Module are installed
 *	See [Importing Old Member Selections](#importing-old-member-selections) below if you are converting from a different field type that contains pipe-delimited member IDs.
@@ -131,7 +133,7 @@ VMG Chosen Member can be used within [Matrix](http://pixelandtonic.com/matrix/),
 Compatibility
 ---------
 
-VMG Chosen Member has been tested to work on ExpressionEngine 2.1.3+ with PHP 5.1+.
+VMG Chosen Member has been tested to work on ExpressionEngine 3.3+ with PHP 5.6+.
 
 Warranty/License
 --------
