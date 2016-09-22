@@ -66,6 +66,8 @@ class ChosenHelper
 
             if ( ! is_null($entry_id)) {
                 ee()->db->where('vcm.entry_id', $entry_id);
+            } else {
+                ee()->db->where('vcm.entry_id', 0);
             }
 
             // Make general restrictions for this particular field
