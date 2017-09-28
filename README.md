@@ -13,8 +13,8 @@ It includes autocomplete capabilities and the friendly selection/listing of larg
 
 Installation
 -------
-*	Upload ee2/third_party/vmg_chosen_member to system/user/addons
-*	Upload themes/third_party/vmg_chosen_member to themes/user
+*	Upload system/user/addons/vmg_chosen_member to system/user/addons
+*	Upload themes/user/vmg_chosen_member to themes/user
 *	Install the fieldtype by going to Add-Ons &rarr; Fieldtypes
 *	Ensure that both the Fieldtype and Module are installed
 *	See [Importing Old Member Selections](#importing-old-member-selections) below if you are converting from a different field type that contains pipe-delimited member IDs.
@@ -22,8 +22,8 @@ Installation
 Upgrading
 -------
 *	Back up your database
-*	Upload ee2/third_party/vmg_chosen_member to system/expressionengine/third_party
-*	Upload themes/third_party/vmg_chosen_member to themes/third_party
+*	Upload system/user/addons/vmg_chosen_member to system/user/addons
+*	Upload themes/user/vmg_chosen_member to themes/user
 *	Go to Add-Ons > Modules and click the "Run Module Updates" button
 
 Importing Old Member Selections

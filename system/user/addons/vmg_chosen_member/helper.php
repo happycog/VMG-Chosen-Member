@@ -386,7 +386,7 @@ class ChosenHelper
     {
         return ee()->db->select("mg.group_id, mg.group_title")
             ->from('member_groups AS mg')
-            ->group_by('mg.group_id')
+            ->group_by('mg.group_id, mg.group_title')
             ->get()
             ->result_array();
     }
