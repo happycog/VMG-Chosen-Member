@@ -3,7 +3,7 @@ VMG Chosen Member
 Fieldtype for ExpressionEngine 2 + 3
 --------
 
-*Note: if you're using ExpressionEngine 2, download [VMG Chosen Member version 2.2 here.](https://github.com/vector/VMG-Chosen-Member/releases/tag/v2.2)*
+*Note: if you're using ExpressionEngine 2, download [VMG Chosen Member version 2.2.1 here.](https://github.com/vector/VMG-Chosen-Member/archive/ee2.zip)*
 
 **VMG Chosen Member** is a fieldtype for allowing the selection of one or more members inside an entry. It's specifically designed for use on sites with a large amount of members, in cases where a regular `<select>` dropdown with thousands of `<option>`s would decrease publish page performance.
 
