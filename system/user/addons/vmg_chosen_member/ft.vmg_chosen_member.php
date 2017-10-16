@@ -412,6 +412,34 @@ class Vmg_chosen_member_ft extends EE_Fieldtype
 	}
 
 	/**
+	 * Validate the submitted data
+	 */
+	public function validate($data)
+	{
+		if (isset($this->settings['field_required']) && $this->settings['field_required'] === 'y') {
+			if (empty($data) || $data === ['__empty__']) {
+				return ['error' => 'The '.$this->settings['field_label'].' field is required.', ];
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Validate Cell
+	 */
+	function validate_cell($data)
+	{
+		// is this a required column?
+		if ($this->settings['col_required'] == 'y' && $this->validate($data) !== true)
+		{
+			return lang('col_required');
+		}
+
+		return TRUE;
+	}
+
+	/**
 	* Save Field
 	*/
 	public function save($data)
