@@ -49,6 +49,11 @@ class ChosenHelper
 
         if ( ! isset($this->cache['memberAssociations'][$cache_key])) {
 
+			if ( ! empty($group_by))
+			{
+				ee()->db->select($group_by);
+			}
+
             // Return specific fields from query
             if ( ! is_null($select_fields)) {
                 ee()->db->select($select_fields);
@@ -104,6 +109,11 @@ class ChosenHelper
             } else {
                 $order_by = 'vcm.order';
             }
+
+			if ( ! empty($group_by))
+			{
+				ee()->db->group_by($order_by);
+			}
 
             if (isset($settings['sort']) && strtolower($settings['sort']) == 'desc') {
                 $sort = 'desc';
